@@ -1,0 +1,18 @@
+---
+description: Open Data Paris / Montreuil fetching and maps
+globs: lib/opendata/**,app/dashboard/**,app/api/opendata/**,app/page.tsx,components/map/**,components/dashboard/**
+alwaysApply: false
+---
+
+# Open Data
+
+Never fetch Open Data from the browser (CORS, rate limits, cache). Use `lib/opendata/client.ts` on the server.
+
+- Paris: `opendata.paris.fr` (`host` omitted or `"paris"`).
+- Montreuil: `data.montreuil.fr` (`host: "montreuil"`).
+- Explore v2.1 `limit` max is 100. Paginate with `fetchAllRecords` and a stable `orderBy` when `idField` is a scalar.
+- New datasets: add a `DatasetConfig` in `lib/opendata/datasets.ts`, then a page. Do not hardcode dataset ids in UI.
+- Large geo sets (`bbox: true`, e.g. trees, chantiers, dans-ma-rue): bbox queries only, never dump the full catalog.
+- React list/map keys must be unique strings. Use `recordId()`, never `String(geoObject)` (`"[object Object]"`). Append `::${index}` when ids can collide.
+- Maps: Leaflet via `components/map/dynamic-map.tsx` (`ssr: false`).
+- Prefer `fetchRecordsSafe` / `fetchCount` on dashboards so one dead API does not crash the page.

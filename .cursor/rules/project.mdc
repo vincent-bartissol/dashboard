@@ -1,0 +1,16 @@
+---
+description: Paris Ouverte product conventions (stack, language, layout)
+alwaysApply: true
+---
+
+# Paris Ouverte
+
+French-first civic dashboard. UI copy in French. Do not add English i18n.
+
+- Next.js 16 App Router + React 19 + Tailwind 4. Read `node_modules/next/dist/docs/` before using Next APIs. Use `proxy.ts`, not `middleware.ts`.
+- Auth: Better Auth email/password. DB: Drizzle + SQLite (`data/dashboard.sqlite`, gitignored).
+- Public: `/`, `/login`, `/signup`. Private: `/dashboard/*`.
+- Theme pages: KPI strip + map and/or chart + searchable table. Two datasets on one theme use tabs, not extra routes.
+- Reuse `components/ui` (`Button`, `Card`, `Input`) and tokens in `app/globals.css` (`navy`, `cream`, `accent`, `gold`). Do not add a design-system package.
+- Product intent: `PLAN.md`. Dataset catalog: `lib/opendata/datasets.ts`.
+- Do not commit or push unless asked. Do not commit `.env*` or `data/`.
