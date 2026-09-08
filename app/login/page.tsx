@@ -3,8 +3,16 @@ import { Suspense } from "react";
 import { AuthForm } from "@/components/auth/auth-form";
 import { SiteFooter, SiteHeader } from "@/components/layout/site-chrome";
 import { Card } from "@/components/ui/card";
+import { requireGuest } from "@/lib/session";
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string | string[] }>;
+}) {
+  const { next } = await searchParams;
+  await requireGuest(next);
+
   return (
     <div className="flex min-h-full flex-col">
       <SiteHeader variant="auth" />
