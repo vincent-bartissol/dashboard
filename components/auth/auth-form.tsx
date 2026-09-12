@@ -23,7 +23,9 @@ export function AuthForm({ mode }: { mode: Mode }) {
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email") ?? "");
     const password = String(form.get("password") ?? "");
-    const name = String(form.get("name") ?? "");
+    const firstName = String(form.get("firstName") ?? "").trim();
+    const lastName = String(form.get("lastName") ?? "").trim();
+    const name = `${firstName} ${lastName}`.trim();
 
     const result =
       mode === "signup"
@@ -42,10 +44,16 @@ export function AuthForm({ mode }: { mode: Mode }) {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       {mode === "signup" ? (
-        <div>
-          <Label htmlFor="name">Nom</Label>
-          <Input id="name" name="name" required autoComplete="name" />
-        </div>
+        <>
+          <div>
+            <Label htmlFor="firstName">Prénom</Label>
+            <Input id="firstName" name="firstName" required autoComplete="given-name" />
+          </div>
+          <div>
+            <Label htmlFor="lastName">Nom</Label>
+            <Input id="lastName" name="lastName" required autoComplete="family-name" />
+          </div>
+        </>
       ) : null}
       <div>
         <Label htmlFor="email">E-mail</Label>

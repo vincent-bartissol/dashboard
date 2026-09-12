@@ -43,7 +43,8 @@ export default async function DashboardPage() {
   return (
     <div>
       <PageIntro title="Vue d’ensemble">
-        Bonjour {session.user.name}. Filtre par défaut : {arrondissementLabel(profile.arrondissement)}.
+        Bonjour {profile.firstName || session.user.name}. Filtre par défaut :{" "}
+        {arrondissementLabel(profile.arrondissement)}.
       </PageIntro>
       <KpiStrip
         items={[

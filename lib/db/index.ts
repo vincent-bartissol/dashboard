@@ -67,8 +67,22 @@ sqlite.exec(`
     ON favorite(user_id, dataset_id, record_id);
   CREATE TABLE IF NOT EXISTS profile (
     user_id TEXT PRIMARY KEY NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+    first_name TEXT,
+    last_name TEXT,
     arrondissement TEXT
   );
 `);
+
+const profileColumns = new Set(
+  sqlite.prepare("PRAGMA table_info(profile)").all().map((column) => {
+    return (column as { name: string }).name;
+  }),
+);
+if (!profileColumns.has("first_name")) {
+  sqlite.exec("ALTER TABLE profile ADD COLUMN first_name TEXT");
+}
+if (!profileColumns.has("last_name")) {
+  sqlite.exec("ALTER TABLE profile ADD COLUMN last_name TEXT");
+}
 
 export const db = drizzle(sqlite, { schema });

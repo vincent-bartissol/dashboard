@@ -78,5 +78,7 @@ export const profile = sqliteTable("profile", {
   userId: text("user_id")
     .primaryKey()
     .references(() => user.id, { onDelete: "cascade" }),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
   arrondissement: text("arrondissement"),
 });
