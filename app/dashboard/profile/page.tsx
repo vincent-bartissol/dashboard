@@ -13,14 +13,15 @@ export default async function ProfilePage() {
   return (
     <div className="space-y-6">
       <PageIntro title="Profil">
-        Mettez à jour votre prénom, votre nom et votre e-mail. Votre territoire préféré sert de
-        filtre par défaut (arrondissement parisien ou Montreuil).
+        Mettez à jour votre prénom, votre nom et votre territoire préféré. Un changement d’e-mail
+        n’est appliqué qu’après confirmation.
       </PageIntro>
       <Card className="max-w-lg">
         <ProfileForm
           firstName={profile.firstName ?? fromName.firstName}
           lastName={profile.lastName ?? fromName.lastName}
           email={session.user.email}
+          emailVerified={session.user.emailVerified}
           arrondissement={profile.arrondissement}
         />
       </Card>

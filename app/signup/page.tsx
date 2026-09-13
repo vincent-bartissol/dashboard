@@ -20,7 +20,8 @@ export default async function SignupPage({
         <Card className="w-full max-w-md">
           <h1 className="text-2xl font-semibold text-navy">Créer un compte</h1>
           <p className="mt-1 mb-6 text-sm text-muted">
-            E-mail et mot de passe (8 caractères minimum). Compte stocké en local.
+            E-mail et mot de passe (8 caractères minimum). Un e-mail de confirmation
+            vous sera envoyé.
           </p>
           <Suspense>
             <AuthForm mode="signup" />

@@ -9,17 +9,42 @@ import { Input, Label } from "@/components/ui/input";
 
 type Mode = "login" | "signup";
 
+function isUnverifiedError(error: { status?: number; code?: string }) {
+  return error.status === 403 || error.code === "EMAIL_NOT_VERIFIED";
+}
+
 export function AuthForm({ mode }: { mode: Mode }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = safeNext(searchParams.get("next"));
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [emailForResend, setEmailForResend] = useState<string | null>(null);
+  const [awaitingVerification, setAwaitingVerification] = useState(false);
+  const [resent, setResent] = useState(false);
+
+  async function resendVerification() {
+    if (!emailForResend) return;
+    setPending(true);
+    setError(null);
+    setResent(false);
+    const result = await authClient.sendVerificationEmail({
+      email: emailForResend,
+      callbackURL: next,
+    });
+    setPending(false);
+    if (result.error) {
+      setError(result.error.message ?? "Une erreur est survenue.");
+      return;
+    }
+    setResent(true);
+  }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setPending(true);
     setError(null);
+    setResent(false);
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email") ?? "");
     const password = String(form.get("password") ?? "");
@@ -34,11 +59,41 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
     setPending(false);
     if (result.error) {
+      if (mode === "login" && isUnverifiedError(result.error)) {
+        setEmailForResend(email);
+        setAwaitingVerification(true);
+        setError("Vérifiez votre e-mail avant de vous connecter.");
+        return;
+      }
       setError(result.error.message ?? "Une erreur est survenue.");
       return;
     }
+
+    if (mode === "signup") {
+      setEmailForResend(email);
+      setAwaitingVerification(true);
+      return;
+    }
+
     router.push(next);
     router.refresh();
+  }
+
+  if (mode === "signup" && awaitingVerification) {
+    return (
+      <div className="space-y-4">
+        <p className="text-sm text-muted">
+          Un e-mail de confirmation a été envoyé
+          {emailForResend ? ` à ${emailForResend}` : ""}. Cliquez sur le lien pour
+          activer votre compte.
+        </p>
+        {resent ? <p className="text-sm text-muted">Un nouvel e-mail a été envoyé.</p> : null}
+        {error ? <p className="text-sm text-accent">{error}</p> : null}
+        <Button type="button" className="w-full" disabled={pending} onClick={resendVerification}>
+          {pending ? "Veuillez patienter…" : "Renvoyer l’e-mail"}
+        </Button>
+      </div>
+    );
   }
 
   return (
@@ -71,6 +126,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         />
       </div>
       {error ? <p className="text-sm text-accent">{error}</p> : null}
+      {resent ? <p className="text-sm text-muted">Un nouvel e-mail a été envoyé.</p> : null}
       <Button type="submit" className="w-full" disabled={pending}>
         {pending
           ? "Veuillez patienter…"
@@ -78,6 +134,17 @@ export function AuthForm({ mode }: { mode: Mode }) {
             ? "Créer le compte"
             : "Se connecter"}
       </Button>
+      {mode === "login" && awaitingVerification ? (
+        <Button
+          type="button"
+          variant="ghost"
+          className="w-full"
+          disabled={pending}
+          onClick={resendVerification}
+        >
+          {pending ? "Veuillez patienter…" : "Renvoyer l’e-mail de confirmation"}
+        </Button>
+      ) : null}
     </form>
   );
 }

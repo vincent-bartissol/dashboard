@@ -20,7 +20,7 @@ export default async function LoginPage({
         <Card className="w-full max-w-md">
           <h1 className="text-2xl font-semibold text-navy">Connexion</h1>
           <p className="mt-1 mb-6 text-sm text-muted">
-            Accédez à vos cartes, filtres et favoris.
+            Accédez à vos cartes, filtres et favoris. Votre e-mail doit être confirmé.
           </p>
           <Suspense>
             <AuthForm mode="login" />

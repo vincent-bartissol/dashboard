@@ -46,7 +46,7 @@ Each theme page follows the same layout: KPI strip, map and/or chart, searchable
 - **Voirie** — tabs: `chantiers-a-paris`, `dans-ma-rue` (current street issues; skip the heavy `accidentologie0` archive in v1)
 - **Marchés** — `marches-decouverts` (days / hours / arrondissement)
 
-**Also in v1:** favorites (per user, per record), profile (email + preferred arrondissement used as default filter), table search/filter. **Not in v1:** email/push alerts (needs a cron and a mailer); favorites are the stepping stone.
+**Also in v1:** favorites (per user, per record), profile (email + preferred arrondissement used as default filter), table search/filter, email verification (Mailpit locally, Resend in production). **Not in v1:** email/push alerts (needs a cron); favorites are the stepping stone.
 
 ## Stack (on top of the existing Next 16 + Tailwind 4 app)
 
