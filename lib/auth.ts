@@ -1,11 +1,14 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
+import { twoFactor } from "better-auth/plugins";
+import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import * as schema from "@/lib/db/schema";
 
 export const auth = betterAuth({
+  appName: "Paris Ouverte",
   database: drizzleAdapter(db, {
     provider: "sqlite",
     schema,
@@ -44,5 +47,41 @@ export const auth = betterAuth({
       },
     },
   },
-  plugins: [nextCookies()],
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (created) => {
+          await db
+            .update(schema.user)
+            .set({ twoFactorEnabled: true })
+            .where(eq(schema.user.id, created.id));
+          await db.insert(schema.twoFactor).values({
+            id: crypto.randomUUID(),
+            userId: created.id,
+            secret: "",
+            backupCodes: "[]",
+            verified: false,
+            failedVerificationCount: 0,
+          });
+        },
+      },
+    },
+  },
+  plugins: [
+    twoFactor({
+      issuer: "Paris Ouverte",
+      otpOptions: {
+        sendOTP: async ({ user, otp }) => {
+          void sendEmail({
+            to: user.email,
+            subject: "Votre code de connexion",
+            text: `Votre code : ${otp}. Il expire dans 3 minutes.`,
+          }).catch((error) => {
+            console.error("sendOTP failed", error);
+          });
+        },
+      },
+    }),
+    nextCookies(),
+  ],
 });

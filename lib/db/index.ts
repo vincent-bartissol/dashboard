@@ -17,6 +17,7 @@ sqlite.exec(`
     name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
     email_verified INTEGER NOT NULL,
+    two_factor_enabled INTEGER NOT NULL DEFAULT 0,
     image TEXT,
     created_at INTEGER NOT NULL,
     updated_at INTEGER NOT NULL
@@ -46,6 +47,17 @@ sqlite.exec(`
     created_at INTEGER NOT NULL,
     updated_at INTEGER NOT NULL
   );
+  CREATE TABLE IF NOT EXISTS two_factor (
+    id TEXT PRIMARY KEY NOT NULL,
+    user_id TEXT NOT NULL REFERENCES user(id) ON DELETE CASCADE,
+    secret TEXT NOT NULL,
+    backup_codes TEXT NOT NULL,
+    verified INTEGER NOT NULL DEFAULT 0,
+    failed_verification_count INTEGER NOT NULL DEFAULT 0,
+    locked_until INTEGER
+  );
+  CREATE INDEX IF NOT EXISTS two_factor_user_id_idx ON two_factor(user_id);
+  CREATE INDEX IF NOT EXISTS two_factor_secret_idx ON two_factor(secret);
   CREATE TABLE IF NOT EXISTS verification (
     id TEXT PRIMARY KEY NOT NULL,
     identifier TEXT NOT NULL,
@@ -84,5 +96,22 @@ if (!profileColumns.has("first_name")) {
 if (!profileColumns.has("last_name")) {
   sqlite.exec("ALTER TABLE profile ADD COLUMN last_name TEXT");
 }
+
+const userColumns = new Set(
+  sqlite.prepare("PRAGMA table_info(user)").all().map((column) => {
+    return (column as { name: string }).name;
+  }),
+);
+if (!userColumns.has("two_factor_enabled")) {
+  sqlite.exec("ALTER TABLE user ADD COLUMN two_factor_enabled INTEGER NOT NULL DEFAULT 0");
+}
+
+sqlite.exec("UPDATE user SET two_factor_enabled = 1 WHERE two_factor_enabled = 0");
+sqlite.exec(`
+  INSERT INTO two_factor (id, user_id, secret, backup_codes, verified, failed_verification_count)
+  SELECT lower(hex(randomblob(16))), id, '', '[]', 0, 0
+  FROM user
+  WHERE id NOT IN (SELECT user_id FROM two_factor)
+`);
 
 export const db = drizzle(sqlite, { schema });

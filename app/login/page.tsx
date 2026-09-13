@@ -21,6 +21,7 @@ export default async function LoginPage({
           <h1 className="text-2xl font-semibold text-navy">Connexion</h1>
           <p className="mt-1 mb-6 text-sm text-muted">
             Accédez à vos cartes, filtres et favoris. Votre e-mail doit être confirmé.
+            Après le mot de passe, un code vous sera envoyé par e-mail.
           </p>
           <Suspense>
             <AuthForm mode="login" />
