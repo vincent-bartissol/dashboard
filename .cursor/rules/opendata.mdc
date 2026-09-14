@@ -13,6 +13,7 @@ Never fetch Open Data from the browser (CORS, rate limits, cache). Use `lib/open
 - Explore v2.1 `limit` max is 100. Paginate with `fetchAllRecords` and a stable `orderBy` when `idField` is a scalar.
 - New datasets: add a `DatasetConfig` in `lib/opendata/datasets.ts`, then a page. Do not hardcode dataset ids in UI.
 - District filters live on `DatasetConfig.district`, not a switch on dataset id. Vélib’ uses station-code prefixes, not `nom_arrondissement_communes = 'Paris'`.
+- Never pass `DatasetConfig` (it holds `district` functions) into a Client Component. Strip with `toExplorerDataset()` first.
 - Prefer a scalar or composite text `idField` (`arrondissement,adresse`). Do not use a geo object as the favorite id.
 - Large geo sets (`bbox: true`, e.g. trees, chantiers, dans-ma-rue): bbox queries only, never dump the full catalog.
 - `/api/opendata/records` is session-only, bbox datasets only. Rebuild district filters on the server; never accept client `where`.
