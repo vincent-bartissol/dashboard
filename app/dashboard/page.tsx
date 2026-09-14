@@ -3,8 +3,9 @@ import Link from "next/link";
 import { PageIntro } from "@/components/dashboard/page-intro";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { Card } from "@/components/ui/card";
+import { DatasetNotice } from "@/components/dashboard/dataset-notice";
 import { getProfile, listFavorites } from "@/lib/db/queries";
-import { fetchCount, fetchAllRecords } from "@/lib/opendata/client";
+import { fetchAggregate, fetchCount } from "@/lib/opendata/client";
 import { arrondissementLabel } from "@/lib/opendata/arrondissement";
 import { DATASETS } from "@/lib/opendata/datasets";
 import { requireSession } from "@/lib/session";
@@ -25,10 +26,10 @@ export default async function DashboardPage() {
   const [profile, favorites, velib, trees, events, fountains, markets] = await Promise.all([
     getProfile(session.user.id),
     listFavorites(session.user.id),
-    fetchAllRecords<{ numbikesavailable?: number; ebike?: number; numdocksavailable?: number }>(
+    fetchAggregate<{ bikes?: number; ebikes?: number }>(
       DATASETS.velib.id,
+      "sum(numbikesavailable) as bikes, sum(ebike) as ebikes",
       DATASETS.velib.revalidate,
-      { max: 1600 },
     ),
     fetchCount(DATASETS.trees.id, DATASETS.trees.revalidate),
     fetchCount(DATASETS.events.id, DATASETS.events.revalidate),
@@ -36,8 +37,8 @@ export default async function DashboardPage() {
     fetchCount(DATASETS.markets.id, DATASETS.markets.revalidate),
   ]);
 
-  const bikes = velib.results.reduce((sum, row) => sum + Number(row.numbikesavailable ?? 0), 0);
-  const ebikes = velib.results.reduce((sum, row) => sum + Number(row.ebike ?? 0), 0);
+  const bikes = Number(velib.page.results[0]?.bikes ?? 0);
+  const ebikes = Number(velib.page.results[0]?.ebikes ?? 0);
 
   return (
     <div>
@@ -45,6 +46,7 @@ export default async function DashboardPage() {
         Bonjour {profile.firstName || session.user.name}. Filtre par défaut :{" "}
         {arrondissementLabel(profile.arrondissement)}.
       </PageIntro>
+      <DatasetNotice error={velib.ok ? undefined : velib.error} />
       <KpiStrip
         items={[
           { label: "Vélos dispo", value: bikes.toLocaleString("fr-FR"), hint: `${ebikes} électriques` },

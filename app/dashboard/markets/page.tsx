@@ -1,3 +1,4 @@
+import { DatasetNotice } from "@/components/dashboard/dataset-notice";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { PageIntro } from "@/components/dashboard/page-intro";
 import { ThemeExplorer } from "@/components/dashboard/theme-explorer";
@@ -7,13 +8,14 @@ import { requireSession } from "@/lib/session";
 
 export default async function MarketsPage() {
   const session = await requireSession();
-  const { page, favoriteIds } = await loadTheme(DATASETS.markets, session.user.id);
+  const { page, favoriteIds, error } = await loadTheme(DATASETS.markets, session.user.id);
 
   return (
     <div className="space-y-6">
       <PageIntro title="Marchés découverts" dataset={DATASETS.markets}>
         Emprises des marchés alimentaires et spécialisés, avec jours de tenue et horaires.
       </PageIntro>
+      <DatasetNotice error={error} />
       <KpiStrip
         items={[
           { label: "Marchés", value: page.total_count.toLocaleString("fr-FR") },

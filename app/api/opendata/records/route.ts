@@ -29,8 +29,8 @@ export async function GET(request: NextRequest) {
   }
 
   const profile = await getProfile(session.user.id);
-  const district = arrondissementWhere(config.id, profile.arrondissement);
-  const page = await fetchRecordsSafe(
+  const district = arrondissementWhere(config, profile.arrondissement);
+  const result = await fetchRecordsSafe(
     config.id,
     {
       limit: 100,
@@ -39,5 +39,5 @@ export async function GET(request: NextRequest) {
     },
     config.revalidate,
   );
-  return NextResponse.json(page);
+  return NextResponse.json(result.page);
 }

@@ -19,9 +19,9 @@ export async function loadTheme(
   const profile = await getProfile(userId);
   const district = options?.ignoreProfile
     ? undefined
-    : arrondissementWhere(dataset.id, profile.arrondissement);
-  const where = joinWhere(extraWhere, district);
-  const page: OpenDataPage = dataset.bbox
+    : arrondissementWhere(dataset, profile.arrondissement);
+  const where = joinWhere(extraWhere, district, dataset.defaultWhere);
+  const result = dataset.bbox
     ? await fetchRecordsSafe(
         dataset.id,
         {
@@ -35,11 +35,19 @@ export async function loadTheme(
         where,
         host: dataset.host,
         max: dataset.id === "velib-disponibilite-en-temps-reel" ? 1600 : 1500,
-        orderBy: dataset.idField !== dataset.geoField ? dataset.idField : undefined,
+        orderBy:
+          dataset.idField !== dataset.geoField && !dataset.idField.includes(",")
+            ? dataset.idField
+            : dataset.id === "que-faire-a-paris-"
+              ? "date_start"
+              : undefined,
       });
   const favorites = await listFavorites(userId, dataset.id);
+  const page: OpenDataPage = result.page;
   return {
     page,
+    ok: result.ok,
+    error: result.error,
     favoriteIds: favorites.map((item) => item.recordId),
     arrondissement: profile.arrondissement,
     where,

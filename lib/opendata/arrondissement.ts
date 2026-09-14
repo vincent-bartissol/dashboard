@@ -1,3 +1,5 @@
+import type { DatasetConfig } from "./client";
+
 export const ARRONDISSEMENTS = [
   { code: "01", label: "1er", zip: "75001" },
   { code: "02", label: "2e", zip: "75002" },
@@ -29,46 +31,18 @@ function ordinalLabel(code: string) {
   return `${n}E`;
 }
 
-export function arrondissementWhere(datasetId: string, code?: string | null) {
-  if (!code) return undefined;
-  if (code === "montreuil") {
-    switch (datasetId) {
-      case "velib-disponibilite-en-temps-reel":
-        return `nom_arrondissement_communes = 'Montreuil'`;
-      case "que-faire-a-paris-":
-        return `address_zipcode = '93100'`;
-      default:
-        return undefined;
-    }
-  }
+export function arrondissementWhere(dataset: DatasetConfig, code?: string | null) {
+  if (!code || !dataset.district) return undefined;
+  if (code === "montreuil") return dataset.district.montreuil;
   const padded = code.padStart(2, "0");
   const n = Number(padded);
   if (!Number.isFinite(n) || n < 1 || n > 20) return undefined;
-  const zip = `750${padded}`;
-  const ordinal = ordinalLabel(padded);
-
-  switch (datasetId) {
-    case "les-arbres":
-      return `arrondissement = 'PARIS ${ordinal} ARRDT'`;
-    case "espaces_verts":
-      return `adresse_codepostal = '${zip}'`;
-    case "fontaines-a-boire":
-      return `(commune like '%${n}EME%' OR commune like '%${ordinal}%')`;
-    case "sanisettesparis":
-      return `arrondissement = '${zip}'`;
-    case "que-faire-a-paris-":
-      return `address_zipcode = '${zip}'`;
-    case "chantiers-a-paris":
-      return `cp_arrondissement = '${zip}'`;
-    case "dans-ma-rue":
-      return `arrondissement = ${n}`;
-    case "marches-decouverts":
-      return `ardt = ${n}`;
-    case "velib-disponibilite-en-temps-reel":
-      return `nom_arrondissement_communes = 'Paris'`;
-    default:
-      return undefined;
-  }
+  return dataset.district.paris?.({
+    code: padded,
+    zip: `750${padded}`,
+    ordinal: ordinalLabel(padded),
+    n,
+  });
 }
 
 export function arrondissementLabel(code?: string | null) {

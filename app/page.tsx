@@ -2,18 +2,19 @@ import Link from "next/link";
 import { SiteFooter, SiteHeader } from "@/components/layout/site-chrome";
 import { Button } from "@/components/ui/button";
 import { Card, KpiCard } from "@/components/ui/card";
-import { fetchAllRecords, fetchCount, fetchRecordsSafe } from "@/lib/opendata/client";
+import { DatasetNotice } from "@/components/dashboard/dataset-notice";
+import { fetchAggregate, fetchCount, fetchRecordsSafe } from "@/lib/opendata/client";
 import { DATASETS } from "@/lib/opendata/datasets";
 
 export default async function Home() {
-  const [velibCount, treeCount, eventCount, velibSample, atmo] = await Promise.all([
+  const [velibCount, treeCount, eventCount, velibAgg, atmo] = await Promise.all([
     fetchCount(DATASETS.velib.id, DATASETS.velib.revalidate),
     fetchCount(DATASETS.trees.id, DATASETS.trees.revalidate),
     fetchCount(DATASETS.events.id, DATASETS.events.revalidate),
-    fetchAllRecords<{ numbikesavailable?: number; ebike?: number }>(
+    fetchAggregate<{ bikes?: number }>(
       DATASETS.velib.id,
+      "sum(numbikesavailable) as bikes",
       DATASETS.velib.revalidate,
-      { max: 16000 },
     ),
     fetchRecordsSafe<{
       annee?: string;
@@ -22,11 +23,9 @@ export default async function Home() {
     }>(DATASETS.air.id, { limit: 5, orderBy: "annee desc" }, DATASETS.air.revalidate),
   ]);
 
-  const bikes = velibSample.results.reduce(
-    (sum, row) => sum + Number(row.numbikesavailable ?? 0),
-    0,
-  );
-  const latestAir = atmo.results[0];
+  const bikes = Number(velibAgg.page.results[0]?.bikes ?? 0);
+  const latestAir = atmo.page.results[0];
+  const openDataError = [velibAgg, atmo].some((result) => !result.ok);
 
   return (
     <div className="flex min-h-full flex-col">
@@ -84,6 +83,7 @@ export default async function Home() {
             Ces indicateurs sont calculés côté serveur à partir de l’API Explore v2.1,
             sans clé, et mis en cache selon la fraîcheur de chaque jeu.
           </p>
+          {openDataError ? <div className="mt-4"><DatasetNotice error="opendata" /></div> : null}
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <KpiCard
               label="Vélib’"
@@ -116,8 +116,8 @@ export default async function Home() {
           <div className="mx-auto grid max-w-6xl gap-8 px-6 py-14 lg:grid-cols-3">
             {[
               {
-                title: "Sept thèmes, sept pages",
-                body: "Vélib’, nature, air, commodités, événements, voirie et marchés : chaque jeu a sa carte, son tableau et ses indicateurs.",
+                title: "Paris et Montreuil",
+                body: "Vélib’, nature, air, commodités, événements, voirie, marchés, plus une page Montreuil autour de Robespierre : chaque jeu a sa carte, son tableau et ses indicateurs.",
               },
               {
                 title: "Un espace privé",
