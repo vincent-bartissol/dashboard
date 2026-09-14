@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   output: "standalone",
   serverExternalPackages: ["better-sqlite3"],
   outputFileTracingIncludes: {
-    "/*": ["./node_modules/better-sqlite3/**/*"],
+    "/*": ["./node_modules/better-sqlite3/**/*", "./lib/db/migrations/**/*"],
   },
   images: {
     remotePatterns: [
