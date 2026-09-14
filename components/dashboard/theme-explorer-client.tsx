@@ -15,7 +15,7 @@ import type { MapMarker } from "@/lib/opendata/markers";
 
 type ColorScheme = "velib" | "status";
 
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 10;
 
 type Props = {
   dataset: ExplorerDataset;
