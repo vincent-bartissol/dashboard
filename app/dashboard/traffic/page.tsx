@@ -1,4 +1,5 @@
 import { BboxExplorer } from "@/components/dashboard/bbox-explorer";
+import { DatasetNotice } from "@/components/dashboard/dataset-notice";
 import { DatasetTabs } from "@/components/dashboard/dataset-tabs";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { PageIntro } from "@/components/dashboard/page-intro";
@@ -27,6 +28,7 @@ export default async function TrafficPage({
       <PageIntro title="Voirie" dataset={[DATASETS.works, DATASETS.street]}>
         Chantiers à J-1 et signalements Dans Ma Rue. La carte charge uniquement la zone visible.
       </PageIntro>
+      <DatasetNotice error={loaded.error} />
       <KpiStrip
         items={[
           { label: "Chantiers", value: worksCount.toLocaleString("fr-FR") },

@@ -21,7 +21,7 @@ export async function loadTheme(
     ? undefined
     : arrondissementWhere(dataset.id, profile.arrondissement);
   const where = joinWhere(extraWhere, district);
-  const page: OpenDataPage = dataset.bbox
+  const result = dataset.bbox
     ? await fetchRecordsSafe(
         dataset.id,
         {
@@ -38,8 +38,11 @@ export async function loadTheme(
         orderBy: dataset.idField !== dataset.geoField ? dataset.idField : undefined,
       });
   const favorites = await listFavorites(userId, dataset.id);
+  const page: OpenDataPage = result.page;
   return {
     page,
+    ok: result.ok,
+    error: result.error,
     favoriteIds: favorites.map((item) => item.recordId),
     arrondissement: profile.arrondissement,
     where,

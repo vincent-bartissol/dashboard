@@ -1,3 +1,4 @@
+import { DatasetNotice } from "@/components/dashboard/dataset-notice";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { PageIntro } from "@/components/dashboard/page-intro";
 import { ThemeExplorer } from "@/components/dashboard/theme-explorer";
@@ -7,7 +8,7 @@ import { requireSession } from "@/lib/session";
 
 export default async function VelibPage() {
   const session = await requireSession();
-  const { page, favoriteIds } = await loadTheme(DATASETS.velib, session.user.id);
+  const { page, favoriteIds, error } = await loadTheme(DATASETS.velib, session.user.id);
   const bikes = page.results.reduce((sum, row) => sum + Number(row.numbikesavailable ?? 0), 0);
   const docks = page.results.reduce((sum, row) => sum + Number(row.numdocksavailable ?? 0), 0);
   const ebikes = page.results.reduce((sum, row) => sum + Number(row.ebike ?? 0), 0);
@@ -18,6 +19,7 @@ export default async function VelibPage() {
         Disponibilité temps réel des stations Vélib’ Métropole. Vert : plus de 5 vélos, orange :
         quelques-uns, rouge : aucun.
       </PageIntro>
+      <DatasetNotice error={error} />
       <KpiStrip
         items={[
           { label: "Stations", value: page.total_count.toLocaleString("fr-FR") },

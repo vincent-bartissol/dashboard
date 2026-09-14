@@ -7,6 +7,12 @@ export type OpenDataPage<T = OpenDataRecord> = {
   results: T[];
 };
 
+export type FetchResult<T = OpenDataRecord> = {
+  ok: boolean;
+  page: OpenDataPage<T>;
+  error?: string;
+};
+
 export type OpenDataHost = "paris" | "montreuil";
 
 export type DatasetConfig = {
@@ -28,6 +34,11 @@ const HOSTS: Record<OpenDataHost, string> = {
 };
 
 const MAX_PAGE = 100;
+const PAGE_CONCURRENCY = 4;
+
+function emptyPage<T>(): OpenDataPage<T> {
+  return { total_count: 0, results: [] };
+}
 
 function buildRecordsUrl(
   datasetId: string,
@@ -37,6 +48,7 @@ function buildRecordsUrl(
     where?: string;
     orderBy?: string;
     refine?: string;
+    select?: string;
     host?: OpenDataHost;
   },
 ) {
@@ -47,6 +59,7 @@ function buildRecordsUrl(
   if (params.where) url.searchParams.set("where", params.where);
   if (params.orderBy) url.searchParams.set("order_by", params.orderBy);
   if (params.refine) url.searchParams.set("refine", params.refine);
+  if (params.select) url.searchParams.set("select", params.select);
   return url;
 }
 
@@ -58,6 +71,7 @@ export async function fetchRecords<T = OpenDataRecord>(
     where?: string;
     orderBy?: string;
     refine?: string;
+    select?: string;
     host?: OpenDataHost;
   },
   revalidate: number,
@@ -80,14 +94,18 @@ export async function fetchRecordsSafe<T = OpenDataRecord>(
     where?: string;
     orderBy?: string;
     refine?: string;
+    select?: string;
     host?: OpenDataHost;
   },
   revalidate: number,
-): Promise<OpenDataPage<T>> {
+): Promise<FetchResult<T>> {
   try {
-    return await fetchRecords<T>(datasetId, params, revalidate);
-  } catch {
-    return { total_count: 0, results: [] };
+    const page = await fetchRecords<T>(datasetId, params, revalidate);
+    return { ok: true, page };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : `Open Data ${datasetId} indisponible`;
+    console.error(message);
+    return { ok: false, page: emptyPage<T>(), error: message };
   }
 }
 
@@ -97,15 +115,44 @@ export async function fetchCount(
   where?: string,
   host?: OpenDataHost,
 ): Promise<number> {
-  const page = await fetchRecordsSafe(datasetId, { limit: 0, where, host }, revalidate);
-  return page.total_count;
+  const result = await fetchRecordsSafe(datasetId, { limit: 0, where, host }, revalidate);
+  return result.page.total_count;
+}
+
+export async function fetchAggregate<T = OpenDataRecord>(
+  datasetId: string,
+  select: string,
+  revalidate: number,
+  options?: { where?: string; host?: OpenDataHost },
+): Promise<FetchResult<T>> {
+  return fetchRecordsSafe<T>(
+    datasetId,
+    { limit: 1, select, where: options?.where, host: options?.host },
+    revalidate,
+  );
+}
+
+async function mapPool<T, R>(items: T[], concurrency: number, mapper: (item: T) => Promise<R>) {
+  if (items.length === 0) return [];
+  const results: R[] = new Array(items.length);
+  let next = 0;
+  async function worker() {
+    while (next < items.length) {
+      const index = next;
+      next += 1;
+      results[index] = await mapper(items[index] as T);
+    }
+  }
+  const size = Math.min(Math.max(concurrency, 1), items.length);
+  await Promise.all(Array.from({ length: size }, () => worker()));
+  return results;
 }
 
 export async function fetchAllRecords<T = OpenDataRecord>(
   datasetId: string,
   revalidate: number,
   options?: { where?: string; orderBy?: string; max?: number; host?: OpenDataHost },
-): Promise<OpenDataPage<T>> {
+): Promise<FetchResult<T>> {
   const max = options?.max ?? 2500;
   const first = await fetchRecordsSafe<T>(
     datasetId,
@@ -118,10 +165,13 @@ export async function fetchAllRecords<T = OpenDataRecord>(
     },
     revalidate,
   );
-  const target = Math.min(first.total_count, max);
+  if (!first.ok) return first;
+  const target = Math.min(first.page.total_count, max);
   const extraPages = Math.ceil(Math.max(target - MAX_PAGE, 0) / MAX_PAGE);
-  const rest = await Promise.all(
-    Array.from({ length: extraPages }, (_, index) =>
+  const rest = await mapPool(
+    Array.from({ length: extraPages }, (_, index) => index),
+    PAGE_CONCURRENCY,
+    (index) =>
       fetchRecordsSafe<T>(
         datasetId,
         {
@@ -133,11 +183,15 @@ export async function fetchAllRecords<T = OpenDataRecord>(
         },
         revalidate,
       ),
-    ),
   );
+  const failed = rest.find((page) => !page.ok);
+  if (failed) return failed;
   return {
-    total_count: first.total_count,
-    results: [...first.results, ...rest.flatMap((page) => page.results)].slice(0, max),
+    ok: true,
+    page: {
+      total_count: first.page.total_count,
+      results: [...first.page.results, ...rest.flatMap((page) => page.page.results)].slice(0, max),
+    },
   };
 }
 
