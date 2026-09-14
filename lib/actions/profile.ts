@@ -9,11 +9,6 @@ import { requireSession } from "@/lib/session";
 
 export type ProfileUpdateResult = { ok: true } | { ok: false; error: string };
 
-export async function getProfile(userId: string) {
-  const rows = await db.select().from(profile).where(eq(profile.userId, userId)).limit(1);
-  return rows[0] ?? { userId, firstName: null, lastName: null, arrondissement: null };
-}
-
 export async function updateProfile(input: {
   firstName: string;
   lastName: string;

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PageIntro } from "@/components/dashboard/page-intro";
 import { Card } from "@/components/ui/card";
-import { listFavorites } from "@/lib/actions/favorites";
+import { listFavorites } from "@/lib/db/queries";
 import { DATASETS } from "@/lib/opendata/datasets";
 import { requireSession } from "@/lib/session";
 
