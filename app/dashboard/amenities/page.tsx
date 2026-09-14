@@ -1,3 +1,4 @@
+import { DatasetNotice } from "@/components/dashboard/dataset-notice";
 import { DatasetTabs } from "@/components/dashboard/dataset-tabs";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { PageIntro } from "@/components/dashboard/page-intro";
@@ -27,6 +28,7 @@ export default async function AmenitiesPage({
       <PageIntro title="Commodités" dataset={[DATASETS.fountains, DATASETS.toilets]}>
         Fontaines à boire Eau de Paris et toilettes publiques (sanisettes).
       </PageIntro>
+      <DatasetNotice error={loaded.error} />
       <KpiStrip
         items={[
           { label: "Fontaines", value: fountainCount.toLocaleString("fr-FR") },
