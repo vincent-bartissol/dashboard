@@ -44,6 +44,13 @@ export const DATASETS = {
     idField: "stationcode",
     titleField: "name",
     bbox: false,
+    district: {
+      paris: ({ n }) =>
+        n < 10
+          ? `length(stationcode) = 4 AND stationcode like '${n}*'`
+          : `stationcode like '${n}*'`,
+      montreuil: `nom_arrondissement_communes = 'Montreuil'`,
+    },
     columns: [
       { key: "name", label: "Station" },
       { key: "nom_arrondissement_communes", label: "Commune" },
@@ -62,6 +69,9 @@ export const DATASETS = {
     idField: "idbase",
     titleField: "libellefrancais",
     bbox: true,
+    district: {
+      paris: ({ ordinal }) => `arrondissement = 'PARIS ${ordinal} ARRDT'`,
+    },
     columns: [
       { key: "libellefrancais", label: "Essence" },
       { key: "adresse", label: "Adresse" },
@@ -79,6 +89,9 @@ export const DATASETS = {
     idField: "nsq_espace_vert",
     titleField: "nom_ev",
     bbox: false,
+    district: {
+      paris: ({ zip }) => `adresse_codepostal = '${zip}'`,
+    },
     columns: [
       { key: "nom_ev", label: "Nom" },
       { key: "type_ev", label: "Type" },
@@ -116,6 +129,10 @@ export const DATASETS = {
     idField: "gid",
     titleField: "voie",
     bbox: false,
+    district: {
+      paris: ({ n, ordinal }) =>
+        `(commune like '%${n}EME%' OR commune like '%${ordinal}%')`,
+    },
     columns: [
       { key: "type_objet", label: "Type" },
       { key: "voie", label: "Voie" },
@@ -130,9 +147,12 @@ export const DATASETS = {
     sourceUrl: "https://opendata.paris.fr/explore/dataset/sanisettesparis/",
     revalidate: 86_400,
     geoField: "geo_point_2d",
-    idField: "adresse",
+    idField: "arrondissement,adresse",
     titleField: "adresse",
     bbox: false,
+    district: {
+      paris: ({ zip }) => `arrondissement = '${zip}'`,
+    },
     columns: [
       { key: "type", label: "Type" },
       { key: "adresse", label: "Adresse" },
@@ -151,6 +171,11 @@ export const DATASETS = {
     idField: "id",
     titleField: "title",
     bbox: false,
+    defaultWhere: "date_end >= now()",
+    district: {
+      paris: ({ zip }) => `address_zipcode = '${zip}'`,
+      montreuil: `address_zipcode = '93100'`,
+    },
     columns: [
       { key: "title", label: "Titre" },
       { key: "address_city", label: "Ville" },
@@ -168,6 +193,9 @@ export const DATASETS = {
     idField: "num_emprise",
     titleField: "chantier_synthese",
     bbox: true,
+    district: {
+      paris: ({ zip }) => `cp_arrondissement = '${zip}'`,
+    },
     columns: [
       { key: "chantier_synthese", label: "Synthèse" },
       { key: "cp_arrondissement", label: "Arrondissement" },
@@ -185,6 +213,9 @@ export const DATASETS = {
     idField: "id_dmr",
     titleField: "type",
     bbox: true,
+    district: {
+      paris: ({ n }) => `arrondissement = ${n}`,
+    },
     columns: [
       { key: "type", label: "Type" },
       { key: "soustype", label: "Sous-type" },
@@ -202,6 +233,9 @@ export const DATASETS = {
     idField: "id_marche",
     titleField: "nom_long",
     bbox: false,
+    district: {
+      paris: ({ n }) => `ardt = ${n}`,
+    },
     columns: [
       { key: "nom_long", label: "Marché" },
       { key: "produit", label: "Type" },
@@ -217,7 +251,7 @@ export const DATASETS = {
     sourceUrl: "https://data.montreuil.fr/explore/dataset/arbres-voirie-communale/",
     revalidate: 86_400,
     geoField: "point_geo",
-    idField: "point_geo",
+    idField: "adresse_rue_square_parc_ecole_autre,nom_vernaculaire,essence",
     titleField: "nom_vernaculaire",
     bbox: false,
     host: "montreuil",
@@ -234,7 +268,7 @@ export const DATASETS = {
     sourceUrl: "https://data.montreuil.fr/explore/dataset/montreuil-est-notre-jardin/",
     revalidate: 86_400,
     geoField: "pointgeo",
-    idField: "pointgeo",
+    idField: "nom,adresse,annee",
     titleField: "nom",
     bbox: false,
     host: "montreuil",
@@ -252,7 +286,7 @@ export const DATASETS = {
     sourceUrl: "https://data.montreuil.fr/explore/dataset/bornes-fontaines/",
     revalidate: 86_400,
     geoField: "pointgeo",
-    idField: "pointgeo",
+    idField: "bornes_fontaines,type",
     titleField: "bornes_fontaines",
     bbox: false,
     host: "montreuil",
@@ -269,7 +303,7 @@ export const DATASETS = {
     sourceUrl: "https://data.montreuil.fr/explore/dataset/brumisateurs-dete/",
     revalidate: 86_400,
     geoField: "pointgeo",
-    idField: "pointgeo",
+    idField: "adresse,objet,installation",
     titleField: "adresse",
     bbox: false,
     host: "montreuil",

@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
   }
 
   const profile = await getProfile(session.user.id);
-  const district = arrondissementWhere(config.id, profile.arrondissement);
+  const district = arrondissementWhere(config, profile.arrondissement);
   const result = await fetchRecordsSafe(
     config.id,
     {
