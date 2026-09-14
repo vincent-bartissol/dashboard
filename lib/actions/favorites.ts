@@ -6,16 +6,6 @@ import { db } from "@/lib/db";
 import { favorite } from "@/lib/db/schema";
 import { requireSession } from "@/lib/session";
 
-export async function listFavorites(userId: string, datasetId?: string) {
-  if (datasetId) {
-    return db
-      .select()
-      .from(favorite)
-      .where(and(eq(favorite.userId, userId), eq(favorite.datasetId, datasetId)));
-  }
-  return db.select().from(favorite).where(eq(favorite.userId, userId));
-}
-
 export async function toggleFavorite(input: {
   datasetId: string;
   recordId: string;

@@ -8,7 +8,6 @@ export function BboxExplorer({
   dataset,
   initial,
   favoriteIds,
-  extraWhere,
   colorScheme,
   descriptionKeys,
   mapCenter,
@@ -18,7 +17,6 @@ export function BboxExplorer({
   dataset: DatasetConfig;
   initial: OpenDataPage;
   favoriteIds: string[];
-  extraWhere?: string;
   colorScheme?: "velib" | "status";
   descriptionKeys?: string[];
   mapCenter?: { lat: number; lon: number };
@@ -39,7 +37,6 @@ export function BboxExplorer({
           north: String(bbox.north),
           east: String(bbox.east),
         });
-        if (extraWhere) params.set("where", extraWhere);
         void fetch(`/api/opendata/records?${params}`)
           .then((res) => res.json())
           .then((data: OpenDataPage) => {
@@ -47,7 +44,7 @@ export function BboxExplorer({
           });
       }, 400);
     },
-    [dataset.id, extraWhere],
+    [dataset.id],
   );
 
   return (

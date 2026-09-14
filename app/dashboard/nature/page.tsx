@@ -47,7 +47,6 @@ export default async function NaturePage({
           dataset={dataset}
           initial={loaded.page}
           favoriteIds={loaded.favoriteIds}
-          extraWhere={loaded.where}
         />
       ) : (
         <ThemeExplorer

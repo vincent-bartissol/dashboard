@@ -1,5 +1,4 @@
-import { listFavorites } from "@/lib/actions/favorites";
-import { getProfile } from "@/lib/actions/profile";
+import { getProfile, listFavorites } from "@/lib/db/queries";
 import { arrondissementWhere } from "@/lib/opendata/arrondissement";
 import {
   bboxWhere,

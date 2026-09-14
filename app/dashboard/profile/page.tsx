@@ -1,7 +1,7 @@
 import { PageIntro } from "@/components/dashboard/page-intro";
 import { ProfileForm } from "@/components/dashboard/profile-form";
 import { Card } from "@/components/ui/card";
-import { getProfile } from "@/lib/actions/profile";
+import { getProfile } from "@/lib/db/queries";
 import { splitDisplayName } from "@/lib/profile-name";
 import { requireSession } from "@/lib/session";
 

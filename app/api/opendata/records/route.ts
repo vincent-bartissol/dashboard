@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getProfile } from "@/lib/db/queries";
 import { getSession } from "@/lib/session";
+import { arrondissementWhere } from "@/lib/opendata/arrondissement";
+import { recordsQueryFromSearch } from "@/lib/opendata/bbox";
 import { bboxWhere, fetchRecordsSafe, joinWhere, type DatasetConfig } from "@/lib/opendata/client";
-import { DATASETS } from "@/lib/opendata/datasets";
+import { DATASETS, PARIS_BBOX } from "@/lib/opendata/datasets";
 
-const ALLOWED = new Set(Object.values(DATASETS).map((dataset) => dataset.id));
+const ALLOWED = new Map(
+  Object.values(DATASETS)
+    .filter((dataset) => dataset.bbox)
+    .map((dataset) => [dataset.id, dataset]),
+);
 
 export async function GET(request: NextRequest) {
   const session = await getSession();
@@ -11,31 +18,25 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
   }
 
-  const { searchParams } = request.nextUrl;
-  const dataset = searchParams.get("dataset") ?? "";
-  if (!ALLOWED.has(dataset)) {
-    return NextResponse.json({ error: "Jeu de données inconnu" }, { status: 400 });
+  const query = recordsQueryFromSearch(request.nextUrl.searchParams, PARIS_BBOX);
+  if (!query.ok) {
+    return NextResponse.json({ error: query.error }, { status: 400 });
   }
-  const config = Object.values(DATASETS).find((item) => item.id === dataset) as
-    | DatasetConfig
-    | undefined;
-  if (!config) {
+
+  const config = ALLOWED.get(query.datasetId) as DatasetConfig | undefined;
+  if (!config?.geoField) {
     return NextResponse.json({ error: "Jeu de données inconnu" }, { status: 400 });
   }
 
-  const south = Number(searchParams.get("south"));
-  const west = Number(searchParams.get("west"));
-  const north = Number(searchParams.get("north"));
-  const east = Number(searchParams.get("east"));
-  const extra = searchParams.get("where") ?? undefined;
-  const bbox =
-    [south, west, north, east].every(Number.isFinite) && config.geoField
-      ? bboxWhere(config.geoField, { south, west, north, east })
-      : undefined;
-
+  const profile = await getProfile(session.user.id);
+  const district = arrondissementWhere(config.id, profile.arrondissement);
   const page = await fetchRecordsSafe(
-    dataset,
-    { limit: 100, where: joinWhere(extra, bbox), host: config.host },
+    config.id,
+    {
+      limit: 100,
+      where: joinWhere(district, bboxWhere(config.geoField, query.bbox)),
+      host: config.host,
+    },
     config.revalidate,
   );
   return NextResponse.json(page);

@@ -15,3 +15,4 @@ Two layers; do not collapse them.
 - Guest-only pages: `/login`, `/signup`. Keep `/` public even when logged in.
 - `?next=` must go through `safeNext` (starts with `/`, not `//`).
 - Client auth: `lib/auth-client.ts` + `components/auth/auth-form.tsx`. Route handler: `app/api/auth/[...all]/route.ts`.
+- Reads (`listFavorites`, `getProfile`) live in `lib/db/queries.ts`, not `"use server"` files. Actions take the user id from `requireSession()` only.

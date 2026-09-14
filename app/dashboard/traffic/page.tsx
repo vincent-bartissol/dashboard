@@ -44,7 +44,6 @@ export default async function TrafficPage({
         dataset={dataset}
         initial={loaded.page}
         favoriteIds={loaded.favoriteIds}
-        extraWhere={loaded.where}
       />
     </div>
   );
