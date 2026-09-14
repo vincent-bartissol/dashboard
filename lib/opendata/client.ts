@@ -38,6 +38,25 @@ export type DatasetConfig = {
   };
 };
 
+/** Serializable subset of DatasetConfig safe to pass into Client Components. */
+export type ExplorerDataset = Pick<
+  DatasetConfig,
+  "id" | "title" | "sourceUrl" | "geoField" | "idField" | "titleField" | "bbox" | "columns"
+>;
+
+export function toExplorerDataset(dataset: DatasetConfig): ExplorerDataset {
+  return {
+    id: dataset.id,
+    title: dataset.title,
+    sourceUrl: dataset.sourceUrl,
+    geoField: dataset.geoField,
+    idField: dataset.idField,
+    titleField: dataset.titleField,
+    bbox: dataset.bbox,
+    columns: dataset.columns,
+  };
+}
+
 const HOSTS: Record<OpenDataHost, string> = {
   paris: "https://opendata.paris.fr/api/explore/v2.1/catalog/datasets",
   montreuil: "https://data.montreuil.fr/api/explore/v2.1/catalog/datasets",
