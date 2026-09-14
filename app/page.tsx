@@ -116,8 +116,8 @@ export default async function Home() {
           <div className="mx-auto grid max-w-6xl gap-8 px-6 py-14 lg:grid-cols-3">
             {[
               {
-                title: "Sept thèmes, sept pages",
-                body: "Vélib’, nature, air, commodités, événements, voirie et marchés : chaque jeu a sa carte, son tableau et ses indicateurs.",
+                title: "Paris et Montreuil",
+                body: "Vélib’, nature, air, commodités, événements, voirie, marchés, plus une page Montreuil autour de Robespierre : chaque jeu a sa carte, son tableau et ses indicateurs.",
               },
               {
                 title: "Un espace privé",

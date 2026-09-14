@@ -20,7 +20,9 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000). Mailpit UI: [http://localhost:8025](http://localhost:8025).
 
-SQLite lives in `data/` (gitignored). `pnpm test` and `pnpm lint` before pushing.
+SQLite lives in `data/` (gitignored). On boot the app applies Drizzle migrations from `lib/db/migrations` (existing files are baselined, then any new SQL runs once). After changing [`lib/db/schema.ts`](lib/db/schema.ts), run `pnpm db:generate` and commit the new files.
+
+`pnpm test` and `pnpm lint` before pushing.
 
 ## Production (Railway)
 
