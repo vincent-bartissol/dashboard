@@ -16,8 +16,12 @@ export function safeNext(nextPath?: string | string[] | null) {
     if (
       path === "/login" ||
       path === "/signup" ||
+      path === "/forgot-password" ||
+      path === "/reset-password" ||
       path.startsWith("/login/") ||
-      path.startsWith("/signup/")
+      path.startsWith("/signup/") ||
+      path.startsWith("/forgot-password/") ||
+      path.startsWith("/reset-password/")
     ) {
       return FALLBACK;
     }

@@ -32,6 +32,11 @@ export default async function LoginPage({
               Créer un compte
             </Link>
           </p>
+          <p className="mt-2 text-sm text-muted">
+            <Link href="/forgot-password" className="font-medium text-navy hover:underline">
+              Mot de passe oublié ?
+            </Link>
+          </p>
         </Card>
       </main>
       <SiteFooter />

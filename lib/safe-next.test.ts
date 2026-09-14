@@ -25,6 +25,9 @@ describe("safeNext", () => {
     expect(safeNext("/login")).toBe("/dashboard");
     expect(safeNext("/signup")).toBe("/dashboard");
     expect(safeNext("/login/foo")).toBe("/dashboard");
+    expect(safeNext("/forgot-password")).toBe("/dashboard");
+    expect(safeNext("/reset-password")).toBe("/dashboard");
+    expect(safeNext("/reset-password?token=abc")).toBe("/dashboard");
   });
 
   it("uses the first value of a duplicate query", () => {
