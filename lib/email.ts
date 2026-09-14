@@ -1,9 +1,13 @@
+import type { Transporter } from "nodemailer";
+import type { Resend } from "resend";
+
 export type MailerProvider = "mailpit" | "resend";
 
 export type SendEmailInput = {
   to: string;
   subject: string;
   text: string;
+  html: string;
 };
 
 export function resolveMailerProvider(
@@ -30,29 +34,65 @@ export function smtpOptions(
   };
 }
 
+export function assertMailerConfig(
+  env: {
+    MAILER_PROVIDER?: string;
+    RESEND_API_KEY?: string;
+    EMAIL_FROM?: string;
+  } = {
+    MAILER_PROVIDER: process.env.MAILER_PROVIDER,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    EMAIL_FROM: process.env.EMAIL_FROM,
+  },
+) {
+  if (resolveMailerProvider(env.MAILER_PROVIDER) !== "resend") return;
+  if (!env.RESEND_API_KEY?.trim()) {
+    throw new Error("RESEND_API_KEY is required when MAILER_PROVIDER=resend");
+  }
+  if (!env.EMAIL_FROM?.trim()) {
+    throw new Error("EMAIL_FROM is required when MAILER_PROVIDER=resend");
+  }
+}
+
+let mailpitTransporter: Transporter | null = null;
+let resendClient: Resend | null = null;
+
+async function getMailpitTransporter() {
+  if (!mailpitTransporter) {
+    const nodemailer = await import("nodemailer");
+    mailpitTransporter = nodemailer.createTransport(smtpOptions());
+  }
+  return mailpitTransporter;
+}
+
+async function getResendClient() {
+  assertMailerConfig();
+  if (!resendClient) {
+    const { Resend } = await import("resend");
+    resendClient = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resendClient;
+}
+
 async function sendWithMailpit(input: SendEmailInput) {
-  const nodemailer = await import("nodemailer");
-  const transporter = nodemailer.createTransport(smtpOptions());
+  const transporter = await getMailpitTransporter();
   await transporter.sendMail({
     from: emailFrom(),
     to: input.to,
     subject: input.subject,
     text: input.text,
+    html: input.html,
   });
 }
 
 async function sendWithResend(input: SendEmailInput) {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    throw new Error("RESEND_API_KEY is required when MAILER_PROVIDER=resend");
-  }
-  const { Resend } = await import("resend");
-  const resend = new Resend(apiKey);
+  const resend = await getResendClient();
   const { error } = await resend.emails.send({
     from: emailFrom(),
     to: input.to,
     subject: input.subject,
     text: input.text,
+    html: input.html,
   });
   if (error) {
     throw new Error(error.message);
