@@ -26,6 +26,16 @@ export type DatasetConfig = {
   bbox: boolean;
   columns: { key: string; label: string }[];
   host?: OpenDataHost;
+  defaultWhere?: string;
+  district?: {
+    paris?: (ctx: {
+      code: string;
+      zip: string;
+      ordinal: string;
+      n: number;
+    }) => string | undefined;
+    montreuil?: string;
+  };
 };
 
 const HOSTS: Record<OpenDataHost, string> = {
@@ -218,6 +228,17 @@ export function extractGeo(record: OpenDataRecord, geoField: string): GeoPoint |
 }
 
 export function recordId(record: OpenDataRecord, idField: string) {
+  if (idField.includes(",")) {
+    return idField
+      .split(",")
+      .map((key) => {
+        const value = record[key.trim()];
+        if (value == null || value === "") return "";
+        if (typeof value === "object") return "";
+        return String(value);
+      })
+      .join("::");
+  }
   const value = record[idField];
   if (value == null) return "";
   if (typeof value === "object") {

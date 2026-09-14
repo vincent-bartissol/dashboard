@@ -13,8 +13,8 @@ export default async function EventsPage() {
   return (
     <div className="space-y-6">
       <PageIntro title="Événements" dataset={DATASETS.events}>
-        Agenda participatif Que faire à Paris. Les points sans coordonnées valides n’apparaissent
-        pas sur la carte.
+        Agenda participatif Que faire à Paris : événements dont la date de fin n’est pas passée.
+        Les points sans coordonnées valides n’apparaissent pas sur la carte.
       </PageIntro>
       <DatasetNotice error={error} />
       <KpiStrip
