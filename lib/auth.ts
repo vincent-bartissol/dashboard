@@ -5,6 +5,7 @@ import { twoFactor } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
+import { changeEmailMail, otpMail, verificationMail } from "@/lib/email/templates";
 import * as schema from "@/lib/db/schema";
 
 export const auth = betterAuth({
@@ -34,11 +35,8 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     expiresIn: 3600,
     sendVerificationEmail: async ({ user, url }) => {
-      void sendEmail({
-        to: user.email,
-        subject: "Confirmez votre adresse e-mail",
-        text: `Cliquez pour confirmer votre adresse : ${url}`,
-      }).catch((error) => {
+      const mail = verificationMail(url);
+      void sendEmail({ to: user.email, ...mail }).catch((error) => {
         console.error("sendVerificationEmail failed", error);
       });
     },
@@ -47,11 +45,8 @@ export const auth = betterAuth({
     changeEmail: {
       enabled: true,
       sendChangeEmailConfirmation: async ({ user, newEmail, url }) => {
-        void sendEmail({
-          to: user.email,
-          subject: "Confirmez le changement d’e-mail",
-          text: `Cliquez pour autoriser le changement vers ${newEmail} : ${url}`,
-        }).catch((error) => {
+        const mail = changeEmailMail(url, newEmail);
+        void sendEmail({ to: user.email, ...mail }).catch((error) => {
           console.error("sendChangeEmailConfirmation failed", error);
         });
       },
@@ -82,13 +77,8 @@ export const auth = betterAuth({
       issuer: "Paris Ouverte",
       otpOptions: {
         sendOTP: async ({ user, otp }) => {
-          void sendEmail({
-            to: user.email,
-            subject: "Votre code de connexion",
-            text: `Votre code : ${otp}. Il expire dans 3 minutes.`,
-          }).catch((error) => {
-            console.error("sendOTP failed", error);
-          });
+          const mail = otpMail(otp);
+          await sendEmail({ to: user.email, ...mail });
         },
       },
     }),

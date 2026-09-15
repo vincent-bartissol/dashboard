@@ -22,12 +22,19 @@ function needsTwoFactor(data: unknown): boolean {
   );
 }
 
-function otpErrorMessage(error: { message?: string; code?: string }) {
+function otpErrorMessage(error: { message?: string; code?: string; status?: number }) {
   const text = `${error.code ?? ""} ${error.message ?? ""}`.toLowerCase();
   if (text.includes("invalid")) {
     return "Code invalide.";
   }
   return error.message ?? "Une erreur est survenue.";
+}
+
+function otpSendErrorMessage(error: { message?: string; status?: number }) {
+  if (error.status === 500 || !error.message) {
+    return "Impossible d’envoyer le code.";
+  }
+  return error.message;
 }
 
 export function AuthForm({ mode }: { mode: Mode }) {
@@ -61,7 +68,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
   async function sendLoginOtp() {
     const result = await authClient.twoFactor.sendOtp({});
     if (result.error) {
-      setError(result.error.message ?? "Impossible d’envoyer le code.");
+      setError(otpSendErrorMessage(result.error));
       return false;
     }
     return true;
