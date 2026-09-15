@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans, Newsreader } from "next/font/google";
+import { ThemeSync } from "@/components/theme/theme-sync";
+import { THEME_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
 const ibmPlexSans = IBM_Plex_Sans({
@@ -30,9 +32,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="fr"
+      suppressHydrationWarning
       className={`${ibmPlexSans.variable} ${newsreader.variable} ${ibmPlexMono.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body className="flex min-h-full flex-col bg-ground font-sans text-ink">
+        <ThemeSync />
         {children}
       </body>
     </html>

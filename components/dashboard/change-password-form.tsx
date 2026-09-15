@@ -68,7 +68,7 @@ export function ChangePasswordForm() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      <h2 className="text-lg font-semibold text-navy">Mot de passe</h2>
+      <h2 className="text-lg font-semibold text-heading">Mot de passe</h2>
       <p className="text-sm text-muted">Les autres sessions seront déconnectées.</p>
       <div>
         <Label htmlFor="currentPassword">Mot de passe actuel</Label>

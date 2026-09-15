@@ -24,7 +24,7 @@ export function KpiCard({
   return (
     <Card className="rule-accent">
       <p className="text-label">{label}</p>
-      <p className="mt-2 font-display text-4xl font-semibold tabular-nums text-navy">
+      <p className="mt-2 font-display text-4xl font-semibold tabular-nums text-heading">
         {value}
       </p>
       {hint ? <p className="mt-1 text-sm text-muted">{hint}</p> : null}

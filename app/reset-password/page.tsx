@@ -24,7 +24,7 @@ export default async function ResetPasswordPage({
       <SiteHeader variant="auth" />
       <main className="flex flex-1 items-center justify-center px-6 py-16">
         <Card className="w-full max-w-md">
-          <h1 className="text-2xl font-semibold text-navy">Nouveau mot de passe</h1>
+          <h1 className="text-2xl font-semibold text-heading">Nouveau mot de passe</h1>
           {token && !error ? (
             <>
               <p className="mt-1 mb-6 text-sm text-muted">
@@ -38,7 +38,7 @@ export default async function ResetPasswordPage({
                 Ce lien n’est plus valide. Demandez un nouvel e-mail pour continuer.
               </p>
               <p className="text-sm text-muted">
-                <Link href="/forgot-password" className="font-medium text-navy hover:underline">
+                <Link href="/forgot-password" className="font-medium text-heading hover:underline">
                   Mot de passe oublié
                 </Link>
               </p>

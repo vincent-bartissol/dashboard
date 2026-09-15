@@ -26,7 +26,7 @@ export function PageIntro({
               href={item.sourceUrl}
               target="_blank"
               rel="noreferrer"
-              className="hover:text-navy hover:underline"
+              className="hover:text-heading hover:underline"
             >
               Source : {item.title}
             </a>

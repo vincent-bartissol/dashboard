@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { NAV_ITEMS } from "@/lib/opendata/datasets";
 import { authClient } from "@/lib/auth-client";
 import { Wordmark } from "@/components/layout/wordmark";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 export function Sidebar({ userName }: { userName: string }) {
   const pathname = usePathname();
@@ -43,7 +44,8 @@ export function Sidebar({ userName }: { userName: string }) {
           );
         })}
       </nav>
-      <div className="p-3">
+      <div className="space-y-2 p-3">
+        <ThemeToggle invert />
         <button
           type="button"
           onClick={logout}
@@ -68,11 +70,14 @@ export function MobileNav({ userName }: { userName: string }) {
 
   return (
     <div className="border-b border-navy/20 bg-navy text-white lg:hidden">
-      <div className="flex items-center justify-between px-4 py-3">
+      <div className="flex items-center justify-between gap-3 px-4 py-3">
         <Wordmark invert />
-        <button type="button" onClick={logout} className="text-sm text-white/80">
-          Sortir
-        </button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle invert />
+          <button type="button" onClick={logout} className="text-sm text-white/80">
+            Sortir
+          </button>
+        </div>
       </div>
       <div className="flex gap-1 overflow-x-auto px-3 pb-3">
         {NAV_ITEMS.map((item) => {

@@ -29,7 +29,7 @@ export default async function SignupPage({
           </Suspense>
           <p className="mt-4 text-sm text-muted">
             Déjà inscrit ?{" "}
-            <Link href="/login" className="font-medium text-navy hover:underline">
+            <Link href="/login" className="font-medium text-heading hover:underline">
               Se connecter
             </Link>
           </p>

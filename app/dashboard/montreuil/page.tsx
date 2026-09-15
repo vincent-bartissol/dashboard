@@ -149,7 +149,7 @@ export default async function MontreuilPage({
           <p className="text-sm text-muted">
             Compteur fixe rue Étienne Marcel (sens Paris / Croix de Chavaux). Source :{" "}
             <a
-              className="text-navy hover:underline"
+              className="text-heading hover:underline"
               href={DATASETS.montreuilBikes.sourceUrl}
               target="_blank"
               rel="noreferrer"

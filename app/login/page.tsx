@@ -29,12 +29,12 @@ export default async function LoginPage({
           </Suspense>
           <p className="mt-4 text-sm text-muted">
             Pas encore de compte ?{" "}
-            <Link href="/signup" className="font-medium text-navy hover:underline">
+            <Link href="/signup" className="font-medium text-heading hover:underline">
               Créer un compte
             </Link>
           </p>
           <p className="mt-2 text-sm text-muted">
-            <Link href="/forgot-password" className="font-medium text-navy hover:underline">
+            <Link href="/forgot-password" className="font-medium text-heading hover:underline">
               Mot de passe oublié ?
             </Link>
           </p>

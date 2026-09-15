@@ -4,7 +4,19 @@ import { useEffect } from "react";
 import { CircleMarker, MapContainer, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { PARIS_CENTER } from "@/lib/opendata/datasets";
 import type { MapMarker } from "@/lib/opendata/markers";
+import { useHtmlDark } from "@/components/theme/use-html-dark";
 import "leaflet/dist/leaflet.css";
+
+const LIGHT_TILES = {
+  url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+};
+
+const DARK_TILES = {
+  url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+  attribution:
+    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+};
 
 function MapBounds({
   onBounds,
@@ -53,6 +65,9 @@ export function ParisMap({
   center?: { lat: number; lon: number };
   zoom?: number;
 }) {
+  const dark = useHtmlDark();
+  const tiles = dark ? DARK_TILES : LIGHT_TILES;
+
   return (
     <div className={`surface-panel overflow-hidden ${className}`}>
       <MapContainer
@@ -61,10 +76,7 @@ export function ParisMap({
         className="h-[420px] w-full"
         scrollWheelZoom
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+        <TileLayer key={tiles.url} attribution={tiles.attribution} url={tiles.url} />
         {onBounds ? <MapBounds onBounds={onBounds} /> : null}
         {markers.map((marker) => (
           <CircleMarker
@@ -72,7 +84,7 @@ export function ParisMap({
             center={[marker.position.lat, marker.position.lon]}
             radius={7}
             pathOptions={{
-              color: marker.color ?? "#12263a",
+              color: marker.color ?? "#0f1c2a",
               fillColor: marker.color ?? "#c8102e",
               fillOpacity: 0.85,
               weight: 1,

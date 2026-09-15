@@ -13,8 +13,10 @@ import {
 import type { OpenDataRecord } from "@/lib/opendata/client";
 import { Card } from "@/components/ui/card";
 import { SectionTitle } from "@/components/ui/heading";
+import { useChartChrome } from "@/components/theme/use-chart-chrome";
 
 export function BikeCountChart({ records }: { records: OpenDataRecord[] }) {
+  const chrome = useChartChrome();
   const byDay = new Map<string, number>();
   for (const row of records) {
     const raw = String(row.date ?? "");
@@ -34,12 +36,18 @@ export function BikeCountChart({ records }: { records: OpenDataRecord[] }) {
       <div className="h-[320px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e4dcd0" />
-            <XAxis dataKey="day" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line type="monotone" dataKey="total" name="Passages" stroke="#c8102e" dot={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke={chrome.grid} />
+            <XAxis dataKey="day" stroke={chrome.tick} tick={{ fill: chrome.tick }} />
+            <YAxis stroke={chrome.tick} tick={{ fill: chrome.tick }} />
+            <Tooltip
+              contentStyle={{
+                background: chrome.paper,
+                border: `1px solid ${chrome.grid}`,
+                color: chrome.ink,
+              }}
+            />
+            <Legend wrapperStyle={{ color: chrome.ink }} />
+            <Line type="monotone" dataKey="total" name="Passages" stroke={chrome.accent} dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>

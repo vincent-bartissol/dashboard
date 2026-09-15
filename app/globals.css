@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --navy: #0f1c2a;
   --navy-2: #1a2f42;
@@ -9,6 +11,18 @@
   --muted: #5a616c;
   --accent: #c8102e;
   --line: #d8dce3;
+  --heading: var(--navy);
+  --background: var(--ground);
+  --foreground: var(--ink);
+}
+
+.dark {
+  --ground: #12181f;
+  --paper: #1a2430;
+  --ink: #e8e4d9;
+  --muted: #9aa3ad;
+  --line: #2c3a48;
+  --heading: #f3efe6;
   --background: var(--ground);
   --foreground: var(--ink);
 }
@@ -24,6 +38,7 @@
   --color-muted: var(--muted);
   --color-accent: var(--accent);
   --color-line: var(--line);
+  --color-heading: var(--heading);
   --font-sans: var(--font-ibm-plex-sans);
   --font-display: var(--font-newsreader);
   --font-mono: var(--font-ibm-plex-mono);
@@ -63,6 +78,17 @@ a {
   @apply rounded-none border border-line bg-paper;
 }
 
-@utility focus-field {
-  @apply focus:border-navy focus:ring-1 focus:ring-navy;
+.leaflet-container {
+  background: var(--ground);
+  font-family: inherit;
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.leaflet-popup-content {
+  color: var(--ink);
 }

@@ -19,7 +19,7 @@ export function Label({
   children: string;
 }) {
   return (
-    <label htmlFor={htmlFor} className="mb-1 block text-sm font-medium text-navy">
+    <label htmlFor={htmlFor} className="mb-1 block text-sm font-medium text-heading">
       {children}
     </label>
   );

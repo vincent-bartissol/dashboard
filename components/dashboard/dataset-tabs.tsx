@@ -17,8 +17,8 @@ export function DatasetTabs({
             href={tab.href}
             className={`rounded-none border-b-2 px-4 py-2 text-sm transition ${
               current
-                ? "border-accent font-medium text-navy"
-                : "border-transparent text-muted hover:text-navy"
+                ? "border-accent font-medium text-heading"
+                : "border-transparent text-muted hover:text-heading"
             }`}
           >
             {tab.label}

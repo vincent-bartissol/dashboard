@@ -59,7 +59,7 @@ export default async function DashboardPage() {
       <div className="mt-8 grid gap-4 md:grid-cols-2">
         {THEMES.map((theme) => (
           <Link key={theme.href} href={theme.href}>
-            <Card className="h-full transition hover:border-navy/30">
+            <Card className="h-full transition hover:border-heading/30">
               <SectionTitle>{theme.title}</SectionTitle>
               <p className="mt-1 text-sm text-muted">{theme.body}</p>
             </Card>
@@ -69,7 +69,7 @@ export default async function DashboardPage() {
       <p className="mt-6 text-sm text-muted">
         {fountains.toLocaleString("fr-FR")} fontaines et {markets.toLocaleString("fr-FR")} marchés
         dans le catalogue. Ajustez votre arrondissement dans le{" "}
-        <Link href="/dashboard/profile" className="text-navy hover:underline">
+        <Link href="/dashboard/profile" className="text-heading hover:underline">
           profil
         </Link>
         .

@@ -17,14 +17,14 @@ export default async function ForgotPasswordPage({
       <SiteHeader variant="auth" />
       <main className="flex flex-1 items-center justify-center px-6 py-16">
         <Card className="w-full max-w-md">
-          <h1 className="text-2xl font-semibold text-navy">Mot de passe oublié</h1>
+          <h1 className="text-2xl font-semibold text-heading">Mot de passe oublié</h1>
           <p className="mt-1 mb-6 text-sm text-muted">
             Indiquez votre e-mail. Si un compte existe, vous recevrez un lien pour choisir un
             nouveau mot de passe.
           </p>
           <ForgotPasswordForm />
           <p className="mt-4 text-sm text-muted">
-            <Link href="/login" className="font-medium text-navy hover:underline">
+            <Link href="/login" className="font-medium text-heading hover:underline">
               Retour à la connexion
             </Link>
           </p>

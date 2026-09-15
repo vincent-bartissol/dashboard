@@ -7,7 +7,7 @@ const variants = {
   secondary:
     "bg-navy text-white hover:bg-navy-2 disabled:bg-[#7a8794]",
   ghost:
-    "border border-line bg-paper text-ink hover:border-navy/40 disabled:opacity-50",
+    "border border-line bg-paper text-ink hover:border-heading/40 disabled:opacity-50",
 } as const;
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
