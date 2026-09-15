@@ -1,3 +1,4 @@
+import { ChangePasswordForm } from "@/components/dashboard/change-password-form";
 import { PageIntro } from "@/components/dashboard/page-intro";
 import { ProfileForm } from "@/components/dashboard/profile-form";
 import { Card } from "@/components/ui/card";
@@ -14,7 +15,7 @@ export default async function ProfilePage() {
     <div className="space-y-6">
       <PageIntro title="Profil">
         Mettez à jour votre prénom, votre nom et votre territoire préféré. Un changement d’e-mail
-        n’est appliqué qu’après confirmation.
+        n’est appliqué qu’après confirmation. Vous pouvez aussi changer votre mot de passe.
       </PageIntro>
       <Card className="max-w-lg">
         <ProfileForm
@@ -24,6 +25,9 @@ export default async function ProfilePage() {
           emailVerified={session.user.emailVerified}
           arrondissement={profile.arrondissement}
         />
+      </Card>
+      <Card className="max-w-lg">
+        <ChangePasswordForm />
       </Card>
     </div>
   );
