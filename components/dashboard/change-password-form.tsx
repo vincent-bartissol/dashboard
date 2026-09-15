@@ -1,26 +1,15 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useTranslations } from "next-intl";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 
 const MIN_PASSWORD_LENGTH = 8;
 
-function passwordErrorMessage(error: { message?: string; code?: string }) {
-  switch (error.code) {
-    case "INVALID_PASSWORD":
-      return "Mot de passe actuel incorrect.";
-    case "PASSWORD_TOO_SHORT":
-      return "Le mot de passe doit contenir au moins 8 caractères.";
-    case "PASSWORD_TOO_LONG":
-      return "Le mot de passe est trop long.";
-    default:
-      return error.message ?? "Une erreur est survenue.";
-  }
-}
-
 export function ChangePasswordForm() {
+  const t = useTranslations("Profile");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -37,15 +26,15 @@ export function ChangePasswordForm() {
     setSaved(false);
 
     if (newPassword.length < MIN_PASSWORD_LENGTH) {
-      setError("Le mot de passe doit contenir au moins 8 caractères.");
+      setError(t("passwordTooShort"));
       return;
     }
     if (newPassword !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas.");
+      setError(t("passwordMismatch"));
       return;
     }
     if (newPassword === currentPassword) {
-      setError("Le nouveau mot de passe doit être différent.");
+      setError(t("passwordSame"));
       return;
     }
 
@@ -58,7 +47,19 @@ export function ChangePasswordForm() {
     setPending(false);
 
     if (result.error) {
-      setError(passwordErrorMessage(result.error));
+      switch (result.error.code) {
+        case "INVALID_PASSWORD":
+          setError(t("wrongPassword"));
+          break;
+        case "PASSWORD_TOO_SHORT":
+          setError(t("passwordTooShort"));
+          break;
+        case "PASSWORD_TOO_LONG":
+          setError(t("passwordTooLong"));
+          break;
+        default:
+          setError(result.error.message ?? t("genericError"));
+      }
       return;
     }
 
@@ -68,10 +69,10 @@ export function ChangePasswordForm() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      <h2 className="text-lg font-semibold text-heading">Mot de passe</h2>
-      <p className="text-sm text-muted">Les autres sessions seront déconnectées.</p>
+      <h2 className="text-lg font-semibold text-heading">{t("passwordTitle")}</h2>
+      <p className="text-sm text-muted">{t("passwordHint")}</p>
       <div>
-        <Label htmlFor="currentPassword">Mot de passe actuel</Label>
+        <Label htmlFor="currentPassword">{t("currentPassword")}</Label>
         <Input
           id="currentPassword"
           name="currentPassword"
@@ -81,7 +82,7 @@ export function ChangePasswordForm() {
         />
       </div>
       <div>
-        <Label htmlFor="newPassword">Nouveau mot de passe</Label>
+        <Label htmlFor="newPassword">{t("newPassword")}</Label>
         <Input
           id="newPassword"
           name="newPassword"
@@ -92,7 +93,7 @@ export function ChangePasswordForm() {
         />
       </div>
       <div>
-        <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+        <Label htmlFor="confirmPassword">{t("confirmPassword")}</Label>
         <Input
           id="confirmPassword"
           name="confirmPassword"
@@ -103,9 +104,9 @@ export function ChangePasswordForm() {
         />
       </div>
       {error ? <p className="text-sm text-accent">{error}</p> : null}
-      {saved ? <p className="text-sm text-muted">Mot de passe mis à jour.</p> : null}
+      {saved ? <p className="text-sm text-muted">{t("passwordUpdated")}</p> : null}
       <Button type="submit" disabled={pending}>
-        {pending ? "Enregistrement…" : "Changer le mot de passe"}
+        {pending ? t("saving") : t("changePassword")}
       </Button>
     </form>
   );

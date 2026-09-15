@@ -1,9 +1,11 @@
-export function DatasetNotice({ error }: { error?: string }) {
+import { getTranslations } from "next-intl/server";
+
+export async function DatasetNotice({ error }: { error?: string }) {
+  const t = await getTranslations("Common");
   if (!error) return null;
   return (
     <p role="status" className="text-sm text-accent">
-      Les données Open Data sont indisponibles pour le moment. Les chiffres affichés peuvent être
-      incomplets.
+      {t("opendataDown")}
     </p>
   );
 }

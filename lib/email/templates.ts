@@ -1,3 +1,6 @@
+import type { AppLocale } from "@/i18n/routing";
+import { interpolate, mailCopy } from "./locale";
+
 const NAVY = "#12263a";
 const CREAM = "#f6f1e7";
 const PAPER = "#fffdf8";
@@ -27,18 +30,20 @@ function button(href: string, label: string) {
 }
 
 function layout({
+  locale,
   subject,
   preview,
   bodyHtml,
   bodyText,
 }: {
+  locale: AppLocale;
   subject: string;
   preview: string;
   bodyHtml: string;
   bodyText: string;
 }): MailContent {
   const html = `<!DOCTYPE html>
-<html lang="fr">
+<html lang="${locale}">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -74,44 +79,56 @@ function layout({
   return { subject, text: bodyText, html };
 }
 
-export function verificationMail(url: string): MailContent {
+export function verificationMail(url: string, locale: AppLocale = "fr"): MailContent {
+  const copy = mailCopy(locale);
   return layout({
-    subject: "Confirmez votre adresse e-mail",
-    preview: "Cliquez pour confirmer votre adresse.",
-    bodyHtml: `<p style="margin:0 0 16px;">Cliquez pour confirmer votre adresse e-mail.</p>
-<p style="margin:0;">${button(url, "Confirmer l’adresse")}</p>`,
-    bodyText: `Cliquez pour confirmer votre adresse : ${url}`,
+    locale,
+    subject: copy.verificationSubject,
+    preview: copy.verificationPreview,
+    bodyHtml: `<p style="margin:0 0 16px;">${escapeHtml(copy.verificationBody)}</p>
+<p style="margin:0;">${button(url, copy.verificationButton)}</p>`,
+    bodyText: interpolate(copy.verificationText, { url }),
   });
 }
 
-export function otpMail(otp: string): MailContent {
+export function otpMail(otp: string, locale: AppLocale = "fr"): MailContent {
+  const copy = mailCopy(locale);
   const safeOtp = escapeHtml(otp);
   return layout({
-    subject: "Votre code de connexion",
-    preview: "Votre code expire dans 3 minutes.",
-    bodyHtml: `<p style="margin:0 0 16px;">Votre code de connexion :</p>
+    locale,
+    subject: copy.otpSubject,
+    preview: copy.otpPreview,
+    bodyHtml: `<p style="margin:0 0 16px;">${escapeHtml(copy.otpBody)}</p>
 <p style="margin:0 0 16px;font-size:32px;letter-spacing:0.2em;font-weight:700;color:${NAVY};">${safeOtp}</p>
-<p style="margin:0;color:${MUTED};font-size:14px;">Il expire dans 3 minutes.</p>`,
-    bodyText: `Votre code : ${otp}. Il expire dans 3 minutes.`,
+<p style="margin:0;color:${MUTED};font-size:14px;">${escapeHtml(copy.otpExpiry)}</p>`,
+    bodyText: interpolate(copy.otpText, { otp }),
   });
 }
 
-export function changeEmailMail(url: string, newEmail: string): MailContent {
+export function changeEmailMail(
+  url: string,
+  newEmail: string,
+  locale: AppLocale = "fr",
+): MailContent {
+  const copy = mailCopy(locale);
   return layout({
-    subject: "Confirmez le changement d’e-mail",
-    preview: `Autorisez le changement vers ${newEmail}.`,
-    bodyHtml: `<p style="margin:0 0 16px;">Cliquez pour autoriser le changement vers ${escapeHtml(newEmail)}.</p>
-<p style="margin:0;">${button(url, "Confirmer le changement")}</p>`,
-    bodyText: `Cliquez pour autoriser le changement vers ${newEmail} : ${url}`,
+    locale,
+    subject: copy.changeSubject,
+    preview: interpolate(copy.changePreview, { email: newEmail }),
+    bodyHtml: `<p style="margin:0 0 16px;">${escapeHtml(interpolate(copy.changeBody, { email: newEmail }))}</p>
+<p style="margin:0;">${button(url, copy.changeButton)}</p>`,
+    bodyText: interpolate(copy.changeText, { email: newEmail, url }),
   });
 }
 
-export function resetPasswordMail(url: string): MailContent {
+export function resetPasswordMail(url: string, locale: AppLocale = "fr"): MailContent {
+  const copy = mailCopy(locale);
   return layout({
-    subject: "Réinitialisez votre mot de passe",
-    preview: "Choisissez un nouveau mot de passe.",
-    bodyHtml: `<p style="margin:0 0 16px;">Cliquez pour choisir un nouveau mot de passe.</p>
-<p style="margin:0;">${button(url, "Choisir un mot de passe")}</p>`,
-    bodyText: `Cliquez pour choisir un nouveau mot de passe : ${url}`,
+    locale,
+    subject: copy.resetSubject,
+    preview: copy.resetPreview,
+    bodyHtml: `<p style="margin:0 0 16px;">${escapeHtml(copy.resetBody)}</p>
+<p style="margin:0;">${button(url, copy.resetButton)}</p>`,
+    bodyText: interpolate(copy.resetText, { url }),
   });
 }

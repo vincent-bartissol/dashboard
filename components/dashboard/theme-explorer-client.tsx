@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { useFormatter, useTranslations } from "next-intl";
 import { Heart } from "lucide-react";
 import { toggleFavorite } from "@/lib/actions/favorites";
 import { extractGeo, recordId, recordLabel, type OpenDataRecord } from "@/lib/opendata/client";
@@ -65,6 +66,8 @@ export function ThemeExplorerClient({
   mapZoom,
   extraMarkers = [],
 }: Props) {
+  const t = useTranslations("Explorer");
+  const format = useFormatter();
   const [query, setQuery] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
   const [favorites, setFavorites] = useState(new Set(favoriteIds));
@@ -123,12 +126,14 @@ export function ThemeExplorerClient({
             setQuery(event.target.value);
             setPageIndex(0);
           }}
-          placeholder="Filtrer le tableau et la carte…"
+          placeholder={t("filterPlaceholder")}
           className="max-w-md"
         />
         <p className="text-sm text-muted">
-          {filtered.length.toLocaleString("fr-FR")} filtrés / {totalCount.toLocaleString("fr-FR")} au
-          total
+          {t("filtered", {
+            filtered: format.number(filtered.length),
+            total: format.number(totalCount),
+          })}
         </p>
       </div>
       {dataset.geoField ? (
@@ -162,7 +167,7 @@ export function ThemeExplorerClient({
                       type="button"
                       onClick={() => onToggle(record)}
                       className="rounded-none p-1 text-muted hover:text-accent"
-                      aria-label={saved ? "Retirer des favoris" : "Ajouter aux favoris"}
+                      aria-label={saved ? t("removeFavorite") : t("addFavorite")}
                     >
                       <Heart className={`h-4 w-4 ${saved ? "fill-accent text-accent" : ""}`} />
                     </button>
@@ -179,7 +184,7 @@ export function ThemeExplorerClient({
         </table>
         <div className="flex items-center justify-between gap-3 border-t border-line px-4 py-3">
           <p className="text-sm text-muted">
-            Page {currentPage + 1} / {pageCount}
+            {t("page", { current: currentPage + 1, count: pageCount })}
           </p>
           <div className="flex gap-2">
             <Button
@@ -189,7 +194,7 @@ export function ThemeExplorerClient({
               disabled={currentPage === 0}
               onClick={() => setPageIndex(currentPage - 1)}
             >
-              Précédent
+              {t("previous")}
             </Button>
             <Button
               type="button"
@@ -198,7 +203,7 @@ export function ThemeExplorerClient({
               disabled={currentPage >= pageCount - 1}
               onClick={() => setPageIndex(currentPage + 1)}
             >
-              Suivant
+              {t("next")}
             </Button>
           </div>
         </div>

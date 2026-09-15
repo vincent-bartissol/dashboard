@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   CartesianGrid,
   Legend,
@@ -17,6 +18,7 @@ import { useChartChrome } from "@/components/theme/use-chart-chrome";
 
 export function BikeCountChart({ records }: { records: OpenDataRecord[] }) {
   const chrome = useChartChrome();
+  const t = useTranslations("Charts");
   const byDay = new Map<string, number>();
   for (const row of records) {
     const raw = String(row.date ?? "");
@@ -30,9 +32,7 @@ export function BikeCountChart({ records }: { records: OpenDataRecord[] }) {
 
   return (
     <Card>
-      <SectionTitle className="mb-4">
-        Passages vélos · rue Étienne Marcel (7 derniers jours)
-      </SectionTitle>
+      <SectionTitle className="mb-4">{t("bikeTitle")}</SectionTitle>
       <div className="h-[320px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
@@ -47,7 +47,7 @@ export function BikeCountChart({ records }: { records: OpenDataRecord[] }) {
               }}
             />
             <Legend wrapperStyle={{ color: chrome.ink }} />
-            <Line type="monotone" dataKey="total" name="Passages" stroke={chrome.accent} dot={false} />
+            <Line type="monotone" dataKey="total" name={t("passages")} stroke={chrome.accent} dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>

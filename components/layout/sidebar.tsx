@@ -1,15 +1,17 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { usePathname, useRouter, Link } from "@/i18n/navigation";
 import { NAV_ITEMS } from "@/lib/opendata/datasets";
 import { authClient } from "@/lib/auth-client";
 import { Wordmark } from "@/components/layout/wordmark";
+import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 export function Sidebar({ userName }: { userName: string }) {
   const pathname = usePathname();
   const router = useRouter();
+  const t = useTranslations("Nav");
 
   async function logout() {
     await authClient.signOut();
@@ -39,19 +41,20 @@ export function Sidebar({ userName }: { userName: string }) {
                   : "border-transparent text-white/75 hover:bg-white/5 hover:text-white"
               }`}
             >
-              {item.label}
+              {t(item.id)}
             </Link>
           );
         })}
       </nav>
       <div className="space-y-2 p-3">
+        <LocaleSwitcher invert />
         <ThemeToggle invert />
         <button
           type="button"
           onClick={logout}
           className="w-full rounded-none border border-white/20 px-3 py-2 text-sm text-white/80 hover:bg-white/10"
         >
-          Se déconnecter
+          {t("logout")}
         </button>
       </div>
     </aside>
@@ -61,6 +64,7 @@ export function Sidebar({ userName }: { userName: string }) {
 export function MobileNav({ userName }: { userName: string }) {
   const pathname = usePathname();
   const router = useRouter();
+  const t = useTranslations("Nav");
 
   async function logout() {
     await authClient.signOut();
@@ -73,9 +77,10 @@ export function MobileNav({ userName }: { userName: string }) {
       <div className="flex items-center justify-between gap-3 px-4 py-3">
         <Wordmark invert />
         <div className="flex items-center gap-2">
+          <LocaleSwitcher invert />
           <ThemeToggle invert />
           <button type="button" onClick={logout} className="text-sm text-white/80">
-            Sortir
+            {t("logoutShort")}
           </button>
         </div>
       </div>
@@ -95,7 +100,7 @@ export function MobileNav({ userName }: { userName: string }) {
                   : "border-transparent bg-white/5 text-white/80"
               }`}
             >
-              {item.label}
+              {t(item.id)}
             </Link>
           );
         })}

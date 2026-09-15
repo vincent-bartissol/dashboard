@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   Bar,
   BarChart,
@@ -16,16 +17,18 @@ import { SectionTitle } from "@/components/ui/heading";
 import { useChartChrome } from "@/components/theme/use-chart-chrome";
 
 const SERIES = [
-  { key: "ind_jour_qa_bonne", label: "Bonne", color: "#2f9e44" },
-  { key: "ind_jour_qa_moyenne", label: "Moyenne", color: "#fab005" },
-  { key: "ind_jour_qa_degradee", label: "Dégradée", color: "#fd7e14" },
-  { key: "ind_jour_qa_mauvaise", label: "Mauvaise", color: "#c8102e" },
-  { key: "ind_jour_qa_tres_mauvaise", label: "Très mauvaise", color: "#7b1e3a" },
-  { key: "ind_jour_qa_extremement_mauvaise", label: "Extrêmement mauvaise", color: "#12263a" },
+  { key: "ind_jour_qa_bonne", color: "#2f9e44" },
+  { key: "ind_jour_qa_moyenne", color: "#fab005" },
+  { key: "ind_jour_qa_degradee", color: "#fd7e14" },
+  { key: "ind_jour_qa_mauvaise", color: "#c8102e" },
+  { key: "ind_jour_qa_tres_mauvaise", color: "#7b1e3a" },
+  { key: "ind_jour_qa_extremement_mauvaise", color: "#12263a" },
 ] as const;
 
 export function AirCharts({ records }: { records: OpenDataRecord[] }) {
   const chrome = useChartChrome();
+  const t = useTranslations("Datasets.air.columns");
+  const title = useTranslations("Pages.air");
   const data = [...records]
     .sort((a, b) => String(a.annee).localeCompare(String(b.annee)))
     .map((row) => ({
@@ -35,7 +38,7 @@ export function AirCharts({ records }: { records: OpenDataRecord[] }) {
 
   return (
     <Card>
-      <SectionTitle className="mb-4">Jours par indice ATMO</SectionTitle>
+      <SectionTitle className="mb-4">{title("chartTitle")}</SectionTitle>
       <div className="h-[360px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
@@ -51,7 +54,7 @@ export function AirCharts({ records }: { records: OpenDataRecord[] }) {
             />
             <Legend wrapperStyle={{ color: chrome.ink }} />
             {SERIES.map((item) => (
-              <Bar key={item.key} dataKey={item.key} name={item.label} fill={item.color} stackId="atmo" />
+              <Bar key={item.key} dataKey={item.key} name={t(item.key)} fill={item.color} stackId="atmo" />
             ))}
           </BarChart>
         </ResponsiveContainer>

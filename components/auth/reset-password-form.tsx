@@ -1,27 +1,16 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 
 const MIN_PASSWORD_LENGTH = 8;
 
-function resetErrorMessage(error: { message?: string; code?: string }) {
-  switch (error.code) {
-    case "INVALID_TOKEN":
-      return "Ce lien n’est plus valide.";
-    case "PASSWORD_TOO_SHORT":
-      return "Le mot de passe doit contenir au moins 8 caractères.";
-    case "PASSWORD_TOO_LONG":
-      return "Le mot de passe est trop long.";
-    default:
-      return error.message ?? "Une erreur est survenue.";
-  }
-}
-
 export function ResetPasswordForm({ token }: { token: string }) {
+  const t = useTranslations("Auth");
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,11 +23,11 @@ export function ResetPasswordForm({ token }: { token: string }) {
     setError(null);
 
     if (newPassword.length < MIN_PASSWORD_LENGTH) {
-      setError("Le mot de passe doit contenir au moins 8 caractères.");
+      setError(t("passwordTooShort"));
       return;
     }
     if (newPassword !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas.");
+      setError(t("passwordMismatch"));
       return;
     }
 
@@ -46,7 +35,19 @@ export function ResetPasswordForm({ token }: { token: string }) {
     const result = await authClient.resetPassword({ newPassword, token });
     setPending(false);
     if (result.error) {
-      setError(resetErrorMessage(result.error));
+      switch (result.error.code) {
+        case "INVALID_TOKEN":
+          setError(t("invalidToken"));
+          break;
+        case "PASSWORD_TOO_SHORT":
+          setError(t("passwordTooShort"));
+          break;
+        case "PASSWORD_TOO_LONG":
+          setError(t("passwordTooLong"));
+          break;
+        default:
+          setError(result.error.message ?? t("genericError"));
+      }
       return;
     }
     router.push("/login");
@@ -55,7 +56,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="newPassword">Nouveau mot de passe</Label>
+        <Label htmlFor="newPassword">{t("newPassword")}</Label>
         <Input
           id="newPassword"
           name="newPassword"
@@ -66,7 +67,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
         />
       </div>
       <div>
-        <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+        <Label htmlFor="confirmPassword">{t("confirmPassword")}</Label>
         <Input
           id="confirmPassword"
           name="confirmPassword"
@@ -78,7 +79,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
       </div>
       {error ? <p className="text-sm text-accent">{error}</p> : null}
       <Button type="submit" className="w-full" disabled={pending}>
-        {pending ? "Veuillez patienter…" : "Enregistrer le mot de passe"}
+        {pending ? t("pending") : t("choosePassword")}
       </Button>
     </form>
   );

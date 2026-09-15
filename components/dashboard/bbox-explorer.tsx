@@ -1,8 +1,9 @@
 import { BboxExplorerClient } from "@/components/dashboard/bbox-explorer-client";
-import { toExplorerDataset, type DatasetConfig, type OpenDataPage } from "@/lib/opendata/client";
+import type { DatasetConfig, OpenDataPage } from "@/lib/opendata/client";
+import { localizeExplorerDataset } from "@/lib/opendata/localize";
 import type { MapMarker } from "@/lib/opendata/markers";
 
-export function BboxExplorer({
+export async function BboxExplorer({
   dataset,
   ...props
 }: {
@@ -15,5 +16,5 @@ export function BboxExplorer({
   mapZoom?: number;
   extraMarkers?: MapMarker[];
 }) {
-  return <BboxExplorerClient dataset={toExplorerDataset(dataset)} {...props} />;
+  return <BboxExplorerClient dataset={await localizeExplorerDataset(dataset)} {...props} />;
 }
