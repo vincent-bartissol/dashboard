@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Monitor, Moon, Sun } from "lucide-react";
 import {
   applyThemeClass,
@@ -16,11 +16,7 @@ const OPTIONS: { value: ColorScheme; label: string; icon: typeof Sun }[] = [
 ];
 
 export function ThemeToggle({ invert = false }: { invert?: boolean }) {
-  const [theme, setTheme] = useState<ColorScheme | null>(null);
-
-  useEffect(() => {
-    setTheme(readThemeCookie());
-  }, []);
+  const [theme, setTheme] = useState<ColorScheme | null>(() => readThemeCookie());
 
   function onSelect(next: ColorScheme) {
     setTheme(next);
