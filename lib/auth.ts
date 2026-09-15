@@ -5,7 +5,7 @@ import { twoFactor } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
-import { changeEmailMail, otpMail, verificationMail } from "@/lib/email/templates";
+import { changeEmailMail, otpMail, resetPasswordMail, verificationMail } from "@/lib/email/templates";
 import * as schema from "@/lib/db/schema";
 
 export const auth = betterAuth({
@@ -20,11 +20,8 @@ export const auth = betterAuth({
     requireEmailVerification: true,
     revokeSessionsOnPasswordReset: true,
     sendResetPassword: async ({ user, url }) => {
-      void sendEmail({
-        to: user.email,
-        subject: "Réinitialisez votre mot de passe",
-        text: `Cliquez pour choisir un nouveau mot de passe : ${url}`,
-      }).catch((error) => {
+      const mail = resetPasswordMail(url);
+      void sendEmail({ to: user.email, ...mail }).catch((error) => {
         console.error("sendResetPassword failed", error);
       });
     },
