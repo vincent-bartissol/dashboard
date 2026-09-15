@@ -16,6 +16,12 @@
       "es": "Español"
     },
     "localeSwitcher": "Idioma",
+    "appearance": "Apariencia",
+    "theme": {
+      "light": "Claro",
+      "dark": "Oscuro",
+      "system": "Sistema"
+    },
     "mapLoading": "Cargando el mapa…"
   },
   "Nav": {

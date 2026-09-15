@@ -15,14 +15,14 @@ export function Wordmark({
   return (
     <Link
       href={href}
-      className={`group inline-flex flex-col ${invert ? "text-white" : "text-navy"}`}
+      className={`group inline-flex flex-col ${invert ? "text-white" : "text-heading"}`}
     >
       <span className={`font-display font-semibold leading-none tracking-tight ${titleSize}`}>
         Paris
       </span>
       <span
         className={`mt-0.5 font-display font-medium leading-none ${subSize} ${
-          invert ? "text-white/80" : "text-navy/70"
+          invert ? "text-white/80" : "text-heading/70"
         }`}
       >
         Ouverte

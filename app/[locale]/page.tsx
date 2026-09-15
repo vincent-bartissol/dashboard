@@ -61,7 +61,7 @@ export default async function Home() {
               </div>
             </div>
             <Card className="border-white/15 bg-paper text-ink">
-              <p className="text-sm font-medium text-navy">{t("live")}</p>
+              <p className="text-sm font-medium text-heading">{t("live")}</p>
               <dl className="mt-4 space-y-3 text-sm">
                 <div className="flex justify-between gap-4 border-b border-line pb-2">
                   <dt className="text-muted">{t("stations")}</dt>
@@ -138,7 +138,7 @@ export default async function Home() {
           </div>
           <p className="mt-6 text-sm text-muted">
             {t("already")}{" "}
-            <Link href="/login" className="font-medium text-navy hover:underline">
+            <Link href="/login" className="font-medium text-heading hover:underline">
               {t("login")}
             </Link>
           </p>

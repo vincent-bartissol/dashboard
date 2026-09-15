@@ -40,12 +40,12 @@ export default async function FavoritesPage() {
           {favorites.map((item) => (
             <Card key={item.id} className="flex items-center justify-between gap-4">
               <div>
-                <p className="font-medium text-navy">{item.label}</p>
+                <p className="font-medium text-heading">{item.label}</p>
                 <p className="text-sm text-muted">{item.datasetId}</p>
               </div>
               <Link
                 href={DATASET_HREF[item.datasetId] ?? "/dashboard"}
-                className="text-sm font-medium text-navy hover:underline"
+                className="text-sm font-medium text-heading hover:underline"
               >
                 {t("openTheme")}
               </Link>

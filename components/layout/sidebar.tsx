@@ -1,12 +1,12 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { usePathname, useRouter } from "@/i18n/navigation";
+import { usePathname, useRouter, Link } from "@/i18n/navigation";
 import { NAV_ITEMS } from "@/lib/opendata/datasets";
 import { authClient } from "@/lib/auth-client";
 import { Wordmark } from "@/components/layout/wordmark";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
-import { Link } from "@/i18n/navigation";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 export function Sidebar({ userName }: { userName: string }) {
   const pathname = usePathname();
@@ -48,6 +48,7 @@ export function Sidebar({ userName }: { userName: string }) {
       </nav>
       <div className="space-y-2 p-3">
         <LocaleSwitcher invert />
+        <ThemeToggle invert />
         <button
           type="button"
           onClick={logout}
@@ -77,6 +78,7 @@ export function MobileNav({ userName }: { userName: string }) {
         <Wordmark invert />
         <div className="flex items-center gap-2">
           <LocaleSwitcher invert />
+          <ThemeToggle invert />
           <button type="button" onClick={logout} className="text-sm text-white/80">
             {t("logoutShort")}
           </button>

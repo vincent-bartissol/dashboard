@@ -28,12 +28,12 @@ export default async function LoginPage({
           </Suspense>
           <p className="mt-4 text-sm text-muted">
             {t("noAccount")}{" "}
-            <Link href="/signup" className="font-medium text-navy hover:underline">
+            <Link href="/signup" className="font-medium text-heading hover:underline">
               {t("createAccount")}
             </Link>
           </p>
           <p className="mt-2 text-sm text-muted">
-            <Link href="/forgot-password" className="font-medium text-navy hover:underline">
+            <Link href="/forgot-password" className="font-medium text-heading hover:underline">
               {t("forgotLink")}
             </Link>
           </p>

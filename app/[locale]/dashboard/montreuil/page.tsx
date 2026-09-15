@@ -160,7 +160,7 @@ export default async function MontreuilPage({
             {t.rich("bikeSource", {
               link: (chunks) => (
                 <a
-                  className="text-navy hover:underline"
+                  className="text-heading hover:underline"
                   href={DATASETS.montreuilBikes.sourceUrl}
                   target="_blank"
                   rel="noreferrer"

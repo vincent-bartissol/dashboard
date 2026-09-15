@@ -3,6 +3,7 @@ import { getSession } from "@/lib/session";
 import { Button } from "@/components/ui/button";
 import { Wordmark } from "@/components/layout/wordmark";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 export async function SiteHeader({ variant = "public" }: { variant?: "public" | "auth" }) {
   const session = await getSession();
@@ -14,6 +15,7 @@ export async function SiteHeader({ variant = "public" }: { variant?: "public" | 
         <Wordmark />
         <div className="flex items-center gap-2 sm:gap-3">
           <LocaleSwitcher />
+          <ThemeToggle />
           {variant === "auth" ? null : session ? (
             <Button href="/dashboard" variant="secondary">
               {t("privateSpace")}
@@ -39,7 +41,7 @@ export async function SiteFooter() {
       <div className="mx-auto flex max-w-6xl flex-col gap-2 px-6 sm:flex-row sm:items-center sm:justify-between">
         <p>{t("license")}</p>
         <a
-          className="font-medium text-navy hover:underline"
+          className="font-medium text-heading hover:underline"
           href="https://opendata.paris.fr"
           target="_blank"
           rel="noreferrer"

@@ -28,7 +28,7 @@ export default async function SignupPage({
           </Suspense>
           <p className="mt-4 text-sm text-muted">
             {t("hasAccount")}{" "}
-            <Link href="/login" className="font-medium text-navy hover:underline">
+            <Link href="/login" className="font-medium text-heading hover:underline">
               {t("signIn")}
             </Link>
           </p>

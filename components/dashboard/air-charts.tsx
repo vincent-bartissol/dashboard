@@ -14,6 +14,7 @@ import {
 import type { OpenDataRecord } from "@/lib/opendata/client";
 import { Card } from "@/components/ui/card";
 import { SectionTitle } from "@/components/ui/heading";
+import { useChartChrome } from "@/components/theme/use-chart-chrome";
 
 const SERIES = [
   { key: "ind_jour_qa_bonne", color: "#2f9e44" },
@@ -25,6 +26,7 @@ const SERIES = [
 ] as const;
 
 export function AirCharts({ records }: { records: OpenDataRecord[] }) {
+  const chrome = useChartChrome();
   const t = useTranslations("Datasets.air.columns");
   const title = useTranslations("Pages.air");
   const data = [...records]
@@ -40,11 +42,17 @@ export function AirCharts({ records }: { records: OpenDataRecord[] }) {
       <div className="h-[360px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e4dcd0" />
-            <XAxis dataKey="annee" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
+            <CartesianGrid strokeDasharray="3 3" stroke={chrome.grid} />
+            <XAxis dataKey="annee" stroke={chrome.tick} tick={{ fill: chrome.tick }} />
+            <YAxis stroke={chrome.tick} tick={{ fill: chrome.tick }} />
+            <Tooltip
+              contentStyle={{
+                background: chrome.paper,
+                border: `1px solid ${chrome.grid}`,
+                color: chrome.ink,
+              }}
+            />
+            <Legend wrapperStyle={{ color: chrome.ink }} />
             {SERIES.map((item) => (
               <Bar key={item.key} dataKey={item.key} name={t(item.key)} fill={item.color} stackId="atmo" />
             ))}

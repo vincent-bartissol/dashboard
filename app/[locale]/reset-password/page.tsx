@@ -26,7 +26,7 @@ export default async function ResetPasswordPage({
       <SiteHeader variant="auth" />
       <main className="flex flex-1 items-center justify-center px-6 py-16">
         <Card className="w-full max-w-md">
-          <h1 className="text-2xl font-semibold text-navy">{t("resetTitle")}</h1>
+          <h1 className="text-2xl font-semibold text-heading">{t("resetTitle")}</h1>
           {token && !error ? (
             <>
               <p className="mt-1 mb-6 text-sm text-muted">{t("resetBody")}</p>
@@ -36,7 +36,7 @@ export default async function ResetPasswordPage({
             <>
               <p className="mt-1 mb-6 text-sm text-muted">{t("resetInvalid")}</p>
               <p className="text-sm text-muted">
-                <Link href="/forgot-password" className="font-medium text-navy hover:underline">
+                <Link href="/forgot-password" className="font-medium text-heading hover:underline">
                   {t("forgotTitle")}
                 </Link>
               </p>

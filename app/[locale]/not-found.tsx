@@ -17,7 +17,7 @@ export default async function NotFound() {
         </div>
         <p className="mt-4 text-sm text-muted">
           {t("or")}{" "}
-          <Link href="/dashboard" className="font-medium text-navy hover:underline">
+          <Link href="/dashboard" className="font-medium text-heading hover:underline">
             {t("dashboard")}
           </Link>
           .

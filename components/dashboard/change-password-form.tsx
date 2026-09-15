@@ -69,7 +69,7 @@ export function ChangePasswordForm() {
 
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      <h2 className="text-lg font-semibold text-navy">{t("passwordTitle")}</h2>
+      <h2 className="text-lg font-semibold text-heading">{t("passwordTitle")}</h2>
       <p className="text-sm text-muted">{t("passwordHint")}</p>
       <div>
         <Label htmlFor="currentPassword">{t("currentPassword")}</Label>
