@@ -1,8 +1,9 @@
 import { ThemeExplorerClient } from "@/components/dashboard/theme-explorer-client";
-import { toExplorerDataset, type DatasetConfig, type OpenDataRecord } from "@/lib/opendata/client";
+import type { DatasetConfig, OpenDataRecord } from "@/lib/opendata/client";
+import { localizeExplorerDataset } from "@/lib/opendata/localize";
 import type { MapMarker } from "@/lib/opendata/markers";
 
-export function ThemeExplorer({
+export async function ThemeExplorer({
   dataset,
   ...props
 }: {
@@ -16,5 +17,5 @@ export function ThemeExplorer({
   mapZoom?: number;
   extraMarkers?: MapMarker[];
 }) {
-  return <ThemeExplorerClient dataset={toExplorerDataset(dataset)} {...props} />;
+  return <ThemeExplorerClient dataset={await localizeExplorerDataset(dataset)} {...props} />;
 }

@@ -1,0 +1,41 @@
+import { getFormatter, getTranslations } from "next-intl/server";
+import { DatasetNotice } from "@/components/dashboard/dataset-notice";
+import { KpiStrip } from "@/components/dashboard/kpi-strip";
+import { PageIntro } from "@/components/dashboard/page-intro";
+import { ThemeExplorer } from "@/components/dashboard/theme-explorer";
+import { DATASETS } from "@/lib/opendata/datasets";
+import { loadTheme } from "@/lib/opendata/load";
+import { requireSession } from "@/lib/session";
+
+export default async function MarketsPage() {
+  const session = await requireSession();
+  const t = await getTranslations("Pages.markets");
+  const format = await getFormatter();
+  const { page, favoriteIds, error } = await loadTheme(DATASETS.markets, session.user.id);
+
+  return (
+    <div className="space-y-6">
+      <PageIntro title={t("title")} dataset={DATASETS.markets}>
+        {t("body")}
+      </PageIntro>
+      <DatasetNotice error={error} />
+      <KpiStrip
+        items={[
+          { label: t("markets"), value: format.number(page.total_count) },
+          {
+            label: t("food"),
+            value: page.results.filter((row) => String(row.produit).toLowerCase().includes("aliment"))
+              .length,
+          },
+        ]}
+      />
+      <ThemeExplorer
+        dataset={DATASETS.markets}
+        records={page.results}
+        totalCount={page.total_count}
+        favoriteIds={favoriteIds}
+        descriptionKeys={["jours_tenue", "produit"]}
+      />
+    </div>
+  );
+}

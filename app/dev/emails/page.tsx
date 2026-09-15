@@ -12,7 +12,7 @@ import {
 import { firstSearchParam } from "@/lib/safe-next";
 
 const SAMPLE_URL = "http://localhost:3000/api/auth/verify-email?token=apercu";
-const SAMPLE_RESET_URL = "http://localhost:3000/reset-password?token=apercu";
+const SAMPLE_RESET_URL = "http://localhost:3000/fr/reset-password?token=apercu";
 const SAMPLE_OTP = "123456";
 const SAMPLE_EMAIL = "nouvelle@example.com";
 

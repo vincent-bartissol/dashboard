@@ -1,11 +1,15 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { withLocale } from "@/i18n/path";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 
 export function ForgotPasswordForm() {
+  const t = useTranslations("Auth");
+  const locale = useLocale();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
@@ -19,11 +23,11 @@ export function ForgotPasswordForm() {
     setPending(true);
     const result = await authClient.requestPasswordReset({
       email,
-      redirectTo: "/reset-password",
+      redirectTo: withLocale("/reset-password", locale),
     });
     setPending(false);
     if (result.error) {
-      setError(result.error.message ?? "Une erreur est survenue.");
+      setError(result.error.message ?? t("genericError"));
       return;
     }
     setSent(true);
@@ -32,15 +36,13 @@ export function ForgotPasswordForm() {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="email">E-mail</Label>
+        <Label htmlFor="email">{t("email")}</Label>
         <Input id="email" name="email" type="email" required autoComplete="email" />
       </div>
       {error ? <p className="text-sm text-accent">{error}</p> : null}
-      {sent ? (
-        <p className="text-sm text-muted">Si un compte existe, un e-mail a été envoyé.</p>
-      ) : null}
+      {sent ? <p className="text-sm text-muted">{t("forgotSent")}</p> : null}
       <Button type="submit" className="w-full" disabled={pending}>
-        {pending ? "Veuillez patienter…" : "Envoyer le lien"}
+        {pending ? t("pending") : t("sendLink")}
       </Button>
     </form>
   );
