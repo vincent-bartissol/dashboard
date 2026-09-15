@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Monitor, Moon, Sun } from "lucide-react";
 import {
   applyThemeClass,
@@ -9,19 +9,34 @@ import {
   type ColorScheme,
 } from "@/lib/theme";
 
+const THEME_EVENT = "paris-ouverte-theme";
+
 const OPTIONS: { value: ColorScheme; label: string; icon: typeof Sun }[] = [
   { value: "light", label: "Clair", icon: Sun },
   { value: "dark", label: "Sombre", icon: Moon },
   { value: "system", label: "Système", icon: Monitor },
 ];
 
+function subscribe(onStoreChange: () => void) {
+  window.addEventListener(THEME_EVENT, onStoreChange);
+  return () => window.removeEventListener(THEME_EVENT, onStoreChange);
+}
+
+function getSnapshot() {
+  return readThemeCookie();
+}
+
+function getServerSnapshot(): ColorScheme {
+  return "system";
+}
+
 export function ThemeToggle({ invert = false }: { invert?: boolean }) {
-  const [theme, setTheme] = useState<ColorScheme | null>(() => readThemeCookie());
+  const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   function onSelect(next: ColorScheme) {
-    setTheme(next);
     writeThemeCookie(next);
     applyThemeClass(next);
+    window.dispatchEvent(new Event(THEME_EVENT));
   }
 
   const frame = invert
