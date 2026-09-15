@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { AuthForm } from "@/components/auth/auth-form";
 import { SiteFooter, SiteHeader } from "@/components/layout/site-chrome";
 import { Card } from "@/components/ui/card";
+import { PageTitle } from "@/components/ui/heading";
 import { requireGuest } from "@/lib/session";
 
 export default async function SignupPage({
@@ -18,7 +19,7 @@ export default async function SignupPage({
       <SiteHeader variant="auth" />
       <main className="flex flex-1 items-center justify-center px-6 py-16">
         <Card className="w-full max-w-md">
-          <h1 className="text-2xl font-semibold text-navy">Créer un compte</h1>
+          <PageTitle>Créer un compte</PageTitle>
           <p className="mt-1 mb-6 text-sm text-muted">
             E-mail et mot de passe (8 caractères minimum). Un e-mail de confirmation
             vous sera envoyé.

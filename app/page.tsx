@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { SiteFooter, SiteHeader } from "@/components/layout/site-chrome";
+import { Wordmark } from "@/components/layout/wordmark";
 import { Button } from "@/components/ui/button";
 import { Card, KpiCard } from "@/components/ui/card";
+import { SectionTitle } from "@/components/ui/heading";
 import { DatasetNotice } from "@/components/dashboard/dataset-notice";
 import { fetchAggregate, fetchCount, fetchRecordsSafe } from "@/lib/opendata/client";
 import { DATASETS } from "@/lib/opendata/datasets";
@@ -32,59 +34,69 @@ export default async function Home() {
       <SiteHeader />
       <main className="flex-1">
         <section className="relative overflow-hidden border-b border-line bg-navy text-white">
-          <div className="mx-auto grid max-w-6xl gap-10 px-6 py-20 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+          <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:py-20">
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.22em] text-gold">
-                Ville de Paris · Montreuil · Open Data
-              </p>
-              <h1 className="mt-4 max-w-xl text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
+              <Wordmark href="/" invert size="lg" />
+              <h1 className="mt-8 max-w-xl font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
                 Un tableau de bord pour lire Paris en données publiques.
               </h1>
-              <p className="mt-5 max-w-xl text-base leading-7 text-white/80">
-                Paris Ouverte rassemble Vélib’, arbres, qualité de l’air, fontaines,
-                événements, chantiers et marchés. La page d’accueil est ouverte à toutes
-                et tous. L’espace privé, après inscription, permet de filtrer, cartographier
-                et enregistrer des favoris.
+              <p className="mt-4 max-w-xl text-base leading-7 text-white/75">
+                Vélib’, arbres, qualité de l’air, fontaines, événements, chantiers et marchés —
+                filtrés, cartographiés et favoris après inscription.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button href="/signup">Créer un compte</Button>
-                <Button href="/login" variant="ghost" className="border-white/20 bg-transparent text-white hover:border-white/40">
+                <Button
+                  href="/login"
+                  variant="ghost"
+                  className="border-white/25 bg-transparent text-white hover:border-white/50"
+                >
                   Se connecter
                 </Button>
               </div>
             </div>
-            <Card className="bg-paper text-ink">
-              <p className="text-sm font-medium text-gold">En direct d’opendata.paris.fr</p>
+            <Card className="border-white/15 bg-paper text-ink">
+              <p className="text-sm font-medium text-navy">En direct d’opendata.paris.fr</p>
               <dl className="mt-4 space-y-3 text-sm">
-                <div className="flex justify-between gap-4">
+                <div className="flex justify-between gap-4 border-b border-line pb-2">
                   <dt className="text-muted">Stations Vélib’</dt>
-                  <dd className="font-semibold">{velibCount.toLocaleString("fr-FR")}</dd>
+                  <dd className="font-semibold tabular-nums">
+                    {velibCount.toLocaleString("fr-FR")}
+                  </dd>
                 </div>
-                <div className="flex justify-between gap-4">
+                <div className="flex justify-between gap-4 border-b border-line pb-2">
                   <dt className="text-muted">Vélos disponibles</dt>
-                  <dd className="font-semibold">{bikes.toLocaleString("fr-FR")}</dd>
+                  <dd className="font-semibold tabular-nums">{bikes.toLocaleString("fr-FR")}</dd>
                 </div>
-                <div className="flex justify-between gap-4">
+                <div className="flex justify-between gap-4 border-b border-line pb-2">
                   <dt className="text-muted">Arbres recensés</dt>
-                  <dd className="font-semibold">{treeCount.toLocaleString("fr-FR")}</dd>
+                  <dd className="font-semibold tabular-nums">
+                    {treeCount.toLocaleString("fr-FR")}
+                  </dd>
                 </div>
                 <div className="flex justify-between gap-4">
                   <dt className="text-muted">Événements</dt>
-                  <dd className="font-semibold">{eventCount.toLocaleString("fr-FR")}</dd>
+                  <dd className="font-semibold tabular-nums">
+                    {eventCount.toLocaleString("fr-FR")}
+                  </dd>
                 </div>
               </dl>
             </Card>
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-6 py-14">
-          <h2 className="text-2xl font-semibold text-navy">Chiffres clés</h2>
+        <section className="mx-auto max-w-6xl px-6 py-12">
+          <SectionTitle size="lg">Chiffres clés</SectionTitle>
           <p className="mt-2 max-w-2xl text-muted">
-            Ces indicateurs sont calculés côté serveur à partir de l’API Explore v2.1,
-            sans clé, et mis en cache selon la fraîcheur de chaque jeu.
+            Ces indicateurs sont calculés côté serveur à partir de l’API Explore v2.1, sans clé, et
+            mis en cache selon la fraîcheur de chaque jeu.
           </p>
-          {openDataError ? <div className="mt-4"><DatasetNotice error="opendata" /></div> : null}
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {openDataError ? (
+            <div className="mt-4">
+              <DatasetNotice error="opendata" />
+            </div>
+          ) : null}
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <KpiCard
               label="Vélib’"
               value={bikes.toLocaleString("fr-FR")}
@@ -113,7 +125,7 @@ export default async function Home() {
         </section>
 
         <section className="border-y border-line bg-paper">
-          <div className="mx-auto grid max-w-6xl gap-8 px-6 py-14 lg:grid-cols-3">
+          <div className="mx-auto grid max-w-6xl gap-0 px-6 py-12 lg:grid-cols-3">
             {[
               {
                 title: "Paris et Montreuil",
@@ -127,19 +139,26 @@ export default async function Home() {
                 title: "Aussi Montreuil",
                 body: "Autour de Robespierre et de la rue Étienne Marcel : portail Montreuil Data, Vélib’ Métropole, agenda 93100 et compteur vélos.",
               },
-            ].map((item) => (
-              <div key={item.title}>
-                <h3 className="text-lg font-semibold text-navy">{item.title}</h3>
+            ].map((item, index) => (
+              <div
+                key={item.title}
+                className={`py-2 lg:px-6 lg:py-0 ${
+                  index > 0 ? "border-t border-line pt-6 lg:border-t-0 lg:border-l lg:pt-0" : ""
+                } ${index === 0 ? "lg:pl-0" : ""} ${index === 2 ? "lg:pr-0" : ""}`}
+              >
+                <SectionTitle as="h3">{item.title}</SectionTitle>
                 <p className="mt-2 text-sm leading-6 text-muted">{item.body}</p>
               </div>
             ))}
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-6 py-14">
-          <div className="flex flex-col items-start justify-between gap-4 rounded-3xl bg-navy px-8 py-10 text-white sm:flex-row sm:items-center">
+        <section className="mx-auto max-w-6xl px-6 py-12">
+          <div className="rule-accent flex flex-col items-start justify-between gap-4 bg-navy px-8 py-10 text-white sm:flex-row sm:items-center">
             <div>
-              <h2 className="text-2xl font-semibold">Passer dans l’espace privé</h2>
+              <SectionTitle size="lg" invert>
+                Passer dans l’espace privé
+              </SectionTitle>
               <p className="mt-2 max-w-xl text-white/75">
                 L’inscription est locale (e-mail et mot de passe). Aucun réseau social.
               </p>

@@ -5,7 +5,7 @@ export default async function DashboardLayout({ children }: LayoutProps<"/dashbo
   const session = await requireSession();
 
   return (
-    <div className="flex min-h-full flex-col bg-cream lg:flex-row">
+    <div className="flex min-h-full flex-col bg-ground lg:flex-row">
       <div className="hidden lg:flex">
         <Sidebar userName={session.user.name || session.user.email} />
       </div>

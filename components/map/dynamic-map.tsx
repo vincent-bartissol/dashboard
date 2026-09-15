@@ -7,7 +7,7 @@ export const DynamicParisMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-[420px] items-center justify-center rounded-2xl border border-line bg-paper text-sm text-muted">
+      <div className="surface-panel flex h-[420px] items-center justify-center text-sm text-muted">
         Chargement de la carte…
       </div>
     ),

@@ -1,7 +1,7 @@
 import type { InputHTMLAttributes, SelectHTMLAttributes } from "react";
 
 const fieldClass =
-  "h-11 w-full rounded-xl border border-line bg-paper px-3 text-sm text-ink outline-none transition focus:border-navy";
+  "h-11 w-full surface-panel focus-field px-3 text-sm text-ink outline-none transition";
 
 export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   return <input className={`${fieldClass} ${props.className ?? ""}`} {...props} />;

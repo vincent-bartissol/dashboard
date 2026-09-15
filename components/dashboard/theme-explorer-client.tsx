@@ -141,11 +141,11 @@ export function ThemeExplorerClient({
       ) : null}
       <Card className="overflow-x-auto p-0">
         <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-line bg-cream/70 text-xs uppercase tracking-wide text-muted">
+          <thead className="text-label border-b border-line bg-ground">
             <tr>
-              <th className="px-4 py-3 w-12" />
+              <th className="w-12 px-3 py-2" />
               {dataset.columns.map((column) => (
-                <th key={column.key} className="px-4 py-3 font-medium">
+                <th key={column.key} className="px-3 py-2">
                   {column.label}
                 </th>
               ))}
@@ -157,18 +157,18 @@ export function ThemeExplorerClient({
               const saved = favorites.has(id);
               return (
                 <tr key={`${id}::${index}`} className="border-b border-line/80 last:border-0">
-                  <td className="px-3 py-2">
+                  <td className="px-2 py-1.5">
                     <button
                       type="button"
                       onClick={() => onToggle(record)}
-                      className="rounded-full p-1 text-muted hover:text-accent"
+                      className="rounded-none p-1 text-muted hover:text-accent"
                       aria-label={saved ? "Retirer des favoris" : "Ajouter aux favoris"}
                     >
                       <Heart className={`h-4 w-4 ${saved ? "fill-accent text-accent" : ""}`} />
                     </button>
                   </td>
                   {dataset.columns.map((column) => (
-                    <td key={column.key} className="max-w-xs truncate px-4 py-2">
+                    <td key={column.key} className="max-w-xs truncate px-3 py-1.5">
                       {formatCell(record[column.key])}
                     </td>
                   ))}

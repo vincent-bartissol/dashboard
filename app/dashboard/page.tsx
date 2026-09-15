@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PageIntro } from "@/components/dashboard/page-intro";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { Card } from "@/components/ui/card";
+import { SectionTitle } from "@/components/ui/heading";
 import { DatasetNotice } from "@/components/dashboard/dataset-notice";
 import { getProfile, listFavorites } from "@/lib/db/queries";
 import { fetchAggregate, fetchCount } from "@/lib/opendata/client";
@@ -59,7 +60,7 @@ export default async function DashboardPage() {
         {THEMES.map((theme) => (
           <Link key={theme.href} href={theme.href}>
             <Card className="h-full transition hover:border-navy/30">
-              <h2 className="text-lg font-semibold text-navy">{theme.title}</h2>
+              <SectionTitle>{theme.title}</SectionTitle>
               <p className="mt-1 text-sm text-muted">{theme.body}</p>
             </Card>
           </Link>

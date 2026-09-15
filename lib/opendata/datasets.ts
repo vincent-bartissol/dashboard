@@ -28,7 +28,7 @@ export const MONTREUIL_LANDMARKS = [
     id: "rue-etienne-marcel",
     position: { lat: 48.85758, lon: 2.42649 },
     label: "Rue Étienne Marcel",
-    color: "#b08d57",
+    color: "#3d7ea6",
     description: "Compteur vélos vers Paris / Croix de Chavaux",
   },
 ] as const;

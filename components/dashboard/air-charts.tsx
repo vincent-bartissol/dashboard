@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import type { OpenDataRecord } from "@/lib/opendata/client";
 import { Card } from "@/components/ui/card";
+import { SectionTitle } from "@/components/ui/heading";
 
 const SERIES = [
   { key: "ind_jour_qa_bonne", label: "Bonne", color: "#2f9e44" },
@@ -32,7 +33,7 @@ export function AirCharts({ records }: { records: OpenDataRecord[] }) {
 
   return (
     <Card>
-      <h2 className="mb-4 text-lg font-semibold text-navy">Jours par indice ATMO</h2>
+      <SectionTitle className="mb-4">Jours par indice ATMO</SectionTitle>
       <div className="h-[360px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>

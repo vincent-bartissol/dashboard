@@ -11,6 +11,6 @@ French-first civic dashboard. UI copy in French. Do not add English i18n.
 - Auth: Better Auth email/password. DB: Drizzle + SQLite (`data/dashboard.sqlite`, gitignored).
 - Public: `/`, `/login`, `/signup`. Private: `/dashboard/*`.
 - Theme pages: KPI strip + map and/or chart + searchable table. Two datasets on one theme use tabs, not extra routes.
-- Reuse `components/ui` (`Button`, `Card`, `Input`) and tokens in `app/globals.css` (`navy`, `cream`, `accent`, `gold`). Do not add a design-system package.
+- Reuse `components/ui` (`Button`, `Card`, `Input`) and tokens in `app/globals.css` (`navy`, `ground`, `paper`, `accent`). Do not add a design-system package. Typography: Newsreader (display) + IBM Plex Sans (UI). Square geometry, red accent as a rule — not cream/gold hospitality.
 - Product intent: `PLAN.md`. Dataset catalog: `lib/opendata/datasets.ts`.
 - Do not commit or push unless asked. Do not commit `.env*` or `data/`.
