@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { useTranslations } from "next-intl";
 import { Monitor, Moon, Sun } from "lucide-react";
 import {
   applyThemeClass,
@@ -11,10 +12,10 @@ import {
 
 const THEME_EVENT = "paris-ouverte-theme";
 
-const OPTIONS: { value: ColorScheme; label: string; icon: typeof Sun }[] = [
-  { value: "light", label: "Clair", icon: Sun },
-  { value: "dark", label: "Sombre", icon: Moon },
-  { value: "system", label: "Système", icon: Monitor },
+const OPTIONS: { value: ColorScheme; icon: typeof Sun }[] = [
+  { value: "light", icon: Sun },
+  { value: "dark", icon: Moon },
+  { value: "system", icon: Monitor },
 ];
 
 function subscribe(onStoreChange: () => void) {
@@ -31,6 +32,7 @@ function getServerSnapshot(): ColorScheme {
 }
 
 export function ThemeToggle({ invert = false }: { invert?: boolean }) {
+  const t = useTranslations("Common");
   const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   function onSelect(next: ColorScheme) {
@@ -51,11 +53,12 @@ export function ThemeToggle({ invert = false }: { invert?: boolean }) {
     <div
       className={`inline-flex rounded-none border ${frame}`}
       role="group"
-      aria-label="Apparence"
+      aria-label={t("appearance")}
     >
       {OPTIONS.map((option) => {
         const Icon = option.icon;
         const selected = theme === option.value;
+        const label = t(`theme.${option.value}`);
         return (
           <button
             key={option.value}
@@ -65,11 +68,11 @@ export function ThemeToggle({ invert = false }: { invert?: boolean }) {
               selected ? active : idle
             }`}
             aria-pressed={selected}
-            aria-label={option.label}
-            title={option.label}
+            aria-label={label}
+            title={label}
           >
             <Icon className="h-3.5 w-3.5" aria-hidden />
-            <span className="hidden sm:inline">{option.label}</span>
+            <span className="hidden sm:inline">{label}</span>
           </button>
         );
       })}
