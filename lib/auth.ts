@@ -17,6 +17,16 @@ export const auth = betterAuth({
     enabled: true,
     minPasswordLength: 8,
     requireEmailVerification: true,
+    revokeSessionsOnPasswordReset: true,
+    sendResetPassword: async ({ user, url }) => {
+      void sendEmail({
+        to: user.email,
+        subject: "Réinitialisez votre mot de passe",
+        text: `Cliquez pour choisir un nouveau mot de passe : ${url}`,
+      }).catch((error) => {
+        console.error("sendResetPassword failed", error);
+      });
+    },
   },
   emailVerification: {
     sendOnSignUp: true,
