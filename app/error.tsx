@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { PageTitle } from "@/components/ui/heading";
 
 export default function Error({
   error,
@@ -16,7 +17,7 @@ export default function Error({
 
   return (
     <div className="mx-auto flex min-h-full max-w-lg flex-col items-start justify-center gap-4 px-6 py-16">
-      <h1 className="font-display text-2xl font-semibold text-navy">Une erreur est survenue</h1>
+      <PageTitle>Une erreur est survenue</PageTitle>
       <p className="text-sm text-muted">
         La page n’a pas pu s’afficher. Réessayez dans un instant.
       </p>

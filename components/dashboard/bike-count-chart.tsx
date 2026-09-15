@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import type { OpenDataRecord } from "@/lib/opendata/client";
 import { Card } from "@/components/ui/card";
+import { SectionTitle } from "@/components/ui/heading";
 
 export function BikeCountChart({ records }: { records: OpenDataRecord[] }) {
   const byDay = new Map<string, number>();
@@ -27,9 +28,9 @@ export function BikeCountChart({ records }: { records: OpenDataRecord[] }) {
 
   return (
     <Card>
-      <h2 className="mb-4 font-display text-lg font-semibold text-navy">
+      <SectionTitle className="mb-4">
         Passages vélos · rue Étienne Marcel (7 derniers jours)
-      </h2>
+      </SectionTitle>
       <div className="h-[320px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>

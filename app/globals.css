@@ -50,3 +50,19 @@ a {
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
+
+@utility text-label {
+  @apply text-xs font-medium uppercase tracking-[0.12em] text-muted;
+}
+
+@utility rule-accent {
+  @apply border-l-4 border-accent;
+}
+
+@utility surface-panel {
+  @apply rounded-none border border-line bg-paper;
+}
+
+@utility focus-field {
+  @apply focus:border-navy focus:ring-1 focus:ring-navy;
+}

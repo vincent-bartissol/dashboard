@@ -141,11 +141,11 @@ export function ThemeExplorerClient({
       ) : null}
       <Card className="overflow-x-auto p-0">
         <table className="min-w-full text-left text-sm">
-          <thead className="border-b border-line bg-ground text-xs uppercase tracking-wide text-muted">
+          <thead className="text-label border-b border-line bg-ground">
             <tr>
               <th className="w-12 px-3 py-2" />
               {dataset.columns.map((column) => (
-                <th key={column.key} className="px-3 py-2 font-medium">
+                <th key={column.key} className="px-3 py-2">
                   {column.label}
                 </th>
               ))}

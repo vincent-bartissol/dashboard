@@ -3,6 +3,7 @@ import { SiteFooter, SiteHeader } from "@/components/layout/site-chrome";
 import { Wordmark } from "@/components/layout/wordmark";
 import { Button } from "@/components/ui/button";
 import { Card, KpiCard } from "@/components/ui/card";
+import { SectionTitle } from "@/components/ui/heading";
 import { DatasetNotice } from "@/components/dashboard/dataset-notice";
 import { fetchAggregate, fetchCount, fetchRecordsSafe } from "@/lib/opendata/client";
 import { DATASETS } from "@/lib/opendata/datasets";
@@ -85,7 +86,7 @@ export default async function Home() {
         </section>
 
         <section className="mx-auto max-w-6xl px-6 py-12">
-          <h2 className="font-display text-2xl font-semibold text-navy">Chiffres clés</h2>
+          <SectionTitle size="lg">Chiffres clés</SectionTitle>
           <p className="mt-2 max-w-2xl text-muted">
             Ces indicateurs sont calculés côté serveur à partir de l’API Explore v2.1, sans clé, et
             mis en cache selon la fraîcheur de chaque jeu.
@@ -145,7 +146,7 @@ export default async function Home() {
                   index > 0 ? "border-t border-line pt-6 lg:border-t-0 lg:border-l lg:pt-0" : ""
                 } ${index === 0 ? "lg:pl-0" : ""} ${index === 2 ? "lg:pr-0" : ""}`}
               >
-                <h3 className="font-display text-lg font-semibold text-navy">{item.title}</h3>
+                <SectionTitle as="h3">{item.title}</SectionTitle>
                 <p className="mt-2 text-sm leading-6 text-muted">{item.body}</p>
               </div>
             ))}
@@ -153,9 +154,11 @@ export default async function Home() {
         </section>
 
         <section className="mx-auto max-w-6xl px-6 py-12">
-          <div className="flex flex-col items-start justify-between gap-4 border-l-4 border-accent bg-navy px-8 py-10 text-white sm:flex-row sm:items-center">
+          <div className="rule-accent flex flex-col items-start justify-between gap-4 bg-navy px-8 py-10 text-white sm:flex-row sm:items-center">
             <div>
-              <h2 className="font-display text-2xl font-semibold">Passer dans l’espace privé</h2>
+              <SectionTitle size="lg" invert>
+                Passer dans l’espace privé
+              </SectionTitle>
               <p className="mt-2 max-w-xl text-white/75">
                 L’inscription est locale (e-mail et mot de passe). Aucun réseau social.
               </p>

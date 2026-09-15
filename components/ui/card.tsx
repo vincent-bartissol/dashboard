@@ -8,11 +8,7 @@ export function Card({
   className?: string;
 }) {
   return (
-    <section
-      className={`rounded-none border border-line bg-paper p-4 ${className}`}
-    >
-      {children}
-    </section>
+    <section className={`surface-panel p-4 ${className}`}>{children}</section>
   );
 }
 
@@ -26,10 +22,8 @@ export function KpiCard({
   hint?: string;
 }) {
   return (
-    <Card className="border-l-4 border-l-accent">
-      <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted">
-        {label}
-      </p>
+    <Card className="rule-accent">
+      <p className="text-label">{label}</p>
       <p className="mt-2 font-display text-4xl font-semibold tabular-nums text-navy">
         {value}
       </p>

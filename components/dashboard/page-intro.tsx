@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { DatasetConfig } from "@/lib/opendata/client";
+import { PageTitle } from "@/components/ui/heading";
 
 export function PageIntro({
   title,
@@ -13,10 +14,8 @@ export function PageIntro({
   const datasets = dataset ? (Array.isArray(dataset) ? dataset : [dataset]) : [];
   return (
     <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-      <div className="border-l-4 border-accent pl-4">
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-navy">
-          {title}
-        </h1>
+      <div className="rule-accent pl-4">
+        <PageTitle size="lg">{title}</PageTitle>
         <p className="mt-1 max-w-2xl text-muted">{children}</p>
       </div>
       {datasets.length ? (
