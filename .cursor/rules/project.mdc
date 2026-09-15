@@ -5,11 +5,11 @@ alwaysApply: true
 
 # Paris Ouverte
 
-French-first civic dashboard. UI copy in French. Do not add English i18n.
+French-first civic dashboard. Three locales (`fr`, `en`, `es`), default `fr`, always-on URL prefixes (`/fr`, `/en`, `/es`). Do not translate Open Data record values. Brand **Paris Ouverte** stays.
 
 - Next.js 16 App Router + React 19 + Tailwind 4. Read `node_modules/next/dist/docs/` before using Next APIs. Use `proxy.ts`, not `middleware.ts`.
 - Auth: Better Auth email/password. DB: Drizzle + SQLite (`data/dashboard.sqlite`, gitignored).
-- Public: `/`, `/login`, `/signup`. Private: `/dashboard/*`.
+- Public: `/` redirects to `/fr`; auth at `/[locale]/login`, `/[locale]/signup`. Private: `/[locale]/dashboard/*`. APIs stay unprefixed (`/api/*`).
 - Theme pages: KPI strip + map and/or chart + searchable table. Two datasets on one theme use tabs, not extra routes.
 - Reuse `components/ui` (`Button`, `Card`, `Input`) and tokens in `app/globals.css` (`navy`, `ground`, `paper`, `accent`). Do not add a design-system package. Typography: Newsreader (display) + IBM Plex Sans (UI). Square geometry, red accent as a rule — not cream/gold hospitality.
 - Product intent: `PLAN.md`. Dataset catalog: `lib/opendata/datasets.ts`.

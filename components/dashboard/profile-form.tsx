@@ -1,6 +1,8 @@
 "use client";
 
 import { FormEvent, useState, useTransition } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { withLocale } from "@/i18n/path";
 import { updateProfile } from "@/lib/actions/profile";
 import { authClient } from "@/lib/auth-client";
 import { ARRONDISSEMENTS } from "@/lib/opendata/arrondissement";
@@ -20,6 +22,8 @@ export function ProfileForm({
   emailVerified: boolean;
   arrondissement: string | null;
 }) {
+  const t = useTranslations("Profile");
+  const locale = useLocale();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -34,17 +38,17 @@ export function ProfileForm({
     setEmailError(null);
     setEmailSent(false);
     if (newEmail === email) {
-      setEmailError("C’est déjà votre adresse.");
+      setEmailError(t("emailSame"));
       return;
     }
     setEmailPending(true);
     const result = await authClient.changeEmail({
       newEmail,
-      callbackURL: "/dashboard/profile",
+      callbackURL: withLocale("/dashboard/profile", locale),
     });
     setEmailPending(false);
     if (result.error) {
-      setEmailError(result.error.message ?? "Une erreur est survenue.");
+      setEmailError(result.error.message ?? t("genericError"));
       return;
     }
     setEmailSent(true);
@@ -73,7 +77,7 @@ export function ProfileForm({
         className="space-y-4"
       >
         <div>
-          <Label htmlFor="firstName">Prénom</Label>
+          <Label htmlFor="firstName">{t("firstName")}</Label>
           <Input
             id="firstName"
             name="firstName"
@@ -83,7 +87,7 @@ export function ProfileForm({
           />
         </div>
         <div>
-          <Label htmlFor="lastName">Nom</Label>
+          <Label htmlFor="lastName">{t("lastName")}</Label>
           <Input
             id="lastName"
             name="lastName"
@@ -93,10 +97,10 @@ export function ProfileForm({
           />
         </div>
         <div>
-          <Label htmlFor="arrondissement">Territoire préféré</Label>
+          <Label htmlFor="arrondissement">{t("district")}</Label>
           <Select id="arrondissement" name="arrondissement" defaultValue={arrondissement ?? ""}>
-            <option value="">Toute Paris</option>
-            <option value="montreuil">Montreuil · Robespierre (93100)</option>
+            <option value="">{t("allParis")}</option>
+            <option value="montreuil">{t("montreuil")}</option>
             {ARRONDISSEMENTS.map((item) => (
               <option key={item.code} value={item.code}>
                 {item.label} — {item.zip}
@@ -105,15 +109,15 @@ export function ProfileForm({
           </Select>
         </div>
         {error ? <p className="text-sm text-accent">{error}</p> : null}
-        {saved ? <p className="text-sm text-muted">Profil enregistré.</p> : null}
+        {saved ? <p className="text-sm text-muted">{t("saved")}</p> : null}
         <Button type="submit" disabled={pending}>
-          {pending ? "Enregistrement…" : "Enregistrer"}
+          {pending ? t("saving") : t("save")}
         </Button>
       </form>
 
       <form onSubmit={onChangeEmail} className="space-y-4 border-t border-line pt-6">
         <div>
-          <Label htmlFor="email">E-mail</Label>
+          <Label htmlFor="email">{t("email")}</Label>
           <Input
             id="email"
             name="email"
@@ -123,17 +127,17 @@ export function ProfileForm({
             defaultValue={email}
           />
           <p className="mt-1 text-sm text-muted">
-            {emailVerified ? "Adresse confirmée." : "En attente de confirmation."}
+            {emailVerified ? t("emailVerified") : t("emailPending")}
           </p>
         </div>
         {emailError ? <p className="text-sm text-accent">{emailError}</p> : null}
         {emailSent ? (
           <p className="text-sm text-muted">
-            Un e-mail de confirmation a été envoyé à votre adresse actuelle.
+            {t("emailSent")}
           </p>
         ) : null}
         <Button type="submit" variant="ghost" disabled={emailPending}>
-          {emailPending ? "Envoi…" : "Changer l’e-mail"}
+          {emailPending ? t("sending") : t("changeEmail")}
         </Button>
       </form>
     </div>

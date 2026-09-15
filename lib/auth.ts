@@ -5,7 +5,9 @@ import { twoFactor } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
-import { changeEmailMail, otpMail, verificationMail } from "@/lib/email/templates";
+import { withLocaleInAbsoluteUrl } from "@/i18n/path";
+import { mailLocale } from "@/lib/email/locale";
+import { changeEmailMail, otpMail, resetPasswordMail, verificationMail } from "@/lib/email/templates";
 import * as schema from "@/lib/db/schema";
 
 export const auth = betterAuth({
@@ -20,10 +22,11 @@ export const auth = betterAuth({
     requireEmailVerification: true,
     revokeSessionsOnPasswordReset: true,
     sendResetPassword: async ({ user, url }) => {
+      const locale = await mailLocale();
+      const mail = resetPasswordMail(withLocaleInAbsoluteUrl(url, locale), locale);
       void sendEmail({
         to: user.email,
-        subject: "Réinitialisez votre mot de passe",
-        text: `Cliquez pour choisir un nouveau mot de passe : ${url}`,
+        ...mail,
       }).catch((error) => {
         console.error("sendResetPassword failed", error);
       });
@@ -35,7 +38,7 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     expiresIn: 3600,
     sendVerificationEmail: async ({ user, url }) => {
-      const mail = verificationMail(url);
+      const mail = verificationMail(url, await mailLocale());
       void sendEmail({ to: user.email, ...mail }).catch((error) => {
         console.error("sendVerificationEmail failed", error);
       });
@@ -45,7 +48,7 @@ export const auth = betterAuth({
     changeEmail: {
       enabled: true,
       sendChangeEmailConfirmation: async ({ user, newEmail, url }) => {
-        const mail = changeEmailMail(url, newEmail);
+        const mail = changeEmailMail(url, newEmail, await mailLocale());
         void sendEmail({ to: user.email, ...mail }).catch((error) => {
           console.error("sendChangeEmailConfirmation failed", error);
         });
@@ -77,7 +80,7 @@ export const auth = betterAuth({
       issuer: "Paris Ouverte",
       otpOptions: {
         sendOTP: async ({ user, otp }) => {
-          const mail = otpMail(otp);
+          const mail = otpMail(otp, await mailLocale());
           await sendEmail({ to: user.email, ...mail });
         },
       },

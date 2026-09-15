@@ -1,7 +1,10 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
+import { stripLocalePrefix } from "@/i18n/path";
 import { authClient } from "@/lib/auth-client";
 import { safeNext } from "@/lib/safe-next";
 import { Button } from "@/components/ui/button";
@@ -22,31 +25,23 @@ function needsTwoFactor(data: unknown): boolean {
   );
 }
 
-function otpErrorMessage(error: { message?: string; code?: string; status?: number }) {
-  const text = `${error.code ?? ""} ${error.message ?? ""}`.toLowerCase();
-  if (text.includes("invalid")) {
-    return "Code invalide.";
-  }
-  return error.message ?? "Une erreur est survenue.";
-}
-
-function otpSendErrorMessage(error: { message?: string; status?: number }) {
-  if (error.status === 500 || !error.message) {
-    return "Impossible d’envoyer le code.";
-  }
-  return error.message;
-}
-
 export function AuthForm({ mode }: { mode: Mode }) {
+  const t = useTranslations("Auth");
+  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = safeNext(searchParams.get("next"));
+  const nextPrefixed = safeNext(searchParams.get("next"), locale);
+  const nextHref = stripLocalePrefix(nextPrefixed);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [emailForResend, setEmailForResend] = useState<string | null>(null);
   const [awaitingVerification, setAwaitingVerification] = useState(false);
   const [awaitingOtp, setAwaitingOtp] = useState(false);
   const [resent, setResent] = useState(false);
+
+  function genericError(message?: string) {
+    return message ?? t("genericError");
+  }
 
   async function resendVerification() {
     if (!emailForResend) return;
@@ -55,11 +50,11 @@ export function AuthForm({ mode }: { mode: Mode }) {
     setResent(false);
     const result = await authClient.sendVerificationEmail({
       email: emailForResend,
-      callbackURL: next,
+      callbackURL: nextPrefixed,
     });
     setPending(false);
     if (result.error) {
-      setError(result.error.message ?? "Une erreur est survenue.");
+      setError(genericError(result.error.message));
       return;
     }
     setResent(true);
@@ -68,7 +63,11 @@ export function AuthForm({ mode }: { mode: Mode }) {
   async function sendLoginOtp() {
     const result = await authClient.twoFactor.sendOtp({});
     if (result.error) {
-      setError(otpSendErrorMessage(result.error));
+      setError(
+        result.error.status === 500 || !result.error.message
+          ? t("otpSendFailed")
+          : result.error.message,
+      );
       return false;
     }
     return true;
@@ -95,10 +94,11 @@ export function AuthForm({ mode }: { mode: Mode }) {
     const result = await authClient.twoFactor.verifyOtp({ code });
     setPending(false);
     if (result.error) {
-      setError(otpErrorMessage(result.error));
+      const text = `${result.error.code ?? ""} ${result.error.message ?? ""}`.toLowerCase();
+      setError(text.includes("invalid") ? t("invalidCode") : genericError(result.error.message));
       return;
     }
-    router.push(next);
+    router.push(nextHref);
     router.refresh();
   }
 
@@ -116,18 +116,18 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
     const result =
       mode === "signup"
-        ? await authClient.signUp.email({ email, password, name, callbackURL: next })
-        : await authClient.signIn.email({ email, password, callbackURL: next });
+        ? await authClient.signUp.email({ email, password, name, callbackURL: nextPrefixed })
+        : await authClient.signIn.email({ email, password, callbackURL: nextPrefixed });
 
     if (result.error) {
       setPending(false);
       if (mode === "login" && isUnverifiedError(result.error)) {
         setEmailForResend(email);
         setAwaitingVerification(true);
-        setError("Vérifiez votre e-mail avant de vous connecter.");
+        setError(t("verifyBeforeLogin"));
         return;
       }
-      setError(result.error.message ?? "Une erreur est survenue.");
+      setError(genericError(result.error.message));
       return;
     }
 
@@ -150,7 +150,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
     }
 
     setPending(false);
-    router.push(next);
+    router.push(nextHref);
     router.refresh();
   }
 
@@ -158,14 +158,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
     return (
       <div className="space-y-4">
         <p className="text-sm text-muted">
-          Un e-mail de confirmation a été envoyé
-          {emailForResend ? ` à ${emailForResend}` : ""}. Cliquez sur le lien pour
-          activer votre compte.
+          {emailForResend ? t("signupSentTo", { email: emailForResend }) : t("signupSent")}
         </p>
-        {resent ? <p className="text-sm text-muted">Un nouvel e-mail a été envoyé.</p> : null}
+        {resent ? <p className="text-sm text-muted">{t("emailResent")}</p> : null}
         {error ? <p className="text-sm text-accent">{error}</p> : null}
         <Button type="button" className="w-full" disabled={pending} onClick={resendVerification}>
-          {pending ? "Veuillez patienter…" : "Renvoyer l’e-mail"}
+          {pending ? t("pending") : t("resendEmail")}
         </Button>
       </div>
     );
@@ -175,12 +173,10 @@ export function AuthForm({ mode }: { mode: Mode }) {
     return (
       <form key="otp-step" onSubmit={onVerifyOtp} className="space-y-4">
         <p className="text-sm text-muted">
-          Un code a été envoyé
-          {emailForResend ? ` à ${emailForResend}` : " à votre e-mail"}. Il expire
-          dans 3 minutes.
+          {emailForResend ? t("otpSentTo", { email: emailForResend }) : t("otpSent")}
         </p>
         <div>
-          <Label htmlFor="code">Code</Label>
+          <Label htmlFor="code">{t("code")}</Label>
           <Input
             id="code"
             name="code"
@@ -194,9 +190,9 @@ export function AuthForm({ mode }: { mode: Mode }) {
           />
         </div>
         {error ? <p className="text-sm text-accent">{error}</p> : null}
-        {resent ? <p className="text-sm text-muted">Un nouveau code a été envoyé.</p> : null}
+        {resent ? <p className="text-sm text-muted">{t("otpResent")}</p> : null}
         <Button type="submit" className="w-full" disabled={pending}>
-          {pending ? "Veuillez patienter…" : "Valider"}
+          {pending ? t("pending") : t("validate")}
         </Button>
         <Button
           type="button"
@@ -205,7 +201,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
           disabled={pending}
           onClick={resendOtp}
         >
-          {pending ? "Veuillez patienter…" : "Renvoyer le code"}
+          {pending ? t("pending") : t("resendCode")}
         </Button>
       </form>
     );
@@ -216,21 +212,21 @@ export function AuthForm({ mode }: { mode: Mode }) {
       {mode === "signup" ? (
         <>
           <div>
-            <Label htmlFor="firstName">Prénom</Label>
+            <Label htmlFor="firstName">{t("firstName")}</Label>
             <Input id="firstName" name="firstName" required autoComplete="given-name" />
           </div>
           <div>
-            <Label htmlFor="lastName">Nom</Label>
+            <Label htmlFor="lastName">{t("lastName")}</Label>
             <Input id="lastName" name="lastName" required autoComplete="family-name" />
           </div>
         </>
       ) : null}
       <div>
-        <Label htmlFor="email">E-mail</Label>
+        <Label htmlFor="email">{t("email")}</Label>
         <Input id="email" name="email" type="email" required autoComplete="email" />
       </div>
       <div>
-        <Label htmlFor="password">Mot de passe</Label>
+        <Label htmlFor="password">{t("password")}</Label>
         <Input
           id="password"
           name="password"
@@ -241,13 +237,9 @@ export function AuthForm({ mode }: { mode: Mode }) {
         />
       </div>
       {error ? <p className="text-sm text-accent">{error}</p> : null}
-      {resent ? <p className="text-sm text-muted">Un nouvel e-mail a été envoyé.</p> : null}
+      {resent ? <p className="text-sm text-muted">{t("emailResent")}</p> : null}
       <Button type="submit" className="w-full" disabled={pending}>
-        {pending
-          ? "Veuillez patienter…"
-          : mode === "signup"
-            ? "Créer le compte"
-            : "Se connecter"}
+        {pending ? t("pending") : mode === "signup" ? t("submitSignup") : t("submitLogin")}
       </Button>
       {mode === "login" && awaitingVerification ? (
         <Button
@@ -257,7 +249,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
           disabled={pending}
           onClick={resendVerification}
         >
-          {pending ? "Veuillez patienter…" : "Renvoyer l’e-mail de confirmation"}
+          {pending ? t("pending") : t("resendConfirm")}
         </Button>
       ) : null}
     </form>

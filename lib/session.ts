@@ -1,6 +1,8 @@
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
 import { auth } from "@/lib/auth";
+import { redirect } from "@/i18n/navigation";
+import { stripLocalePrefix } from "@/i18n/path";
 import { safeNext } from "@/lib/safe-next";
 
 export async function getSession() {
@@ -12,7 +14,8 @@ export async function getSession() {
 export async function requireSession() {
   const session = await getSession();
   if (!session) {
-    redirect("/login");
+    redirect({ href: "/login", locale: await getLocale() });
+    throw new Error("Unauthorized");
   }
   return session;
 }
@@ -20,6 +23,7 @@ export async function requireSession() {
 export async function requireGuest(nextPath?: string | string[]) {
   const session = await getSession();
   if (session) {
-    redirect(safeNext(nextPath));
+    const locale = await getLocale();
+    redirect({ href: stripLocalePrefix(safeNext(nextPath, locale)), locale });
   }
 }

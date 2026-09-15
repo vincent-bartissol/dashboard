@@ -4,6 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { favorite } from "@/lib/db/schema";
+import { routing } from "@/i18n/routing";
 import { NAV_ITEMS } from "@/lib/opendata/datasets";
 import { requireSession } from "@/lib/session";
 
@@ -43,11 +44,13 @@ export async function toggleFavorite(input: {
       });
     }
 
-    for (const item of NAV_ITEMS) {
-      revalidatePath(item.href);
+    for (const locale of routing.locales) {
+      for (const item of NAV_ITEMS) {
+        revalidatePath(`/${locale}${item.href}`);
+      }
     }
     return { ok: true };
   } catch {
-    return { ok: false, error: "Impossible d’enregistrer le favori." };
+    return { ok: false, error: "favorite" };
   }
 }

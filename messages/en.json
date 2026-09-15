@@ -1,0 +1,480 @@
+{
+  "Meta": {
+    "title": "Paris Ouverte",
+    "description": "Open data dashboard for the City of Paris: Vélib’, nature, air, amenities, events, streets and markets."
+  },
+  "Common": {
+    "source": "Source: {title}",
+    "loading": "Loading Paris data…",
+    "opendataDown": "Open Data is unavailable right now. Displayed figures may be incomplete.",
+    "allParis": "All of Paris",
+    "montreuil": "Montreuil · Robespierre",
+    "arrondissement": "{label} arrondissement",
+    "locale": {
+      "fr": "Français",
+      "en": "English",
+      "es": "Español"
+    },
+    "localeSwitcher": "Language",
+    "mapLoading": "Loading the map…"
+  },
+  "Nav": {
+    "overview": "Overview",
+    "montreuil": "Montreuil",
+    "velib": "Vélib’",
+    "nature": "Nature",
+    "air": "Air",
+    "amenities": "Amenities",
+    "events": "Events",
+    "traffic": "Streets",
+    "markets": "Markets",
+    "favorites": "Favorites",
+    "profile": "Profile",
+    "logout": "Sign out",
+    "logoutShort": "Leave",
+    "privateSpace": "Private area",
+    "login": "Sign in",
+    "signup": "Create an account"
+  },
+  "Footer": {
+    "license": "Public data from the City of Paris, ODbL licence."
+  },
+  "NotFound": {
+    "title": "Page not found",
+    "body": "This address does not exist on Paris Ouverte.",
+    "home": "Back to home",
+    "dashboard": "open the dashboard",
+    "or": "Or"
+  },
+  "Error": {
+    "title": "Something went wrong",
+    "body": "The page could not be displayed. Try again in a moment.",
+    "retry": "Try again"
+  },
+  "Landing": {
+    "heroTitle": "A dashboard for reading Paris through public data.",
+    "heroBody": "Vélib’, trees, air quality, fountains, events, worksites and markets — filtered, mapped and saved as favourites after you sign up.",
+    "signup": "Create an account",
+    "login": "Sign in",
+    "live": "Live from opendata.paris.fr",
+    "stations": "Vélib’ stations",
+    "bikesAvailable": "Bikes available",
+    "treesCounted": "Trees recorded",
+    "events": "Events",
+    "kpisTitle": "Key figures",
+    "kpisBody": "These indicators are computed on the server from the Explore v2.1 API, with no key, and cached according to each dataset’s freshness.",
+    "kpiVelibHint": "bikes available now",
+    "kpiNatureHint": "street and park trees",
+    "kpiAirValue": "{count} d.",
+    "kpiAirHint": "“good” air days in {year}",
+    "kpiAirUnavailable": "ATMO index unavailable",
+    "kpiAgendaHint": "Que faire à Paris events",
+    "pillar1Title": "Paris and Montreuil",
+    "pillar1Body": "Vélib’, nature, air, amenities, events, streets, markets, plus a Montreuil page around Robespierre: each dataset has its map, table and indicators.",
+    "pillar2Title": "A private space",
+    "pillar2Body": "Create an account, pick an arrondissement or Montreuil (Robespierre), and save stations, trees or markets to your favourites.",
+    "pillar3Title": "Also Montreuil",
+    "pillar3Body": "Around Robespierre and rue Étienne Marcel: Montreuil Data, Métropole Vélib’, the 93100 calendar and the bike counter.",
+    "ctaTitle": "Enter the private area",
+    "ctaBody": "Sign-up is local (email and password). No social networks.",
+    "ctaSignup": "Sign up",
+    "already": "Already have an account?"
+  },
+  "Auth": {
+    "loginTitle": "Sign in",
+    "loginBody": "Access your maps, filters and favourites. Your email must be confirmed. After the password, a code will be emailed to you.",
+    "noAccount": "No account yet?",
+    "createAccount": "Create an account",
+    "forgotLink": "Forgot your password?",
+    "signupTitle": "Create an account",
+    "signupBody": "Email and password (8 characters minimum). A confirmation email will be sent.",
+    "hasAccount": "Already registered?",
+    "signIn": "Sign in",
+    "forgotTitle": "Forgot password",
+    "forgotBody": "Enter your email. If an account exists, you will receive a link to choose a new password.",
+    "backToLogin": "Back to sign in",
+    "resetTitle": "New password",
+    "resetBody": "Choose a password of at least 8 characters.",
+    "resetInvalid": "This link is no longer valid. Request a new email to continue.",
+    "email": "E-mail",
+    "password": "Password",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "submitLogin": "Sign in",
+    "submitSignup": "Create account",
+    "pending": "Please wait…",
+    "genericError": "Something went wrong.",
+    "verifyBeforeLogin": "Confirm your email before signing in.",
+    "signupSent": "A confirmation email has been sent. Click the link to activate your account.",
+    "signupSentTo": "A confirmation email has been sent to {email}. Click the link to activate your account.",
+    "emailResent": "A new email has been sent.",
+    "resendEmail": "Resend email",
+    "resendConfirm": "Resend confirmation email",
+    "otpSent": "A code was sent to your email. It expires in 3 minutes.",
+    "otpSentTo": "A code was sent to {email}. It expires in 3 minutes.",
+    "code": "Code",
+    "invalidCode": "Invalid code.",
+    "otpResent": "A new code has been sent.",
+    "validate": "Confirm",
+    "resendCode": "Resend code",
+    "otpSendFailed": "Could not send the code.",
+    "sendLink": "Send the link",
+    "forgotSent": "If an account exists, an email has been sent.",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "passwordTooShort": "The password must contain at least 8 characters.",
+    "passwordMismatch": "Passwords do not match.",
+    "invalidToken": "This link is no longer valid.",
+    "passwordTooLong": "The password is too long.",
+    "choosePassword": "Choose password"
+  },
+  "Explorer": {
+    "filterPlaceholder": "Filter the table and map…",
+    "filtered": "{filtered} filtered / {total} total",
+    "page": "Page {current} / {count}",
+    "previous": "Previous",
+    "next": "Next",
+    "addFavorite": "Add to favourites",
+    "removeFavorite": "Remove from favourites"
+  },
+  "Overview": {
+    "title": "Overview",
+    "hello": "Hello {name}. Default filter: {district}.",
+    "bikes": "Bikes available",
+    "ebikes": "{count} e-bikes",
+    "trees": "Trees",
+    "events": "Events",
+    "favorites": "Favourites",
+    "catalog": "{fountains} fountains and {markets} markets in the catalogue. Adjust your district in <profile>profile</profile>.",
+    "profile": "profile",
+    "themes": {
+      "montreuil": {
+        "title": "Montreuil · Robespierre",
+        "body": "Vélib’, trees, gardens, fountains and the rue Étienne Marcel counter."
+      },
+      "velib": {
+        "title": "Vélib’",
+        "body": "Real-time station availability."
+      },
+      "nature": {
+        "title": "Nature",
+        "body": "Street trees and green spaces."
+      },
+      "air": {
+        "title": "Air",
+        "body": "Days by ATMO index since 2021."
+      },
+      "amenities": {
+        "title": "Amenities",
+        "body": "Drinking fountains and public toilets."
+      },
+      "events": {
+        "title": "Events",
+        "body": "Que faire à Paris calendar."
+      },
+      "traffic": {
+        "title": "Streets",
+        "body": "Worksites and Dans Ma Rue reports."
+      },
+      "markets": {
+        "title": "Markets",
+        "body": "Open-air markets, days and hours."
+      }
+    }
+  },
+  "Pages": {
+    "velib": {
+      "title": "Vélib’",
+      "body": "Real-time availability of Vélib’ Métropole stations. Green: more than 5 bikes, orange: a few, red: none.",
+      "stations": "Stations",
+      "bikes": "Bikes",
+      "ebikes": "E-bikes",
+      "docks": "Free docks"
+    },
+    "nature": {
+      "title": "Nature",
+      "body": "Street trees (map by bounding box, never all 200,000 at once) and municipal green spaces.",
+      "trees": "Trees",
+      "parks": "Green spaces"
+    },
+    "air": {
+      "title": "Air quality",
+      "body": "Number of days per ATMO index class (Airparif), year by year. No dense map: this dataset is statistical.",
+      "latestYear": "Latest year",
+      "goodDays": "“Good” days",
+      "averageDays": "“Fair” days",
+      "badDays": "“Poor” days",
+      "chartTitle": "Days by ATMO index"
+    },
+    "amenities": {
+      "title": "Amenities",
+      "body": "Eau de Paris drinking fountains and public toilets (sanisettes).",
+      "fountains": "Fountains",
+      "toilets": "Toilets"
+    },
+    "events": {
+      "title": "Events",
+      "body": "Que faire à Paris participatory calendar: events whose end date has not passed. Points without valid coordinates do not appear on the map.",
+      "events": "Events",
+      "shown": "Shown"
+    },
+    "traffic": {
+      "title": "Streets",
+      "body": "Worksites as of yesterday and Dans Ma Rue reports. The map only loads the visible area.",
+      "works": "Worksites",
+      "street": "Dans Ma Rue",
+      "reports": "Reports"
+    },
+    "markets": {
+      "title": "Open-air markets",
+      "body": "Footprints of food and specialised markets, with opening days and hours.",
+      "markets": "Markets",
+      "food": "Food markets"
+    },
+    "favorites": {
+      "title": "Favourites",
+      "body": "Places and records you saved from the theme pages.",
+      "empty": "No favourites yet. Open a theme and click the heart.",
+      "openTheme": "View theme"
+    },
+    "profile": {
+      "title": "Profile",
+      "body": "Update your first name, last name and preferred area. An email change only applies after confirmation. You can also change your password."
+    },
+    "montreuil": {
+      "title": "Montreuil · Robespierre",
+      "velib": "Vélib’",
+      "trees": "Arbres",
+      "gardens": "Gardens",
+      "water": "Water",
+      "bikes": "Rue Étienne Marcel",
+      "kpiVelib": "Vélib’ Montreuil",
+      "kpiVelibHint": "{count} bikes available",
+      "kpiTrees": "Street trees",
+      "kpiGardens": "Gardens / nature",
+      "kpiEvents": "Agenda 93100",
+      "bikeSource": "Fixed counter on rue Étienne Marcel (towards Paris / Croix de Chavaux). Source: <link>Montreuil Data</link>.",
+      "body": "West neighbourhood: Robespierre metro, place de la République and rue Étienne Marcel. Data from the City of Montreuil, Vélib’ Métropole, Que faire à Paris and Île-de-France Mobilités."
+    }
+  },
+  "Profile": {
+    "firstName": "First name",
+    "lastName": "Last name",
+    "district": "Preferred area",
+    "allParis": "All of Paris",
+    "montreuil": "Montreuil · Robespierre (93100)",
+    "saved": "Profile saved.",
+    "save": "Save",
+    "saving": "Saving…",
+    "namesRequired": "First and last name are required.",
+    "email": "E-mail",
+    "emailVerified": "Address confirmed.",
+    "emailPending": "Waiting for confirmation.",
+    "emailSame": "That is already your address.",
+    "emailSent": "A confirmation email was sent to your current address.",
+    "changeEmail": "Change email",
+    "sending": "Sending…",
+    "passwordTitle": "Password",
+    "passwordHint": "Other sessions will be signed out.",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm password",
+    "wrongPassword": "Current password is incorrect.",
+    "passwordTooShort": "The password must contain at least 8 characters.",
+    "passwordTooLong": "The password is too long.",
+    "passwordMismatch": "Passwords do not match.",
+    "passwordSame": "The new password must be different.",
+    "changePassword": "Change password",
+    "passwordUpdated": "Password updated.",
+    "genericError": "Something went wrong."
+  },
+  "Charts": {
+    "bikeTitle": "Bike counts · rue Étienne Marcel (last 7 days)",
+    "passages": "Passages"
+  },
+  "Landmarks": {
+    "metro": {
+      "label": "Métro Robespierre",
+      "description": "Line 9 · Île-de-France Mobilités"
+    },
+    "street": {
+      "label": "Rue Étienne Marcel",
+      "description": "Bike counter towards Paris / Croix de Chavaux"
+    }
+  },
+  "Mail": {
+    "verificationSubject": "Confirm your email address",
+    "verificationPreview": "Click to confirm your address.",
+    "verificationBody": "Click to confirm your email address.",
+    "verificationButton": "Confirm address",
+    "verificationText": "Click to confirm your address: {url}",
+    "otpSubject": "Your sign-in code",
+    "otpPreview": "Your code expires in 3 minutes.",
+    "otpBody": "Your sign-in code:",
+    "otpExpiry": "It expires in 3 minutes.",
+    "otpText": "Your code: {otp}. It expires in 3 minutes.",
+    "changeSubject": "Confirm the email change",
+    "changePreview": "Allow the change to {email}.",
+    "changeBody": "Click to allow the change to {email}.",
+    "changeButton": "Confirm change",
+    "changeText": "Click to allow the change to {email}: {url}",
+    "resetSubject": "Reset your password",
+    "resetPreview": "Choose a new password.",
+    "resetBody": "Click to choose a new password.",
+    "resetButton": "Choose a password",
+    "resetText": "Click to choose a new password: {url}"
+  },
+  "Datasets": {
+    "velib": {
+      "title": "Vélib’",
+      "columns": {
+        "name": "Station",
+        "nom_arrondissement_communes": "Municipality",
+        "numbikesavailable": "Bikes",
+        "mechanical": "Mechanical",
+        "ebike": "E-bikes",
+        "numdocksavailable": "Docks"
+      }
+    },
+    "trees": {
+      "title": "Trees",
+      "columns": {
+        "libellefrancais": "Species",
+        "adresse": "Address",
+        "arrondissement": "Arrondissement",
+        "hauteurenm": "Height (m)",
+        "circonferenceencm": "Girth (cm)"
+      }
+    },
+    "parks": {
+      "title": "Green spaces",
+      "columns": {
+        "nom_ev": "Name",
+        "type_ev": "Type",
+        "categorie": "Category",
+        "adresse_codepostal": "Postcode",
+        "surface_totale_reelle": "Area (m²)"
+      }
+    },
+    "air": {
+      "title": "Air quality",
+      "columns": {
+        "annee": "Year",
+        "ind_jour_qa_bonne": "Good",
+        "ind_jour_qa_moyenne": "Fair",
+        "ind_jour_qa_degradee": "Degraded",
+        "ind_jour_qa_mauvaise": "Poor",
+        "ind_jour_qa_tres_mauvaise": "Very poor",
+        "ind_jour_qa_extremement_mauvaise": "Extremely poor"
+      }
+    },
+    "fountains": {
+      "title": "Drinking fountains",
+      "columns": {
+        "type_objet": "Type",
+        "voie": "Street",
+        "commune": "Municipality",
+        "dispo": "Available",
+        "modele": "Model"
+      }
+    },
+    "toilets": {
+      "title": "Public toilets",
+      "columns": {
+        "type": "Type",
+        "adresse": "Address",
+        "arrondissement": "Arrondissement",
+        "statut": "Status",
+        "horaire": "Hours",
+        "acces_pmr": "PMR"
+      }
+    },
+    "events": {
+      "title": "Que faire à Paris",
+      "columns": {
+        "title": "Title",
+        "address_city": "City",
+        "address_zipcode": "Postcode",
+        "price_type": "Price",
+        "audience": "Audience"
+      }
+    },
+    "works": {
+      "title": "Worksites",
+      "columns": {
+        "chantier_synthese": "Summary",
+        "cp_arrondissement": "Arrondissement",
+        "chantier_categorie": "Category",
+        "date_debut": "Start",
+        "date_fin": "End"
+      }
+    },
+    "street": {
+      "title": "Dans Ma Rue",
+      "columns": {
+        "type": "Type",
+        "soustype": "Subtype",
+        "adresse": "Address",
+        "arrondissement": "Arrondissement",
+        "datedecl": "Date"
+      }
+    },
+    "markets": {
+      "title": "Open-air markets",
+      "columns": {
+        "nom_long": "Market",
+        "produit": "Type",
+        "ardt": "Arr.",
+        "jours_tenue": "Days",
+        "h_deb_sem_1": "Weekday open",
+        "h_fin_sem_1": "Weekday close"
+      }
+    },
+    "montreuilTrees": {
+      "title": "Trees (municipal streets)",
+      "columns": {
+        "nom_vernaculaire": "Species",
+        "essence": "Latin name",
+        "adresse_rue_square_parc_ecole_autre": "Place",
+        "domanialite": "Ownership"
+      }
+    },
+    "montreuilGardens": {
+      "title": "Montreuil est notre jardin",
+      "columns": {
+        "nom": "Name",
+        "categorie": "Category",
+        "adresse": "Address",
+        "statut": "Status",
+        "annee": "Year"
+      }
+    },
+    "montreuilFountains": {
+      "title": "Bornes-fontaines",
+      "columns": {
+        "bornes_fontaines": "Place",
+        "type": "Type",
+        "statut": "Status",
+        "gestionnaire": "Manager"
+      }
+    },
+    "montreuilMist": {
+      "title": "Summer misters",
+      "columns": {
+        "adresse": "Address",
+        "objet": "Object",
+        "statut": "Status",
+        "installation": "Installation"
+      }
+    },
+    "montreuilBikes": {
+      "title": "Bike counts · rue Étienne Marcel",
+      "columns": {
+        "date": "Date",
+        "total": "Passages",
+        "vers_paris": "Towards Paris",
+        "vers_croix": "Towards Croix de Chavaux"
+      }
+    }
+  }
+}

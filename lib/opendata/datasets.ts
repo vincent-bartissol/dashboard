@@ -337,15 +337,15 @@ export const DATASETS = {
 export type DatasetKey = keyof typeof DATASETS;
 
 export const NAV_ITEMS = [
-  { href: "/dashboard", label: "Vue d’ensemble" },
-  { href: "/dashboard/montreuil", label: "Montreuil" },
-  { href: "/dashboard/velib", label: "Vélib’" },
-  { href: "/dashboard/nature", label: "Nature" },
-  { href: "/dashboard/air", label: "Air" },
-  { href: "/dashboard/amenities", label: "Commodités" },
-  { href: "/dashboard/events", label: "Événements" },
-  { href: "/dashboard/traffic", label: "Voirie" },
-  { href: "/dashboard/markets", label: "Marchés" },
-  { href: "/dashboard/favorites", label: "Favoris" },
-  { href: "/dashboard/profile", label: "Profil" },
+  { href: "/dashboard", id: "overview" },
+  { href: "/dashboard/montreuil", id: "montreuil" },
+  { href: "/dashboard/velib", id: "velib" },
+  { href: "/dashboard/nature", id: "nature" },
+  { href: "/dashboard/air", id: "air" },
+  { href: "/dashboard/amenities", id: "amenities" },
+  { href: "/dashboard/events", id: "events" },
+  { href: "/dashboard/traffic", id: "traffic" },
+  { href: "/dashboard/markets", id: "markets" },
+  { href: "/dashboard/favorites", id: "favorites" },
+  { href: "/dashboard/profile", id: "profile" },
 ] as const;
