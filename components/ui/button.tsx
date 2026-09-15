@@ -7,7 +7,7 @@ const variants = {
   secondary:
     "bg-navy text-white hover:bg-navy-2 disabled:bg-[#7a8794]",
   ghost:
-    "border border-line bg-paper text-ink hover:border-navy/30 disabled:opacity-50",
+    "border border-line bg-paper text-ink hover:border-navy/40 disabled:opacity-50",
 } as const;
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -23,7 +23,7 @@ export function Button({
   children,
   ...props
 }: Props) {
-  const classes = `inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-medium transition ${variants[variant]} ${className}`;
+  const classes = `inline-flex h-11 items-center justify-center rounded-none px-5 text-sm font-medium transition ${variants[variant]} ${className}`;
   if (href) {
     return (
       <Link href={href} className={classes}>

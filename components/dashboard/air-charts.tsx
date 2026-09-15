@@ -32,7 +32,7 @@ export function AirCharts({ records }: { records: OpenDataRecord[] }) {
 
   return (
     <Card>
-      <h2 className="mb-4 text-lg font-semibold text-navy">Jours par indice ATMO</h2>
+      <h2 className="mb-4 font-display text-lg font-semibold text-navy">Jours par indice ATMO</h2>
       <div className="h-[360px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>

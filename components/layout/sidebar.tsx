@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { NAV_ITEMS } from "@/lib/opendata/datasets";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { Wordmark } from "@/components/layout/wordmark";
 
 export function Sidebar({ userName }: { userName: string }) {
   const pathname = usePathname();
@@ -19,12 +19,10 @@ export function Sidebar({ userName }: { userName: string }) {
   return (
     <aside className="flex min-h-screen w-64 shrink-0 flex-col border-r border-white/10 bg-navy text-white">
       <div className="border-b border-white/10 px-5 py-5">
-        <Link href="/" className="text-lg font-semibold tracking-tight">
-          Paris Ouverte
-        </Link>
-        <p className="mt-1 truncate text-sm text-white/70">{userName}</p>
+        <Wordmark invert />
+        <p className="mt-3 truncate text-sm text-white/70">{userName}</p>
       </div>
-      <nav className="flex flex-1 flex-col gap-1 p-3">
+      <nav className="flex flex-1 flex-col gap-0.5 p-3">
         {NAV_ITEMS.map((item) => {
           const active =
             item.href === "/dashboard"
@@ -34,8 +32,10 @@ export function Sidebar({ userName }: { userName: string }) {
             <Link
               key={item.href}
               href={item.href}
-              className={`rounded-xl px-3 py-2 text-sm transition ${
-                active ? "bg-white text-navy" : "text-white/80 hover:bg-white/10"
+              className={`border-l-4 px-3 py-2 text-sm transition ${
+                active
+                  ? "border-accent bg-white/10 font-medium text-white"
+                  : "border-transparent text-white/75 hover:bg-white/5 hover:text-white"
               }`}
             >
               {item.label}
@@ -47,7 +47,7 @@ export function Sidebar({ userName }: { userName: string }) {
         <button
           type="button"
           onClick={logout}
-          className="w-full rounded-xl border border-white/20 px-3 py-2 text-sm text-white/80 hover:bg-white/10"
+          className="w-full rounded-none border border-white/20 px-3 py-2 text-sm text-white/80 hover:bg-white/10"
         >
           Se déconnecter
         </button>
@@ -69,14 +69,12 @@ export function MobileNav({ userName }: { userName: string }) {
   return (
     <div className="border-b border-navy/20 bg-navy text-white lg:hidden">
       <div className="flex items-center justify-between px-4 py-3">
-        <Link href="/" className="font-semibold">
-          Paris Ouverte
-        </Link>
+        <Wordmark invert />
         <button type="button" onClick={logout} className="text-sm text-white/80">
           Sortir
         </button>
       </div>
-      <div className="flex gap-2 overflow-x-auto px-3 pb-3">
+      <div className="flex gap-1 overflow-x-auto px-3 pb-3">
         {NAV_ITEMS.map((item) => {
           const active =
             item.href === "/dashboard"
@@ -86,8 +84,10 @@ export function MobileNav({ userName }: { userName: string }) {
             <Link
               key={item.href}
               href={item.href}
-              className={`shrink-0 rounded-full px-3 py-1.5 text-sm ${
-                active ? "bg-white text-navy" : "bg-white/10 text-white"
+              className={`shrink-0 rounded-none border-b-2 px-3 py-1.5 text-sm ${
+                active
+                  ? "border-accent text-white"
+                  : "border-transparent bg-white/5 text-white/80"
               }`}
             >
               {item.label}

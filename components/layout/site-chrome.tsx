@@ -1,19 +1,14 @@
-import Link from "next/link";
 import { getSession } from "@/lib/session";
 import { Button } from "@/components/ui/button";
+import { Wordmark } from "@/components/layout/wordmark";
 
 export async function SiteHeader({ variant = "public" }: { variant?: "public" | "auth" }) {
   const session = await getSession();
 
   return (
-    <header className="border-b border-line bg-paper/90 backdrop-blur">
+    <header className="border-b border-line bg-paper">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4">
-        <Link href="/" className="flex items-baseline gap-2">
-          <span className="text-lg font-semibold tracking-tight text-navy">Paris Ouverte</span>
-          <span className="hidden text-xs uppercase tracking-[0.18em] text-gold sm:inline">
-            Données de la Ville
-          </span>
-        </Link>
+        <Wordmark />
         {variant === "auth" ? null : session ? (
           <Button href="/dashboard" variant="secondary">
             Espace privé

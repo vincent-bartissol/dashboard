@@ -27,7 +27,7 @@ export function BikeCountChart({ records }: { records: OpenDataRecord[] }) {
 
   return (
     <Card>
-      <h2 className="mb-4 text-lg font-semibold text-navy">
+      <h2 className="mb-4 font-display text-lg font-semibold text-navy">
         Passages vélos · rue Étienne Marcel (7 derniers jours)
       </h2>
       <div className="h-[320px] w-full">

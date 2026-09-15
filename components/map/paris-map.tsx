@@ -54,7 +54,7 @@ export function ParisMap({
   zoom?: number;
 }) {
   return (
-    <div className={`overflow-hidden rounded-2xl border border-line ${className}`}>
+    <div className={`overflow-hidden rounded-none border border-line ${className}`}>
       <MapContainer
         center={[center.lat, center.lon]}
         zoom={zoom}

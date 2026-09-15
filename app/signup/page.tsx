@@ -18,7 +18,7 @@ export default async function SignupPage({
       <SiteHeader variant="auth" />
       <main className="flex flex-1 items-center justify-center px-6 py-16">
         <Card className="w-full max-w-md">
-          <h1 className="text-2xl font-semibold text-navy">Créer un compte</h1>
+          <h1 className="font-display text-2xl font-semibold text-navy">Créer un compte</h1>
           <p className="mt-1 mb-6 text-sm text-muted">
             E-mail et mot de passe (8 caractères minimum). Un e-mail de confirmation
             vous sera envoyé.

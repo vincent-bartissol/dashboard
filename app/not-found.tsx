@@ -7,7 +7,7 @@ export default function NotFound() {
     <div className="flex min-h-full flex-col">
       <SiteHeader />
       <main className="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center px-6 py-16">
-        <h1 className="text-2xl font-semibold text-navy">Page introuvable</h1>
+        <h1 className="font-display text-2xl font-semibold text-navy">Page introuvable</h1>
         <p className="mt-2 text-sm text-muted">
           Cette adresse n’existe pas sur Paris Ouverte.
         </p>

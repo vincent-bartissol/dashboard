@@ -18,7 +18,7 @@ export default async function LoginPage({
       <SiteHeader variant="auth" />
       <main className="flex flex-1 items-center justify-center px-6 py-16">
         <Card className="w-full max-w-md">
-          <h1 className="text-2xl font-semibold text-navy">Connexion</h1>
+          <h1 className="font-display text-2xl font-semibold text-navy">Connexion</h1>
           <p className="mt-1 mb-6 text-sm text-muted">
             Accédez à vos cartes, filtres et favoris. Votre e-mail doit être confirmé.
             Après le mot de passe, un code vous sera envoyé par e-mail.
