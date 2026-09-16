@@ -11,8 +11,9 @@ import { requireSession } from "@/lib/session";
 export default async function AirPage() {
   const session = await requireSession();
   const t = await getTranslations("Pages.air");
-  const { page, favoriteIds, error } = await loadTheme(DATASETS.air, session.user.id);
+  const { page, favoriteIds, error, ok } = await loadTheme(DATASETS.air, session.user.id);
   const latest = [...page.results].sort((a, b) => String(b.annee).localeCompare(String(a.annee)))[0];
+  const dash = !ok || !latest;
 
   return (
     <div className="space-y-6">
@@ -22,10 +23,10 @@ export default async function AirPage() {
       <DatasetNotice error={error} />
       <KpiStrip
         items={[
-          { label: t("latestYear"), value: String(latest?.annee ?? "—") },
-          { label: t("goodDays"), value: Number(latest?.ind_jour_qa_bonne ?? 0) },
-          { label: t("averageDays"), value: Number(latest?.ind_jour_qa_moyenne ?? 0) },
-          { label: t("badDays"), value: Number(latest?.ind_jour_qa_mauvaise ?? 0) },
+          { label: t("latestYear"), value: dash ? "—" : String(latest?.annee) },
+          { label: t("goodDays"), value: dash ? "—" : Number(latest?.ind_jour_qa_bonne ?? 0) },
+          { label: t("averageDays"), value: dash ? "—" : Number(latest?.ind_jour_qa_moyenne ?? 0) },
+          { label: t("badDays"), value: dash ? "—" : Number(latest?.ind_jour_qa_mauvaise ?? 0) },
         ]}
       />
       <AirCharts records={page.results} />

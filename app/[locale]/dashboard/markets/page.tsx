@@ -12,7 +12,7 @@ export default async function MarketsPage() {
   const session = await requireSession();
   const t = await getTranslations("Pages.markets");
   const format = await getFormatter();
-  const { page, favoriteIds, error, where } = await loadTheme(DATASETS.markets, session.user.id);
+  const { page, favoriteIds, error, ok, where } = await loadTheme(DATASETS.markets, session.user.id);
   const foodCount = await fetchCount(
     DATASETS.markets.id,
     DATASETS.markets.revalidate,
@@ -27,7 +27,7 @@ export default async function MarketsPage() {
       <DatasetNotice error={error || foodCount.error} />
       <KpiStrip
         items={[
-          { label: t("markets"), value: format.number(page.total_count) },
+          { label: t("markets"), value: ok ? format.number(page.total_count) : "—" },
           { label: t("food"), value: formatCount(foodCount, (value) => format.number(value)) },
         ]}
       />

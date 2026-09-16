@@ -11,10 +11,11 @@ export default async function VelibPage() {
   const session = await requireSession();
   const t = await getTranslations("Pages.velib");
   const format = await getFormatter();
-  const { page, favoriteIds, error } = await loadTheme(DATASETS.velib, session.user.id);
+  const { page, favoriteIds, error, ok } = await loadTheme(DATASETS.velib, session.user.id);
   const bikes = page.results.reduce((sum, row) => sum + Number(row.numbikesavailable ?? 0), 0);
   const docks = page.results.reduce((sum, row) => sum + Number(row.numdocksavailable ?? 0), 0);
   const ebikes = page.results.reduce((sum, row) => sum + Number(row.ebike ?? 0), 0);
+  const kpi = (value: number) => (ok ? format.number(value) : "—");
 
   return (
     <div className="space-y-6">
@@ -24,10 +25,10 @@ export default async function VelibPage() {
       <DatasetNotice error={error} />
       <KpiStrip
         items={[
-          { label: t("stations"), value: format.number(page.total_count) },
-          { label: t("bikes"), value: format.number(bikes) },
-          { label: t("ebikes"), value: format.number(ebikes) },
-          { label: t("docks"), value: format.number(docks) },
+          { label: t("stations"), value: kpi(page.total_count) },
+          { label: t("bikes"), value: kpi(bikes) },
+          { label: t("ebikes"), value: kpi(ebikes) },
+          { label: t("docks"), value: kpi(docks) },
         ]}
       />
       <ThemeExplorer
