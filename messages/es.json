@@ -7,6 +7,7 @@
     "source": "Fuente: {title}",
     "loading": "Cargando datos de París…",
     "opendataDown": "Los datos abiertos no están disponibles por el momento. Las cifras mostradas pueden estar incompletas.",
+    "rateLimited": "Demasiadas peticiones al mapa. Vuelva a intentarlo en un momento.",
     "allParis": "Todo París",
     "montreuil": "Montreuil · Robespierre",
     "arrondissement": "{label} distrito",

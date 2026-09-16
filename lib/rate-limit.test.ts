@@ -28,4 +28,18 @@ describe("createRateLimiter", () => {
     now = 2_001;
     expect(limiter.check("a").ok).toBe(true);
   });
+
+  it("drops idle keys after the window", () => {
+    let now = 1_000;
+    const limiter = createRateLimiter({
+      max: 2,
+      windowMs: 1_000,
+      now: () => now,
+    });
+    expect(limiter.check("idle").ok).toBe(true);
+    expect(limiter.size()).toBe(1);
+    now = 2_001;
+    expect(limiter.check("fresh").ok).toBe(true);
+    expect(limiter.size()).toBe(1);
+  });
 });

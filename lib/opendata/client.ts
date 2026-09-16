@@ -127,7 +127,11 @@ export async function fetchRecords<T = OpenDataRecord>(
   if (!res.ok) {
     throw new Error(`Open Data ${datasetId}: ${res.status}`);
   }
-  return (await res.json()) as OpenDataPage<T>;
+  const data = (await res.json()) as OpenDataPage<T>;
+  if (!data || typeof data !== "object" || !Array.isArray(data.results)) {
+    throw new Error(`Open Data ${datasetId}: invalid payload`);
+  }
+  return data;
 }
 
 export async function fetchRecordsSafe<T = OpenDataRecord>(

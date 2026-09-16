@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { getSession } from "@/lib/session";
 import { Button } from "@/components/ui/button";
@@ -5,10 +6,12 @@ import { Wordmark } from "@/components/layout/wordmark";
 import { SkipLink } from "@/components/layout/skip-link";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { parseTheme } from "@/lib/theme";
 
 export async function SiteHeader({ variant = "public" }: { variant?: "public" | "auth" }) {
   const session = await getSession();
   const t = await getTranslations("Nav");
+  const theme = parseTheme((await cookies()).get("theme")?.value);
 
   return (
     <header className="relative border-b border-line bg-paper">
@@ -17,7 +20,7 @@ export async function SiteHeader({ variant = "public" }: { variant?: "public" | 
         <Wordmark />
         <div className="flex items-center gap-2 sm:gap-3">
           <LocaleSwitcher />
-          <ThemeToggle />
+          <ThemeToggle initial={theme} />
           {variant === "auth" ? null : session ? (
             <Button href="/dashboard" variant="secondary">
               {t("privateSpace")}

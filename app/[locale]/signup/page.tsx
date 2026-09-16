@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { AuthForm } from "@/components/auth/auth-form";
@@ -23,9 +22,7 @@ export default async function SignupPage({
         <Card className="w-full max-w-md">
           <PageTitle>{t("signupTitle")}</PageTitle>
           <p className="mt-1 mb-6 text-sm text-muted">{t("signupBody")}</p>
-          <Suspense>
-            <AuthForm mode="signup" />
-          </Suspense>
+          <AuthForm mode="signup" next={next} />
           <p className="mt-4 text-sm text-muted">
             {t("hasAccount")}{" "}
             <Link href="/login" className="font-medium text-heading hover:underline">

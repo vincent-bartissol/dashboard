@@ -7,6 +7,7 @@
     "source": "Source : {title}",
     "loading": "Chargement des données Paris…",
     "opendataDown": "Les données Open Data sont indisponibles pour le moment. Les chiffres affichés peuvent être incomplets.",
+    "rateLimited": "Trop de requêtes carte. Réessayez dans un instant.",
     "allParis": "Toute Paris",
     "montreuil": "Montreuil · Robespierre",
     "arrondissement": "{label} arrondissement",

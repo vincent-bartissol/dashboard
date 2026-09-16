@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { stripLocalePrefix } from "@/i18n/path";
@@ -37,12 +36,11 @@ function authErrorText(
   return t("genericError");
 }
 
-export function AuthForm({ mode }: { mode: Mode }) {
+export function AuthForm({ mode, next }: { mode: Mode; next?: string | string[] }) {
   const t = useTranslations("Auth");
   const locale = useLocale();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const nextPrefixed = safeNext(searchParams.get("next"), locale);
+  const nextPrefixed = safeNext(next, locale);
   const nextHref = stripLocalePrefix(nextPrefixed);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);

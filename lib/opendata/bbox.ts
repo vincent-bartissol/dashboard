@@ -28,17 +28,17 @@ export function clampBbox(bbox: BBox, max: BBox): BBox | null {
 
 export type RecordsQuery =
   | { ok: true; datasetId: string; bbox: BBox }
-  | { ok: false; error: string };
+  | { ok: false; error: "invalid_bbox" };
 
 export function recordsQueryFromSearch(searchParams: URLSearchParams, max: BBox): RecordsQuery {
   const datasetId = searchParams.get("dataset") ?? "";
   const raw = parseBbox(searchParams);
   if (!raw) {
-    return { ok: false, error: "Emprise invalide" };
+    return { ok: false, error: "invalid_bbox" };
   }
   const bbox = clampBbox(raw, max);
   if (!bbox) {
-    return { ok: false, error: "Emprise invalide" };
+    return { ok: false, error: "invalid_bbox" };
   }
   return { ok: true, datasetId, bbox };
 }

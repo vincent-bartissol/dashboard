@@ -16,7 +16,7 @@ export default async function MarketsPage() {
   const foodCount = await fetchCount(
     DATASETS.markets.id,
     DATASETS.markets.revalidate,
-    joinWhere(where, "lower(produit) like '*aliment*'"),
+    joinWhere(where, "produit like '*Aliment*'"),
   );
 
   return (

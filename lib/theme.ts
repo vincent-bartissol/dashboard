@@ -20,8 +20,17 @@ export function readThemeCookie(): ColorScheme {
   return parseTheme(match ? decodeURIComponent(match[1]) : undefined);
 }
 
+export function themeCookieValue(
+  theme: ColorScheme,
+  secure = typeof location !== "undefined" && location.protocol === "https:",
+) {
+  return `${THEME_COOKIE}=${theme}; Path=/; Max-Age=${THEME_MAX_AGE}; SameSite=Lax${
+    secure ? "; Secure" : ""
+  }`;
+}
+
 export function writeThemeCookie(theme: ColorScheme) {
-  document.cookie = `${THEME_COOKIE}=${theme}; Path=/; Max-Age=${THEME_MAX_AGE}; SameSite=Lax`;
+  document.cookie = themeCookieValue(theme);
 }
 
 export function applyThemeClass(

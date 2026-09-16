@@ -51,7 +51,9 @@ export function BboxExplorerClient({
             const data = (await res.json()) as FetchResult;
             if (id !== requestId.current) return;
             if (!res.ok || !data.ok || !Array.isArray(data.page?.results)) {
-              setError(data.error ?? "opendata");
+              setError(
+                res.status === 429 || data.error === "rate_limited" ? "rate_limited" : "opendata",
+              );
               return;
             }
             setError(null);
@@ -71,7 +73,7 @@ export function BboxExplorerClient({
     <div className="space-y-4">
       {error ? (
         <p role="status" className="text-sm text-danger">
-          {t("opendataDown")}
+          {error === "rate_limited" ? t("rateLimited") : t("opendataDown")}
         </p>
       ) : null}
       <ThemeExplorerClient

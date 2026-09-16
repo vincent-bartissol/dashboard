@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseTheme, themeIsDark } from "./theme";
+import { parseTheme, themeCookieValue, themeIsDark } from "./theme";
 
 describe("parseTheme", () => {
   it("keeps a valid scheme", () => {
@@ -13,6 +13,13 @@ describe("parseTheme", () => {
     expect(parseTheme(null)).toBe("system");
     expect(parseTheme("")).toBe("system");
     expect(parseTheme("sepia")).toBe("system");
+  });
+});
+
+describe("themeCookieValue", () => {
+  it("adds Secure on HTTPS", () => {
+    expect(themeCookieValue("dark", true)).toContain("; Secure");
+    expect(themeCookieValue("dark", false)).not.toContain("Secure");
   });
 });
 
