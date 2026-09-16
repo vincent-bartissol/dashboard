@@ -15,9 +15,8 @@ export type FetchResult<T = OpenDataRecord> = {
 
 export type CountResult = {
   ok: boolean;
-  count: number; 
-  error?: string; 
- 
+  count: number;
+  error?: string;
 };
 
 export function formatCount(
@@ -312,7 +311,7 @@ export function recordId(record: OpenDataRecord, idField: string) {
   return String(value);
 }
 
-export function recordLabel(record: OpenDataRecord, titleField: string) {
+export function recordLabel(record: OpenDataRecord, titleField: string, fallback = "") {
   const value = record[titleField];
-  return value == null || value === "" ? "Sans nom" : String(value);
+  return value == null || value === "" ? fallback : String(value);
 }

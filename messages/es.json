@@ -155,6 +155,7 @@
     "favoriteColumn": "Favorito",
     "favoriteError": "No se ha podido actualizar este favorito.",
     "favoriteLimit": "Ya tiene 100 favoritos. Elimine uno para añadir otro.",
+    "untitled": "Sin nombre",
     "mapLabel": "Mapa de registros",
     "mapHint": "El mapa no se puede usar con el teclado. Use la tabla siguiente."
   },

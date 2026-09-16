@@ -1,4 +1,4 @@
-import { recordId, type GeoPoint, type OpenDataRecord } from "@/lib/opendata/client";
+import { recordId, recordLabel, type GeoPoint, type OpenDataRecord } from "@/lib/opendata/client";
 
 export type MapMarker = {
   id: string;
@@ -31,7 +31,7 @@ export function recordsToMarkers(
       {
         id: `${baseId}::${index}`,
         position: { lat, lon },
-        label: String(record[options.titleField] ?? "Point"),
+        label: recordLabel(record, options.titleField),
         color: options.color?.(record),
         description: options.description?.(record),
       },

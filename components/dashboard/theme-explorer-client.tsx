@@ -111,7 +111,7 @@ export function ThemeExplorerClient({
       void toggleFavorite({
         datasetId: dataset.id,
         recordId: id,
-        label: recordLabel(record, dataset.titleField),
+        label: recordLabel(record, dataset.titleField, t("untitled")),
         geo: geo ? JSON.stringify(geo) : null,
       }).then((result) => {
         if (!result.ok) {

@@ -155,6 +155,7 @@
     "favoriteColumn": "Favori",
     "favoriteError": "Impossible de mettre à jour ce favori.",
     "favoriteLimit": "Vous avez déjà 100 favoris. Retirez-en un pour en ajouter un autre.",
+    "untitled": "Sans nom",
     "mapLabel": "Carte des enregistrements",
     "mapHint": "La carte n’est pas navigable au clavier. Utilisez le tableau ci-dessous."
   },

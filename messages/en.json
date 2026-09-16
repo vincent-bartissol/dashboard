@@ -155,6 +155,7 @@
     "favoriteColumn": "Favourite",
     "favoriteError": "Could not update this favourite.",
     "favoriteLimit": "You already have 100 favourites. Remove one to add another.",
+    "untitled": "Untitled",
     "mapLabel": "Map of records",
     "mapHint": "The map is not keyboard-accessible. Use the table below."
   },

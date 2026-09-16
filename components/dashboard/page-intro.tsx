@@ -36,7 +36,7 @@ export async function PageIntro({
               href={item.sourceUrl}
               target="_blank"
               rel="noreferrer"
-              className="hover:text-heading hover:underline"
+              className="hover:text-heading hover:underline focus-field"
             >
               {t("source", { title: item.title })}
               <span className="sr-only"> {t("opensInNewTab")}</span>
