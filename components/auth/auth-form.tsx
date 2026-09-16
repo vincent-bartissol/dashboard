@@ -12,6 +12,8 @@ import {
   type AuthErrorLike,
 } from "@/lib/auth-errors";
 import { safeNext } from "@/lib/safe-next";
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "@/lib/password";
+import { PROFILE_NAME_MAX } from "@/lib/profile-name";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 
@@ -115,6 +117,17 @@ export function AuthForm({ mode, next }: { mode: Mode; next?: string | string[] 
     const lastName = String(form.get("lastName") ?? "").trim();
     const name = `${firstName} ${lastName}`.trim();
 
+    if (mode === "signup" && (firstName.length > PROFILE_NAME_MAX || lastName.length > PROFILE_NAME_MAX)) {
+      setPending(false);
+      setError(t("namesTooLong"));
+      return;
+    }
+    if (password.length > MAX_PASSWORD_LENGTH) {
+      setPending(false);
+      setError(t("passwordTooLong"));
+      return;
+    }
+
     const result =
       mode === "signup"
         ? await authClient.signUp.email({ email, password, name, callbackURL: nextPrefixed })
@@ -166,7 +179,7 @@ export function AuthForm({ mode, next }: { mode: Mode; next?: string | string[] 
         <p className="text-sm text-muted">
           {emailForResend ? t("signupSentTo", { email: emailForResend }) : t("signupSent")}
         </p>
-        {resent ? <p className="text-sm text-muted">{t("emailResent")}</p> : null}
+        {resent ? <p aria-live="polite" className="text-sm text-muted">{t("emailResent")}</p> : null}
         {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
         <Button type="button" className="w-full" disabled={pending} onClick={resendVerification}>
           {pending ? t("pending") : t("resendEmail")}
@@ -196,7 +209,7 @@ export function AuthForm({ mode, next }: { mode: Mode; next?: string | string[] 
           />
         </div>
         {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
-        {resent ? <p className="text-sm text-muted">{t("otpResent")}</p> : null}
+        {resent ? <p aria-live="polite" className="text-sm text-muted">{t("otpResent")}</p> : null}
         <Button type="submit" className="w-full" disabled={pending}>
           {pending ? t("pending") : t("validate")}
         </Button>
@@ -219,11 +232,23 @@ export function AuthForm({ mode, next }: { mode: Mode; next?: string | string[] 
         <>
           <div>
             <Label htmlFor="firstName">{t("firstName")}</Label>
-            <Input id="firstName" name="firstName" required autoComplete="given-name" />
+            <Input
+              id="firstName"
+              name="firstName"
+              required
+              autoComplete="given-name"
+              maxLength={PROFILE_NAME_MAX}
+            />
           </div>
           <div>
             <Label htmlFor="lastName">{t("lastName")}</Label>
-            <Input id="lastName" name="lastName" required autoComplete="family-name" />
+            <Input
+              id="lastName"
+              name="lastName"
+              required
+              autoComplete="family-name"
+              maxLength={PROFILE_NAME_MAX}
+            />
           </div>
         </>
       ) : null}
@@ -238,12 +263,13 @@ export function AuthForm({ mode, next }: { mode: Mode; next?: string | string[] 
           name="password"
           type="password"
           required
-          minLength={8}
+          minLength={MIN_PASSWORD_LENGTH}
+          maxLength={MAX_PASSWORD_LENGTH}
           autoComplete={mode === "signup" ? "new-password" : "current-password"}
         />
       </div>
       {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
-      {resent ? <p className="text-sm text-muted">{t("emailResent")}</p> : null}
+      {resent ? <p aria-live="polite" className="text-sm text-muted">{t("emailResent")}</p> : null}
       <Button type="submit" className="w-full" disabled={pending}>
         {pending ? t("pending") : mode === "signup" ? t("submitSignup") : t("submitLogin")}
       </Button>

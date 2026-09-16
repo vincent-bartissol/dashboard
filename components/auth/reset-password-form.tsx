@@ -5,10 +5,9 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
 import { mapAuthError } from "@/lib/auth-errors";
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "@/lib/password";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
-
-const MIN_PASSWORD_LENGTH = 8;
 
 export function ResetPasswordForm({ token }: { token: string }) {
   const t = useTranslations("Auth");
@@ -25,6 +24,10 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
     if (newPassword.length < MIN_PASSWORD_LENGTH) {
       setError(t("passwordTooShort"));
+      return;
+    }
+    if (newPassword.length > MAX_PASSWORD_LENGTH) {
+      setError(t("passwordTooLong"));
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -56,6 +59,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
           type="password"
           required
           minLength={MIN_PASSWORD_LENGTH}
+          maxLength={MAX_PASSWORD_LENGTH}
           autoComplete="new-password"
         />
       </div>
@@ -67,6 +71,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
           type="password"
           required
           minLength={MIN_PASSWORD_LENGTH}
+          maxLength={MAX_PASSWORD_LENGTH}
           autoComplete="new-password"
         />
       </div>

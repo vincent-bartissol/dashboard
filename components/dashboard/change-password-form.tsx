@@ -4,10 +4,9 @@ import { FormEvent, useState } from "react";
 import { useTranslations } from "next-intl";
 import { authClient } from "@/lib/auth-client";
 import { mapAuthError } from "@/lib/auth-errors";
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "@/lib/password";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
-
-const MIN_PASSWORD_LENGTH = 8;
 
 export function ChangePasswordForm() {
   const t = useTranslations("Profile");
@@ -28,6 +27,10 @@ export function ChangePasswordForm() {
 
     if (newPassword.length < MIN_PASSWORD_LENGTH) {
       setError(t("passwordTooShort"));
+      return;
+    }
+    if (newPassword.length > MAX_PASSWORD_LENGTH) {
+      setError(t("passwordTooLong"));
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -72,6 +75,7 @@ export function ChangePasswordForm() {
           type="password"
           required
           autoComplete="current-password"
+          maxLength={MAX_PASSWORD_LENGTH}
         />
       </div>
       <div>
@@ -82,6 +86,7 @@ export function ChangePasswordForm() {
           type="password"
           required
           minLength={MIN_PASSWORD_LENGTH}
+          maxLength={MAX_PASSWORD_LENGTH}
           autoComplete="new-password"
         />
       </div>
@@ -93,11 +98,12 @@ export function ChangePasswordForm() {
           type="password"
           required
           minLength={MIN_PASSWORD_LENGTH}
+          maxLength={MAX_PASSWORD_LENGTH}
           autoComplete="new-password"
         />
       </div>
       {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
-      {saved ? <p className="text-sm text-muted">{t("passwordUpdated")}</p> : null}
+      {saved ? <p aria-live="polite" className="text-sm text-muted">{t("passwordUpdated")}</p> : null}
       <Button type="submit" disabled={pending}>
         {pending ? t("saving") : t("changePassword")}
       </Button>

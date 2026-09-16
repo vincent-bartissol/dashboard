@@ -6,6 +6,7 @@ import { withLocale } from "@/i18n/path";
 import { updateProfile } from "@/lib/actions/profile";
 import { authClient } from "@/lib/auth-client";
 import { ARRONDISSEMENTS } from "@/lib/opendata/arrondissement";
+import { PROFILE_NAME_MAX } from "@/lib/profile-name";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/input";
 
@@ -83,6 +84,7 @@ export function ProfileForm({
             name="firstName"
             required
             autoComplete="given-name"
+            maxLength={PROFILE_NAME_MAX}
             defaultValue={firstName}
           />
         </div>
@@ -93,6 +95,7 @@ export function ProfileForm({
             name="lastName"
             required
             autoComplete="family-name"
+            maxLength={PROFILE_NAME_MAX}
             defaultValue={lastName}
           />
         </div>
@@ -109,7 +112,7 @@ export function ProfileForm({
           </Select>
         </div>
         {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
-        {saved ? <p className="text-sm text-muted">{t("saved")}</p> : null}
+        {saved ? <p aria-live="polite" className="text-sm text-muted">{t("saved")}</p> : null}
         <Button type="submit" disabled={pending}>
           {pending ? t("saving") : t("save")}
         </Button>
@@ -132,7 +135,7 @@ export function ProfileForm({
         </div>
         {emailError ? <p role="alert" className="text-sm text-danger">{emailError}</p> : null}
         {emailSent ? (
-          <p className="text-sm text-muted">
+          <p aria-live="polite" className="text-sm text-muted">
             {t("emailSent")}
           </p>
         ) : null}

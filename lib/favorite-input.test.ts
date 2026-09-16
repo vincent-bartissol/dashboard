@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DATASETS } from "./opendata/datasets";
-import { parseFavoriteInput } from "./favorite-input";
+import { isAtFavoriteLimit, parseFavoriteInput } from "./favorite-input";
 
 describe("parseFavoriteInput", () => {
   it("accepts a known dataset", () => {
@@ -38,5 +38,13 @@ describe("parseFavoriteInput", () => {
         label: "Station",
       }),
     ).toEqual({ ok: false });
+  });
+});
+
+describe("isAtFavoriteLimit", () => {
+  it("caps at 100 favourites", () => {
+    expect(isAtFavoriteLimit(99)).toBe(false);
+    expect(isAtFavoriteLimit(100)).toBe(true);
+    expect(isAtFavoriteLimit(101)).toBe(true);
   });
 });
