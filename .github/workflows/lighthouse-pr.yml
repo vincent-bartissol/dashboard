@@ -1,0 +1,59 @@
+name: Lighthouse PR
+
+on:
+  pull_request:
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      BETTER_AUTH_SECRET: ci-placeholder-secret-32chars-minok
+      BETTER_AUTH_URL: http://localhost:3000
+      DATA_DIR: ${{ runner.temp }}/dashboard-data
+      HOSTNAME: 0.0.0.0
+      PORT: "3000"
+      NODE_ENV: production
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: Start app
+        run: |
+          pnpm start &
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:3000/fr >/dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Server did not become ready"
+          exit 1
+      - name: Seed Lighthouse session
+        run: node scripts/lighthouse-seed.mjs
+      - name: Smoke-check dashboard session
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Cookie: better-auth.session_token=${LHCI_SESSION_COOKIE}" \
+            http://localhost:3000/fr/dashboard)
+          echo "dashboard status ${code}"
+          test "${code}" = "200"
+      - name: Audit public pages
+        continue-on-error: true
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: ./lighthouse/lighthouserc.public.cjs
+          uploadArtifacts: true
+      - name: Install puppeteer-core for session cookie
+        run: pnpm add -D puppeteer-core
+      - name: Audit dashboard pages
+        continue-on-error: true
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: ./lighthouse/lighthouserc.auth.cjs
+          uploadArtifacts: true
