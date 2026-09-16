@@ -22,7 +22,9 @@ Open [http://localhost:3000](http://localhost:3000). Mailpit UI: [http://localho
 
 SQLite lives in `data/` (gitignored). On boot the app applies Drizzle migrations from `lib/db/migrations` (existing files are baselined, then any new SQL runs once). After changing [`lib/db/schema.ts`](lib/db/schema.ts), run `pnpm db:generate` and commit the new files.
 
-`pnpm test` and `pnpm lint` before pushing.
+`pnpm test` and `pnpm lint` before pushing. After `pnpm build`, `pnpm test:e2e` runs Playwright smokes (landing, login error, seeded dashboard) plus axe on those pages.
+
+Dependabot opens weekly PRs for npm and GitHub Actions. CI runs `pnpm audit` as a warning (it does not fail the job). [`.github/workflows/uptime.yml`](.github/workflows/uptime.yml) curls [dashboard.vvbb.fr/fr](https://dashboard.vvbb.fr/fr) every hour; a failed run is the alert.
 
 ## Lighthouse
 

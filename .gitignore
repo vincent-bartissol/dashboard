@@ -13,6 +13,11 @@
 # testing
 /coverage
 .lighthouseci
+/test-results
+/playwright-report
+/blob-report
+/e2e/.auth
+/e2e/.data
 
 # next.js
 /.next/

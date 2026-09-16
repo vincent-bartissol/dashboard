@@ -102,7 +102,7 @@ export default async function DashboardPage() {
           fountains: formatCount(fountains, (value) => format.number(value)),
           markets: formatCount(markets, (value) => format.number(value)),
           profile: (chunks) => (
-            <Link href="/dashboard/profile" className="text-heading hover:underline">
+            <Link href="/dashboard/profile" className="text-heading underline">
               {chunks}
             </Link>
           ),
