@@ -10,7 +10,7 @@ jobs:
       NEXT_TELEMETRY_DISABLED: "1"
       BETTER_AUTH_SECRET: ci-placeholder-secret-32chars-minok
       BETTER_AUTH_URL: http://localhost:3000
-      DATA_DIR: ${{ runner.temp }}/dashboard-data
+      DATA_DIR: /tmp/dashboard-data
       HOSTNAME: 0.0.0.0
       PORT: "3000"
       NODE_ENV: production
