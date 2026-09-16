@@ -14,6 +14,7 @@ const DATASET_HREF: Record<string, string> = {
   [DATASETS.fountains.id]: "/dashboard/amenities",
   [DATASETS.toilets.id]: "/dashboard/amenities?tab=toilets",
   [DATASETS.events.id]: "/dashboard/events",
+  [DATASETS.markets.id]: "/dashboard/markets",
   [DATASETS.works.id]: "/dashboard/traffic",
   [DATASETS.street.id]: "/dashboard/traffic?tab=street",
   [DATASETS.montreuilTrees.id]: "/dashboard/montreuil?tab=trees",

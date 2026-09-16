@@ -96,7 +96,7 @@ export function ChangePasswordForm() {
           autoComplete="new-password"
         />
       </div>
-      {error ? <p className="text-sm text-accent">{error}</p> : null}
+      {error ? <p className="text-sm text-danger">{error}</p> : null}
       {saved ? <p className="text-sm text-muted">{t("passwordUpdated")}</p> : null}
       <Button type="submit" disabled={pending}>
         {pending ? t("saving") : t("changePassword")}

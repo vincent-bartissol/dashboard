@@ -10,6 +10,7 @@
   --ink: #12141a;
   --muted: #5a616c;
   --accent: #c8102e;
+  --danger: #c8102e;
   --line: #d8dce3;
   --heading: var(--navy);
   --background: var(--ground);
@@ -23,6 +24,7 @@
   --muted: #9aa3ad;
   --line: #2c3a48;
   --heading: #f3efe6;
+  --danger: #f4a0a8;
   --background: var(--ground);
   --foreground: var(--ink);
 }
@@ -37,6 +39,7 @@
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
+  --color-danger: var(--danger);
   --color-line: var(--line);
   --color-heading: var(--heading);
   --font-sans: var(--font-ibm-plex-sans);
@@ -76,6 +79,13 @@ a {
 
 @utility surface-panel {
   @apply rounded-none border border-line bg-paper;
+}
+
+@utility focus-field {
+  &:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
 }
 
 .leaflet-container {

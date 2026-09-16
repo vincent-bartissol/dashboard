@@ -70,7 +70,7 @@ export function BboxExplorerClient({
   return (
     <div className="space-y-4">
       {error ? (
-        <p role="status" className="text-sm text-accent">
+        <p role="status" className="text-sm text-danger">
           {t("opendataDown")}
         </p>
       ) : null}

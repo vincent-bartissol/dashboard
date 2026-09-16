@@ -4,7 +4,7 @@ export async function DatasetNotice({ error }: { error?: string }) {
   const t = await getTranslations("Common");
   if (!error) return null;
   return (
-    <p role="status" className="text-sm text-accent">
+    <p role="status" className="text-sm text-danger">
       {t("opendataDown")}
     </p>
   );

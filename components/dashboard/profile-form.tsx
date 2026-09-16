@@ -108,7 +108,7 @@ export function ProfileForm({
             ))}
           </Select>
         </div>
-        {error ? <p className="text-sm text-accent">{error}</p> : null}
+        {error ? <p className="text-sm text-danger">{error}</p> : null}
         {saved ? <p className="text-sm text-muted">{t("saved")}</p> : null}
         <Button type="submit" disabled={pending}>
           {pending ? t("saving") : t("save")}
@@ -130,7 +130,7 @@ export function ProfileForm({
             {emailVerified ? t("emailVerified") : t("emailPending")}
           </p>
         </div>
-        {emailError ? <p className="text-sm text-accent">{emailError}</p> : null}
+        {emailError ? <p className="text-sm text-danger">{emailError}</p> : null}
         {emailSent ? (
           <p className="text-sm text-muted">
             {t("emailSent")}

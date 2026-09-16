@@ -169,7 +169,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
           {emailForResend ? t("signupSentTo", { email: emailForResend }) : t("signupSent")}
         </p>
         {resent ? <p className="text-sm text-muted">{t("emailResent")}</p> : null}
-        {error ? <p className="text-sm text-accent">{error}</p> : null}
+        {error ? <p className="text-sm text-danger">{error}</p> : null}
         <Button type="button" className="w-full" disabled={pending} onClick={resendVerification}>
           {pending ? t("pending") : t("resendEmail")}
         </Button>
@@ -197,7 +197,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
             pattern="[0-9]{6}"
           />
         </div>
-        {error ? <p className="text-sm text-accent">{error}</p> : null}
+        {error ? <p className="text-sm text-danger">{error}</p> : null}
         {resent ? <p className="text-sm text-muted">{t("otpResent")}</p> : null}
         <Button type="submit" className="w-full" disabled={pending}>
           {pending ? t("pending") : t("validate")}
@@ -244,7 +244,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
           autoComplete={mode === "signup" ? "new-password" : "current-password"}
         />
       </div>
-      {error ? <p className="text-sm text-accent">{error}</p> : null}
+      {error ? <p className="text-sm text-danger">{error}</p> : null}
       {resent ? <p className="text-sm text-muted">{t("emailResent")}</p> : null}
       <Button type="submit" className="w-full" disabled={pending}>
         {pending ? t("pending") : mode === "signup" ? t("submitSignup") : t("submitLogin")}

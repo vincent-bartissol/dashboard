@@ -70,7 +70,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
           autoComplete="new-password"
         />
       </div>
-      {error ? <p className="text-sm text-accent">{error}</p> : null}
+      {error ? <p className="text-sm text-danger">{error}</p> : null}
       <Button type="submit" className="w-full" disabled={pending}>
         {pending ? t("pending") : t("choosePassword")}
       </Button>
