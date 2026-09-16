@@ -28,6 +28,7 @@ const DATASET_HREF: Record<string, string> = {
 export default async function FavoritesPage() {
   const session = await requireSession();
   const t = await getTranslations("Pages.favorites");
+  const nav = await getTranslations("Nav");
   const favorites = await listFavorites(session.user.id);
   const datasetTitles = Object.fromEntries(
     await Promise.all(
@@ -44,6 +45,12 @@ export default async function FavoritesPage() {
       {favorites.length === 0 ? (
         <Card>
           <p className="text-sm text-muted">{t("empty")}</p>
+          <Link
+            href="/dashboard"
+            className="mt-3 inline-block text-sm font-medium text-heading underline focus-field"
+          >
+            {nav("overview")}
+          </Link>
         </Card>
       ) : (
         <div className="space-y-3">
@@ -55,7 +62,7 @@ export default async function FavoritesPage() {
               </div>
               <Link
                 href={DATASET_HREF[item.datasetId] ?? "/dashboard"}
-                className="text-sm font-medium text-heading hover:underline"
+                className="text-sm font-medium text-heading hover:underline focus-field"
               >
                 {t("openTheme")}
               </Link>

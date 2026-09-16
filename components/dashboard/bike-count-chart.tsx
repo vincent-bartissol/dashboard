@@ -38,27 +38,33 @@ export function BikeCountChart({ records }: { records: OpenDataRecord[] }) {
   return (
     <Card>
       <SectionTitle className="mb-4">{t("bikeTitle")}</SectionTitle>
-      <p id={summaryId} className="sr-only">
-        {t("bikeSummary", { from, to, peak: String(peak) })}
-      </p>
-      <div className="h-[320px] w-full" aria-describedby={summaryId}>
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke={chrome.grid} />
-            <XAxis dataKey="day" stroke={chrome.tick} tick={{ fill: chrome.tick }} />
-            <YAxis stroke={chrome.tick} tick={{ fill: chrome.tick }} />
-            <Tooltip
-              contentStyle={{
-                background: chrome.paper,
-                border: `1px solid ${chrome.grid}`,
-                color: chrome.ink,
-              }}
-            />
-            <Legend wrapperStyle={{ color: chrome.ink }} />
-            <Line type="monotone" dataKey="total" name={t("passages")} stroke={chrome.accent} dot={false} />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+      {data.length === 0 ? (
+        <p className="text-sm text-muted">{t("empty")}</p>
+      ) : (
+        <>
+          <p id={summaryId} className="sr-only">
+            {t("bikeSummary", { from, to, peak: String(peak) })}
+          </p>
+          <div className="h-[320px] w-full" aria-describedby={summaryId}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={data}>
+                <CartesianGrid strokeDasharray="3 3" stroke={chrome.grid} />
+                <XAxis dataKey="day" stroke={chrome.tick} tick={{ fill: chrome.tick }} />
+                <YAxis stroke={chrome.tick} tick={{ fill: chrome.tick }} />
+                <Tooltip
+                  contentStyle={{
+                    background: chrome.paper,
+                    border: `1px solid ${chrome.grid}`,
+                    color: chrome.ink,
+                  }}
+                />
+                <Legend wrapperStyle={{ color: chrome.ink }} />
+                <Line type="monotone" dataKey="total" name={t("passages")} stroke={chrome.accent} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </>
+      )}
     </Card>
   );
 }

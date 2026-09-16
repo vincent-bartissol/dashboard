@@ -15,7 +15,7 @@ export function LocaleSwitcher({ invert = false }: { invert?: boolean }) {
     <label className="inline-flex items-center gap-2 text-xs">
       <span className={invert ? "sr-only" : "text-muted"}>{t("localeSwitcher")}</span>
       <select
-        className={`h-9 rounded-none border px-2 text-xs font-medium ${frame}`}
+        className={`h-9 rounded-none border px-2 text-xs font-medium focus-field ${frame}`}
         value={locale}
         aria-label={t("localeSwitcher")}
         onChange={(event) => {

@@ -37,7 +37,7 @@ export function Sidebar({ userName, theme }: { userName: string; theme: ColorSch
               key={item.href}
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`border-l-4 px-3 py-2 text-sm transition ${
+              className={`border-l-4 px-3 py-2 text-sm transition focus-field ${
                 active
                   ? "border-accent bg-white/10 font-medium text-white"
                   : "border-transparent text-white/75 hover:bg-white/5 hover:text-white"
@@ -54,7 +54,7 @@ export function Sidebar({ userName, theme }: { userName: string; theme: ColorSch
         <button
           type="button"
           onClick={logout}
-          className="w-full rounded-none border border-white/20 px-3 py-2 text-sm text-white/80 hover:bg-white/10"
+          className="w-full rounded-none border border-white/20 px-3 py-2 text-sm text-white/80 hover:bg-white/10 focus-field"
         >
           {t("logout")}
         </button>
@@ -81,7 +81,7 @@ export function MobileNav({ userName, theme }: { userName: string; theme: ColorS
         <div className="flex items-center gap-2">
           <LocaleSwitcher invert />
           <ThemeToggle invert initial={theme} />
-          <button type="button" onClick={logout} className="text-sm text-white/80">
+          <button type="button" onClick={logout} className="text-sm text-white/80 focus-field">
             {t("logoutShort")}
           </button>
         </div>
@@ -97,7 +97,7 @@ export function MobileNav({ userName, theme }: { userName: string; theme: ColorS
               key={item.href}
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`shrink-0 rounded-none border-b-2 px-3 py-1.5 text-sm ${
+              className={`shrink-0 rounded-none border-b-2 px-3 py-1.5 text-sm focus-field ${
                 active
                   ? "border-accent text-white"
                   : "border-transparent bg-white/5 text-white/80"

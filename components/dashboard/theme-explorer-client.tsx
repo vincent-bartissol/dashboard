@@ -72,6 +72,7 @@ export function ThemeExplorerClient({
   const [query, setQuery] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
   const [favorites, setFavorites] = useState(new Set(favoriteIds));
+  const [favoriteError, setFavoriteError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
   const filtered = useMemo(
@@ -113,7 +114,12 @@ export function ThemeExplorerClient({
         label: recordLabel(record, dataset.titleField),
         geo: geo ? JSON.stringify(geo) : null,
       }).then((result) => {
-        if (!result.ok) setFavorites(previous);
+        if (!result.ok) {
+          setFavorites(previous);
+          setFavoriteError(result.error === "favoriteLimit" ? "favoriteLimit" : "favorite");
+          return;
+        }
+        setFavoriteError(null);
       });
     });
   }
@@ -139,6 +145,11 @@ export function ThemeExplorerClient({
           })}
         </p>
       </div>
+      {favoriteError ? (
+        <p role="alert" className="text-sm text-danger">
+          {favoriteError === "favoriteLimit" ? t("favoriteLimit") : t("favoriteError")}
+        </p>
+      ) : null}
       {dataset.geoField ? (
         <DynamicParisMap
           markers={[...markers, ...extraMarkers]}

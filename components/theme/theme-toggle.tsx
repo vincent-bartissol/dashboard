@@ -66,7 +66,7 @@ export function ThemeToggle({
             key={option.value}
             type="button"
             onClick={() => onSelect(option.value)}
-            className={`inline-flex h-9 items-center gap-1.5 px-2.5 text-xs font-medium transition ${
+            className={`inline-flex h-9 items-center gap-1.5 px-2.5 text-xs font-medium transition focus-field ${
               selected ? active : idle
             }`}
             aria-pressed={selected}
