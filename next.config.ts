@@ -14,7 +14,7 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      // Inline THEME_SCRIPT in app/[locale]/layout.tsx; Next also emits runtime scripts.
+      // Next emits inline/eval runtime scripts; a script-src hash would ignore 'unsafe-inline' (CSP2) and break the app.
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com",
