@@ -79,6 +79,18 @@ const HOSTS: Record<OpenDataHost, string> = {
 
 const MAX_PAGE = 100;
 const PAGE_CONCURRENCY = 4;
+export const FETCH_TIMEOUT_MS = 10_000;
+
+type RecordsQuery = {
+  limit?: number;
+  offset?: number;
+  where?: string;
+  orderBy?: string;
+  refine?: string;
+  select?: string;
+  host?: OpenDataHost;
+  signal?: AbortSignal;
+};
 
 function emptyPage<T>(): OpenDataPage<T> {
   return { total_count: 0, results: [] };
@@ -107,22 +119,21 @@ function buildRecordsUrl(
   return url;
 }
 
+function withTimeout(signal?: AbortSignal) {
+  const timeout = AbortSignal.timeout(FETCH_TIMEOUT_MS);
+  return signal ? AbortSignal.any([signal, timeout]) : timeout;
+}
+
 export async function fetchRecords<T = OpenDataRecord>(
   datasetId: string,
-  params: {
-    limit?: number;
-    offset?: number;
-    where?: string;
-    orderBy?: string;
-    refine?: string;
-    select?: string;
-    host?: OpenDataHost;
-  },
+  params: RecordsQuery,
   revalidate: number,
 ): Promise<OpenDataPage<T>> {
-  const url = buildRecordsUrl(datasetId, params);
+  const { signal, ...query } = params;
+  const url = buildRecordsUrl(datasetId, query);
   const res = await fetch(url, {
     next: { revalidate, tags: [`opendata:${datasetId}`] },
+    signal: withTimeout(signal),
   });
   if (!res.ok) {
     throw new Error(`Open Data ${datasetId}: ${res.status}`);
@@ -131,27 +142,23 @@ export async function fetchRecords<T = OpenDataRecord>(
   if (!data || typeof data !== "object" || !Array.isArray(data.results)) {
     throw new Error(`Open Data ${datasetId}: invalid payload`);
   }
-  return data;
+  const total_count = Number(data.total_count);
+  if (!Number.isFinite(total_count)) {
+    throw new Error(`Open Data ${datasetId}: invalid payload`);
+  }
+  return { total_count, results: data.results };
 }
 
 export async function fetchRecordsSafe<T = OpenDataRecord>(
   datasetId: string,
-  params: {
-    limit?: number;
-    offset?: number;
-    where?: string;
-    orderBy?: string;
-    refine?: string;
-    select?: string;
-    host?: OpenDataHost;
-  },
+  params: RecordsQuery,
   revalidate: number,
 ): Promise<FetchResult<T>> {
   try {
     const page = await fetchRecords<T>(datasetId, params, revalidate);
     return { ok: true, page };
   } catch (error) {
-    const message = error instanceof Error ? error.message : `Open Data ${datasetId} indisponible`;
+    const message = error instanceof Error ? error.message : `Open Data ${datasetId} unavailable`;
     console.error(message);
     return { ok: false, page: emptyPage<T>(), error: message };
   }
@@ -165,6 +172,7 @@ export async function fetchCount(
 ): Promise<CountResult> {
   const result = await fetchRecordsSafe(datasetId, { limit: 0, where, host }, revalidate);
   if (!result.ok) {
+    console.error("opendata count failed", datasetId, result.error);
     return { ok: false, count: 0, error: result.error };
   }
   return { ok: true, count: result.page.total_count };

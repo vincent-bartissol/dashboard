@@ -9,6 +9,7 @@ import {
   type OpenDataPage,
 } from "@/lib/opendata/client";
 import { PARIS_BBOX } from "@/lib/opendata/datasets";
+import { themeOrderBy } from "@/lib/opendata/order-by";
 
 export async function loadTheme(
   dataset: DatasetConfig,
@@ -35,12 +36,7 @@ export async function loadTheme(
         where,
         host: dataset.host,
         max: dataset.id === "velib-disponibilite-en-temps-reel" ? 1600 : 1500,
-        orderBy:
-          dataset.idField !== dataset.geoField && !dataset.idField.includes(",")
-            ? dataset.idField
-            : dataset.id === "que-faire-a-paris-"
-              ? "date_start"
-              : undefined,
+        orderBy: themeOrderBy(dataset),
       });
   const favorites = await listFavorites(userId, dataset.id);
   const page: OpenDataPage = result.page;
