@@ -24,6 +24,13 @@ SQLite lives in `data/` (gitignored). On boot the app applies Drizzle migrations
 
 `pnpm test` and `pnpm lint` before pushing.
 
+## Lighthouse
+
+GitHub Actions runs Lighthouse without failing the job on scores. Reports are artifacts on the workflow run.
+
+- **PRs** — [`.github/workflows/lighthouse-pr.yml`](.github/workflows/lighthouse-pr.yml) audits `/fr`, `/fr/login`, `/fr/signup`, then `/fr/dashboard` and `/fr/dashboard/velib` against a local build (seeded session cookie, no production login).
+- **Production** — [`.github/workflows/lighthouse-production.yml`](.github/workflows/lighthouse-production.yml) audits [dashboard.vvbb.fr](https://dashboard.vvbb.fr) public pages every Monday at 08:00 UTC. Run it by hand from the Actions tab (`workflow_dispatch`).
+
 ## Production (Railway)
 
 This is a Node app with a SQLite file. It cannot run on OVH mutualisé (`vvbb.fr` FTP). Railway runs the container; DNS points **dashboard.vvbb.fr** at it.
