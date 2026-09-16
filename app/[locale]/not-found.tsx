@@ -9,7 +9,7 @@ export default async function NotFound() {
   return (
     <div className="flex min-h-full flex-col">
       <SiteHeader />
-      <main className="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center px-6 py-16">
+      <main id="main" className="mx-auto flex w-full max-w-lg flex-1 flex-col justify-center px-6 py-16">
         <PageTitle>{t("title")}</PageTitle>
         <p className="mt-2 text-sm text-muted">{t("body")}</p>
         <div className="mt-6">

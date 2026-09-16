@@ -17,7 +17,7 @@ export default async function ForgotPasswordPage({
   return (
     <div className="flex min-h-full flex-col">
       <SiteHeader variant="auth" />
-      <main className="flex flex-1 items-center justify-center px-6 py-16">
+      <main id="main" className="flex flex-1 items-center justify-center px-6 py-16">
         <Card className="w-full max-w-md">
           <h1 className="text-2xl font-semibold text-heading">{t("forgotTitle")}</h1>
           <p className="mt-1 mb-6 text-sm text-muted">{t("forgotBody")}</p>

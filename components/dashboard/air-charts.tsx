@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { useTranslations } from "next-intl";
 import {
   Bar,
@@ -29,17 +30,24 @@ export function AirCharts({ records }: { records: OpenDataRecord[] }) {
   const chrome = useChartChrome();
   const t = useTranslations("Datasets.air.columns");
   const title = useTranslations("Pages.air");
+  const charts = useTranslations("Charts");
+  const summaryId = useId();
   const data = [...records]
     .sort((a, b) => String(a.annee).localeCompare(String(b.annee)))
     .map((row) => ({
       annee: String(row.annee),
       ...Object.fromEntries(SERIES.map((item) => [item.key, Number(row[item.key] ?? 0)])),
     }));
+  const from = data[0]?.annee ?? "—";
+  const to = data[data.length - 1]?.annee ?? "—";
 
   return (
     <Card>
       <SectionTitle className="mb-4">{title("chartTitle")}</SectionTitle>
-      <div className="h-[360px] w-full">
+      <p id={summaryId} className="sr-only">
+        {charts("airSummary", { from, to })}
+      </p>
+      <div className="h-[360px] w-full" aria-describedby={summaryId}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke={chrome.grid} />

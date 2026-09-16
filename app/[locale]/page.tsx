@@ -46,7 +46,7 @@ export default async function Home() {
   return (
     <div className="flex min-h-full flex-col">
       <SiteHeader />
-      <main className="flex-1">
+      <main id="main" className="flex-1">
         <section className="relative overflow-hidden border-b border-line bg-navy text-white">
           <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:py-20">
             <div>
@@ -99,10 +99,10 @@ export default async function Home() {
             </div>
           ) : null}
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <KpiCard label="Vélib’" value={bikesLabel} hint={t("kpiVelibHint")} />
-            <KpiCard label="Nature" value={treesLabel} hint={t("kpiNatureHint")} />
+            <KpiCard label={t("kpiVelib")} value={bikesLabel} hint={t("kpiVelibHint")} />
+            <KpiCard label={t("kpiNature")} value={treesLabel} hint={t("kpiNatureHint")} />
             <KpiCard
-              label="Air"
+              label={t("kpiAir")}
               value={
                 latestAir ? t("kpiAirValue", { count: String(latestAir.ind_jour_qa_bonne ?? "—") }) : "—"
               }
@@ -112,7 +112,7 @@ export default async function Home() {
                   : t("kpiAirUnavailable")
               }
             />
-            <KpiCard label="Agenda" value={eventsLabel} hint={t("kpiAgendaHint")} />
+            <KpiCard label={t("kpiAgenda")} value={eventsLabel} hint={t("kpiAgendaHint")} />
           </div>
         </section>
 

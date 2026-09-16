@@ -39,6 +39,7 @@ export async function PageIntro({
               className="hover:text-heading hover:underline"
             >
               {t("source", { title: item.title })}
+              <span className="sr-only"> {t("opensInNewTab")}</span>
             </a>
           ))}
         </div>

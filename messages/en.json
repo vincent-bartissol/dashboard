@@ -22,7 +22,9 @@
       "dark": "Dark",
       "system": "System"
     },
-    "mapLoading": "Loading the map…"
+    "mapLoading": "Loading the map…",
+    "skipToContent": "Skip to content",
+    "opensInNewTab": "(opens in a new tab)"
   },
   "Nav": {
     "overview": "Overview",
@@ -75,6 +77,10 @@
     "kpiAirHint": "“good” air days in {year}",
     "kpiAirUnavailable": "ATMO index unavailable",
     "kpiAgendaHint": "Que faire à Paris events",
+    "kpiVelib": "Vélib’",
+    "kpiNature": "Nature",
+    "kpiAir": "Air",
+    "kpiAgenda": "Events",
     "pillar1Title": "Paris and Montreuil",
     "pillar1Body": "Vélib’, nature, air, amenities, events, streets, markets, plus a Montreuil page around Robespierre: each dataset has its map, table and indicators.",
     "pillar2Title": "A private space",
@@ -142,7 +148,11 @@
     "previous": "Previous",
     "next": "Next",
     "addFavorite": "Add to favourites",
-    "removeFavorite": "Remove from favourites"
+    "removeFavorite": "Remove from favourites",
+    "noMatches": "No results for this filter.",
+    "favoriteColumn": "Favourite",
+    "mapLabel": "Map of records",
+    "mapHint": "The map is not keyboard-accessible. Use the table below."
   },
   "Overview": {
     "title": "Overview",
@@ -274,6 +284,8 @@
     "save": "Save",
     "saving": "Saving…",
     "namesRequired": "First and last name are required.",
+    "namesTooLong": "First and last name must be 80 characters or fewer.",
+    "invalidDistrict": "Choose a territory from the list.",
     "email": "E-mail",
     "emailVerified": "Address confirmed.",
     "emailPending": "Waiting for confirmation.",
@@ -297,7 +309,9 @@
   },
   "Charts": {
     "bikeTitle": "Bike counts · rue Étienne Marcel (last 7 days)",
-    "passages": "Passages"
+    "passages": "Passages",
+    "airSummary": "ATMO index days from {from} to {to}.",
+    "bikeSummary": "Passages from {from} to {to}, peak {peak}."
   },
   "Landmarks": {
     "metro": {

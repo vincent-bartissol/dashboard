@@ -4,6 +4,7 @@ import { PageIntro } from "@/components/dashboard/page-intro";
 import { Card } from "@/components/ui/card";
 import { listFavorites } from "@/lib/db/queries";
 import { DATASETS } from "@/lib/opendata/datasets";
+import { localizeDatasetTitleById } from "@/lib/opendata/localize";
 import { requireSession } from "@/lib/session";
 
 const DATASET_HREF: Record<string, string> = {
@@ -28,6 +29,14 @@ export default async function FavoritesPage() {
   const session = await requireSession();
   const t = await getTranslations("Pages.favorites");
   const favorites = await listFavorites(session.user.id);
+  const datasetTitles = Object.fromEntries(
+    await Promise.all(
+      [...new Set(favorites.map((item) => item.datasetId))].map(async (datasetId) => [
+        datasetId,
+        await localizeDatasetTitleById(datasetId),
+      ]),
+    ),
+  );
 
   return (
     <div>
@@ -42,7 +51,7 @@ export default async function FavoritesPage() {
             <Card key={item.id} className="flex items-center justify-between gap-4">
               <div>
                 <p className="font-medium text-heading">{item.label}</p>
-                <p className="text-sm text-muted">{item.datasetId}</p>
+                <p className="text-sm text-muted">{datasetTitles[item.datasetId] ?? item.datasetId}</p>
               </div>
               <Link
                 href={DATASET_HREF[item.datasetId] ?? "/dashboard"}

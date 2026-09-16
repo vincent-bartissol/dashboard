@@ -32,3 +32,9 @@ export async function localizeDatasetTitle(dataset: DatasetConfig) {
   const key = KEY_BY_ID[dataset.id];
   return key ? t(`${key}.title` as Parameters<typeof t>[0]) : dataset.title;
 }
+
+export async function localizeDatasetTitleById(datasetId: string) {
+  const dataset = Object.values(DATASETS).find((item) => item.id === datasetId);
+  if (!dataset) return datasetId;
+  return localizeDatasetTitle(dataset);
+}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { useTranslations } from "next-intl";
 import {
   CartesianGrid,
@@ -19,6 +20,7 @@ import { useChartChrome } from "@/components/theme/use-chart-chrome";
 export function BikeCountChart({ records }: { records: OpenDataRecord[] }) {
   const chrome = useChartChrome();
   const t = useTranslations("Charts");
+  const summaryId = useId();
   const byDay = new Map<string, number>();
   for (const row of records) {
     const raw = String(row.date ?? "");
@@ -29,11 +31,17 @@ export function BikeCountChart({ records }: { records: OpenDataRecord[] }) {
   const data = [...byDay.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([day, total]) => ({ day, total }));
+  const from = data[0]?.day ?? "—";
+  const to = data[data.length - 1]?.day ?? "—";
+  const peak = data.reduce((max, row) => Math.max(max, row.total), 0);
 
   return (
     <Card>
       <SectionTitle className="mb-4">{t("bikeTitle")}</SectionTitle>
-      <div className="h-[320px] w-full">
+      <p id={summaryId} className="sr-only">
+        {t("bikeSummary", { from, to, peak: String(peak) })}
+      </p>
+      <div className="h-[320px] w-full" aria-describedby={summaryId}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke={chrome.grid} />
