@@ -4,6 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { favorite } from "@/lib/db/schema";
+import { parseFavoriteInput } from "@/lib/favorite-input";
 import { routing } from "@/i18n/routing";
 import { NAV_ITEMS } from "@/lib/opendata/datasets";
 import { requireSession } from "@/lib/session";
@@ -17,6 +18,10 @@ export async function toggleFavorite(input: {
   geo?: string | null;
 }): Promise<ToggleFavoriteResult> {
   const session = await requireSession();
+  const parsed = parseFavoriteInput(input);
+  if (!parsed.ok) {
+    return { ok: false, error: "favorite" };
+  }
   try {
     const existing = await db
       .select()
@@ -24,8 +29,8 @@ export async function toggleFavorite(input: {
       .where(
         and(
           eq(favorite.userId, session.user.id),
-          eq(favorite.datasetId, input.datasetId),
-          eq(favorite.recordId, input.recordId),
+          eq(favorite.datasetId, parsed.datasetId),
+          eq(favorite.recordId, parsed.recordId),
         ),
       )
       .limit(1);
@@ -36,10 +41,10 @@ export async function toggleFavorite(input: {
       await db.insert(favorite).values({
         id: crypto.randomUUID(),
         userId: session.user.id,
-        datasetId: input.datasetId,
-        recordId: input.recordId,
-        label: input.label,
-        geo: input.geo ?? null,
+        datasetId: parsed.datasetId,
+        recordId: parsed.recordId,
+        label: parsed.label,
+        geo: parsed.geo,
         createdAt: new Date(),
       });
     }

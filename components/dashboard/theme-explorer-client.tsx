@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useId, useMemo, useState, useTransition } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { Heart } from "lucide-react";
 import { toggleFavorite } from "@/lib/actions/favorites";
@@ -68,6 +68,7 @@ export function ThemeExplorerClient({
 }: Props) {
   const t = useTranslations("Explorer");
   const format = useFormatter();
+  const filterId = useId();
   const [query, setQuery] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
   const [favorites, setFavorites] = useState(new Set(favoriteIds));
@@ -121,12 +122,14 @@ export function ThemeExplorerClient({
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Input
+          id={filterId}
           value={query}
           onChange={(event) => {
             setQuery(event.target.value);
             setPageIndex(0);
           }}
           placeholder={t("filterPlaceholder")}
+          aria-label={t("filterPlaceholder")}
           className="max-w-md"
         />
         <p className="text-sm text-muted">
@@ -148,7 +151,9 @@ export function ThemeExplorerClient({
         <table className="min-w-full text-left text-sm">
           <thead className="text-label border-b border-line bg-ground">
             <tr>
-              <th className="w-12 px-3 py-2" />
+              <th className="w-12 px-3 py-2">
+                <span className="sr-only">{t("favoriteColumn")}</span>
+              </th>
               {dataset.columns.map((column) => (
                 <th key={column.key} className="px-3 py-2">
                   {column.label}
@@ -157,6 +162,16 @@ export function ThemeExplorerClient({
             </tr>
           </thead>
           <tbody>
+            {pageRows.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={dataset.columns.length + 1}
+                  className="px-3 py-6 text-center text-muted"
+                >
+                  {t("noMatches")}
+                </td>
+              </tr>
+            ) : null}
             {pageRows.map((record, index) => {
               const id = recordId(record, dataset.idField) || String(index);
               const saved = favorites.has(id);
@@ -166,7 +181,7 @@ export function ThemeExplorerClient({
                     <button
                       type="button"
                       onClick={() => onToggle(record)}
-                      className="rounded-none p-1 text-muted hover:text-accent"
+                      className="focus-field rounded-none p-1 text-muted hover:text-accent"
                       aria-label={saved ? t("removeFavorite") : t("addFavorite")}
                     >
                       <Heart className={`h-4 w-4 ${saved ? "fill-accent text-accent" : ""}`} />

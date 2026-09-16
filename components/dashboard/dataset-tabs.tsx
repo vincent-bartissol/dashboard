@@ -8,7 +8,7 @@ export function DatasetTabs({
   active: string;
 }) {
   return (
-    <div className="flex flex-wrap gap-0 border-b border-line">
+    <nav className="flex flex-wrap gap-0 border-b border-line">
       {tabs.map((tab) => {
         const current = tab.href === active;
         const className = `rounded-none border-b-2 px-4 py-2 text-sm transition ${
@@ -18,17 +18,27 @@ export function DatasetTabs({
         }`;
         if (tab.href.startsWith("/dev")) {
           return (
-            <a key={tab.href} href={tab.href} className={className}>
+            <a
+              key={tab.href}
+              href={tab.href}
+              className={className}
+              aria-current={current ? "page" : undefined}
+            >
               {tab.label}
             </a>
           );
         }
         return (
-          <Link key={tab.href} href={tab.href} className={className}>
+          <Link
+            key={tab.href}
+            href={tab.href}
+            className={className}
+            aria-current={current ? "page" : undefined}
+          >
             {tab.label}
           </Link>
         );
       })}
-    </div>
+    </nav>
   );
 }

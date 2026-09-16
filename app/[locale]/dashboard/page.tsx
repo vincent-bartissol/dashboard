@@ -90,7 +90,7 @@ export default async function DashboardPage() {
       <div className="mt-8 grid gap-4 md:grid-cols-2">
         {THEME_IDS.map((id) => (
           <Link key={id} href={THEME_HREF[id]}>
-            <Card className="h-full transition hover:border-navy/30">
+            <Card className="h-full transition hover:border-heading/40">
               <SectionTitle>{t(`themes.${id}.title`)}</SectionTitle>
               <p className="mt-1 text-sm text-muted">{t(`themes.${id}.body`)}</p>
             </Card>

@@ -22,7 +22,9 @@
       "dark": "Sombre",
       "system": "Système"
     },
-    "mapLoading": "Chargement de la carte…"
+    "mapLoading": "Chargement de la carte…",
+    "skipToContent": "Aller au contenu",
+    "opensInNewTab": "(nouvelle fenêtre)"
   },
   "Nav": {
     "overview": "Vue d’ensemble",
@@ -75,6 +77,10 @@
     "kpiAirHint": "jours « bonne » qualité en {year}",
     "kpiAirUnavailable": "indice ATMO indisponible",
     "kpiAgendaHint": "événements Que faire à Paris",
+    "kpiVelib": "Vélib’",
+    "kpiNature": "Nature",
+    "kpiAir": "Air",
+    "kpiAgenda": "Agenda",
     "pillar1Title": "Paris et Montreuil",
     "pillar1Body": "Vélib’, nature, air, commodités, événements, voirie, marchés, plus une page Montreuil autour de Robespierre : chaque jeu a sa carte, son tableau et ses indicateurs.",
     "pillar2Title": "Un espace privé",
@@ -142,7 +148,11 @@
     "previous": "Précédent",
     "next": "Suivant",
     "addFavorite": "Ajouter aux favoris",
-    "removeFavorite": "Retirer des favoris"
+    "removeFavorite": "Retirer des favoris",
+    "noMatches": "Aucun résultat pour ce filtre.",
+    "favoriteColumn": "Favori",
+    "mapLabel": "Carte des enregistrements",
+    "mapHint": "La carte n’est pas navigable au clavier. Utilisez le tableau ci-dessous."
   },
   "Overview": {
     "title": "Vue d’ensemble",
@@ -274,6 +284,8 @@
     "save": "Enregistrer",
     "saving": "Enregistrement…",
     "namesRequired": "Le prénom et le nom sont requis.",
+    "namesTooLong": "Le prénom et le nom doivent faire 80 caractères maximum.",
+    "invalidDistrict": "Choisissez un territoire dans la liste.",
     "email": "E-mail",
     "emailVerified": "Adresse confirmée.",
     "emailPending": "En attente de confirmation.",
@@ -297,7 +309,9 @@
   },
   "Charts": {
     "bikeTitle": "Passages vélos · rue Étienne Marcel (7 derniers jours)",
-    "passages": "Passages"
+    "passages": "Passages",
+    "airSummary": "Jours par indice ATMO de {from} à {to}.",
+    "bikeSummary": "Passages du {from} au {to}, pic {peak}."
   },
   "Landmarks": {
     "metro": {

@@ -35,6 +35,7 @@ export function Sidebar({ userName }: { userName: string }) {
             <Link
               key={item.href}
               href={item.href}
+              aria-current={active ? "page" : undefined}
               className={`border-l-4 px-3 py-2 text-sm transition ${
                 active
                   ? "border-accent bg-white/10 font-medium text-white"
@@ -84,7 +85,7 @@ export function MobileNav({ userName }: { userName: string }) {
           </button>
         </div>
       </div>
-      <div className="flex gap-1 overflow-x-auto px-3 pb-3">
+      <nav className="flex gap-1 overflow-x-auto px-3 pb-3">
         {NAV_ITEMS.map((item) => {
           const active =
             item.href === "/dashboard"
@@ -94,6 +95,7 @@ export function MobileNav({ userName }: { userName: string }) {
             <Link
               key={item.href}
               href={item.href}
+              aria-current={active ? "page" : undefined}
               className={`shrink-0 rounded-none border-b-2 px-3 py-1.5 text-sm ${
                 active
                   ? "border-accent text-white"
@@ -104,7 +106,7 @@ export function MobileNav({ userName }: { userName: string }) {
             </Link>
           );
         })}
-      </div>
+      </nav>
       <p className="sr-only">{userName}</p>
     </div>
   );

@@ -14,6 +14,7 @@ import {
 import { loadTheme } from "@/lib/opendata/load";
 import { requireSession } from "@/lib/session";
 import { getFormatter, getTranslations } from "next-intl/server";
+import { SectionTitle } from "@/components/ui/heading";
 
 const MONTREUIL_VELIB = `nom_arrondissement_communes = 'Montreuil'`;
 
@@ -24,6 +25,8 @@ export default async function MontreuilPage({
 }) {
   const session = await requireSession();
   const t = await getTranslations("Pages.montreuil");
+  const datasets = await getTranslations("Datasets");
+  const common = await getTranslations("Common");
   const landmarks = await getTranslations("Landmarks");
   const format = await getFormatter();
   const { tab } = await searchParams;
@@ -148,21 +151,27 @@ export default async function MontreuilPage({
 
       {active === "water" && tabData.fountains && tabData.mist ? (
         <div className="space-y-6">
-          <ThemeExplorer
-            dataset={DATASETS.montreuilFountains}
-            records={tabData.fountains.page.results}
-            totalCount={tabData.fountains.page.total_count}
-            favoriteIds={tabData.fountains.favoriteIds}
-            colorScheme="status"
-            {...mapProps}
-          />
-          <ThemeExplorer
-            dataset={DATASETS.montreuilMist}
-            records={tabData.mist.page.results}
-            totalCount={tabData.mist.page.total_count}
-            favoriteIds={tabData.mist.favoriteIds}
-            {...mapProps}
-          />
+          <div className="space-y-4">
+            <SectionTitle>{datasets("montreuilFountains.title")}</SectionTitle>
+            <ThemeExplorer
+              dataset={DATASETS.montreuilFountains}
+              records={tabData.fountains.page.results}
+              totalCount={tabData.fountains.page.total_count}
+              favoriteIds={tabData.fountains.favoriteIds}
+              colorScheme="status"
+              {...mapProps}
+            />
+          </div>
+          <div className="space-y-4">
+            <SectionTitle>{datasets("montreuilMist.title")}</SectionTitle>
+            <ThemeExplorer
+              dataset={DATASETS.montreuilMist}
+              records={tabData.mist.page.results}
+              totalCount={tabData.mist.page.total_count}
+              favoriteIds={tabData.mist.favoriteIds}
+              {...mapProps}
+            />
+          </div>
         </div>
       ) : null}
 
@@ -179,6 +188,7 @@ export default async function MontreuilPage({
                   rel="noreferrer"
                 >
                   {chunks}
+                  <span className="sr-only"> {common("opensInNewTab")}</span>
                 </a>
               ),
             })}

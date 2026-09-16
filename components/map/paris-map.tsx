@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
+import { useTranslations } from "next-intl";
 import { CircleMarker, MapContainer, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { PARIS_CENTER } from "@/lib/opendata/datasets";
 import type { MapMarker } from "@/lib/opendata/markers";
@@ -66,10 +67,20 @@ export function ParisMap({
   zoom?: number;
 }) {
   const dark = useHtmlDark();
+  const t = useTranslations("Explorer");
+  const hintId = useId();
   const tiles = dark ? DARK_TILES : LIGHT_TILES;
 
   return (
-    <div className={`surface-panel overflow-hidden ${className}`}>
+    <div
+      className={`surface-panel overflow-hidden ${className}`}
+      role="region"
+      aria-label={t("mapLabel")}
+      aria-describedby={hintId}
+    >
+      <p id={hintId} className="sr-only">
+        {t("mapHint")}
+      </p>
       <MapContainer
         center={[center.lat, center.lon]}
         zoom={zoom}

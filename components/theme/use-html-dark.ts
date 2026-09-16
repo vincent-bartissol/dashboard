@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 
 export function useHtmlDark() {
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState(
+    () => typeof document !== "undefined" && document.documentElement.classList.contains("dark"),
+  );
 
   useEffect(() => {
     const root = document.documentElement;
