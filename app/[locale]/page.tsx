@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, KpiCard } from "@/components/ui/card";
 import { SectionTitle } from "@/components/ui/heading";
 import { DatasetNotice } from "@/components/dashboard/dataset-notice";
-import { fetchAggregate, fetchCount, fetchRecordsSafe } from "@/lib/opendata/client";
+import { fetchAggregate, fetchCount, fetchRecordsSafe, formatCount } from "@/lib/opendata/client";
 import { DATASETS } from "@/lib/opendata/datasets";
 
 export default async function Home() {
@@ -30,7 +30,13 @@ export default async function Home() {
 
   const bikes = Number(velibAgg.page.results[0]?.bikes ?? 0);
   const latestAir = atmo.page.results[0];
-  const openDataError = [velibAgg, atmo].some((result) => !result.ok);
+  const openDataError = [velibCount, treeCount, eventCount, velibAgg, atmo].some(
+    (result) => !result.ok,
+  );
+  const bikesLabel = velibAgg.ok ? format.number(bikes) : "—";
+  const stationsLabel = formatCount(velibCount, (value) => format.number(value));
+  const treesLabel = formatCount(treeCount, (value) => format.number(value));
+  const eventsLabel = formatCount(eventCount, (value) => format.number(value));
   const pillars = [
     { title: t("pillar1Title"), body: t("pillar1Body") },
     { title: t("pillar2Title"), body: t("pillar2Body") },
@@ -65,19 +71,19 @@ export default async function Home() {
               <dl className="mt-4 space-y-3 text-sm">
                 <div className="flex justify-between gap-4 border-b border-line pb-2">
                   <dt className="text-muted">{t("stations")}</dt>
-                  <dd className="font-semibold tabular-nums">{format.number(velibCount)}</dd>
+                  <dd className="font-semibold tabular-nums">{stationsLabel}</dd>
                 </div>
                 <div className="flex justify-between gap-4 border-b border-line pb-2">
                   <dt className="text-muted">{t("bikesAvailable")}</dt>
-                  <dd className="font-semibold tabular-nums">{format.number(bikes)}</dd>
+                  <dd className="font-semibold tabular-nums">{bikesLabel}</dd>
                 </div>
                 <div className="flex justify-between gap-4 border-b border-line pb-2">
                   <dt className="text-muted">{t("treesCounted")}</dt>
-                  <dd className="font-semibold tabular-nums">{format.number(treeCount)}</dd>
+                  <dd className="font-semibold tabular-nums">{treesLabel}</dd>
                 </div>
                 <div className="flex justify-between gap-4">
                   <dt className="text-muted">{t("events")}</dt>
-                  <dd className="font-semibold tabular-nums">{format.number(eventCount)}</dd>
+                  <dd className="font-semibold tabular-nums">{eventsLabel}</dd>
                 </div>
               </dl>
             </Card>
@@ -93,8 +99,8 @@ export default async function Home() {
             </div>
           ) : null}
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <KpiCard label="Vélib’" value={format.number(bikes)} hint={t("kpiVelibHint")} />
-            <KpiCard label="Nature" value={format.number(treeCount)} hint={t("kpiNatureHint")} />
+            <KpiCard label="Vélib’" value={bikesLabel} hint={t("kpiVelibHint")} />
+            <KpiCard label="Nature" value={treesLabel} hint={t("kpiNatureHint")} />
             <KpiCard
               label="Air"
               value={
@@ -106,7 +112,7 @@ export default async function Home() {
                   : t("kpiAirUnavailable")
               }
             />
-            <KpiCard label="Agenda" value={format.number(eventCount)} hint={t("kpiAgendaHint")} />
+            <KpiCard label="Agenda" value={eventsLabel} hint={t("kpiAgendaHint")} />
           </div>
         </section>
 

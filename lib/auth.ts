@@ -24,11 +24,9 @@ export const auth = betterAuth({
     sendResetPassword: async ({ user, url }) => {
       const locale = await mailLocale();
       const mail = resetPasswordMail(withLocaleInAbsoluteUrl(url, locale), locale);
-      void sendEmail({
+      await sendEmail({
         to: user.email,
         ...mail,
-      }).catch((error) => {
-        console.error("sendResetPassword failed", error);
       });
     },
   },
@@ -38,20 +36,18 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     expiresIn: 3600,
     sendVerificationEmail: async ({ user, url }) => {
-      const mail = verificationMail(url, await mailLocale());
-      void sendEmail({ to: user.email, ...mail }).catch((error) => {
-        console.error("sendVerificationEmail failed", error);
-      });
+      const locale = await mailLocale();
+      const mail = verificationMail(withLocaleInAbsoluteUrl(url, locale), locale);
+      await sendEmail({ to: user.email, ...mail });
     },
   },
   user: {
     changeEmail: {
       enabled: true,
       sendChangeEmailConfirmation: async ({ user, newEmail, url }) => {
-        const mail = changeEmailMail(url, newEmail, await mailLocale());
-        void sendEmail({ to: user.email, ...mail }).catch((error) => {
-          console.error("sendChangeEmailConfirmation failed", error);
-        });
+        const locale = await mailLocale();
+        const mail = changeEmailMail(withLocaleInAbsoluteUrl(url, locale), newEmail, locale);
+        await sendEmail({ to: user.email, ...mail });
       },
     },
   },
@@ -79,6 +75,7 @@ export const auth = betterAuth({
     twoFactor({
       issuer: "Paris Ouverte",
       otpOptions: {
+        storeOTP: "hashed",
         sendOTP: async ({ user, otp }) => {
           const mail = otpMail(otp, await mailLocale());
           await sendEmail({ to: user.email, ...mail });

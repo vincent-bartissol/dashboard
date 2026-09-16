@@ -27,7 +27,7 @@ export function ForgotPasswordForm() {
     });
     setPending(false);
     if (result.error) {
-      setError(result.error.message ?? t("genericError"));
+      setError(t("genericError"));
       return;
     }
     setSent(true);
@@ -39,7 +39,7 @@ export function ForgotPasswordForm() {
         <Label htmlFor="email">{t("email")}</Label>
         <Input id="email" name="email" type="email" required autoComplete="email" />
       </div>
-      {error ? <p className="text-sm text-accent">{error}</p> : null}
+      {error ? <p className="text-sm text-danger">{error}</p> : null}
       {sent ? <p className="text-sm text-muted">{t("forgotSent")}</p> : null}
       <Button type="submit" className="w-full" disabled={pending}>
         {pending ? t("pending") : t("sendLink")}

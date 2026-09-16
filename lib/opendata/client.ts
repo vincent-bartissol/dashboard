@@ -13,6 +13,20 @@ export type FetchResult<T = OpenDataRecord> = {
   error?: string;
 };
 
+export type CountResult = {
+  ok: boolean;
+  count: number;
+  error?: string;
+};
+
+export function formatCount(
+  result: CountResult,
+  formatNumber: (value: number) => string,
+  fallback = "—",
+) {
+  return result.ok ? formatNumber(result.count) : fallback;
+}
+
 export type OpenDataHost = "paris" | "montreuil";
 
 export type DatasetConfig = {
@@ -143,9 +157,12 @@ export async function fetchCount(
   revalidate: number,
   where?: string,
   host?: OpenDataHost,
-): Promise<number> {
+): Promise<CountResult> {
   const result = await fetchRecordsSafe(datasetId, { limit: 0, where, host }, revalidate);
-  return result.page.total_count;
+  if (!result.ok) {
+    return { ok: false, count: 0, error: result.error };
+  }
+  return { ok: true, count: result.page.total_count };
 }
 
 export async function fetchAggregate<T = OpenDataRecord>(

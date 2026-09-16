@@ -4,7 +4,7 @@ import { DatasetTabs } from "@/components/dashboard/dataset-tabs";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { PageIntro } from "@/components/dashboard/page-intro";
 import { ThemeExplorer } from "@/components/dashboard/theme-explorer";
-import { fetchCount } from "@/lib/opendata/client";
+import { fetchCount, formatCount } from "@/lib/opendata/client";
 import { DATASETS } from "@/lib/opendata/datasets";
 import { loadTheme } from "@/lib/opendata/load";
 import { requireSession } from "@/lib/session";
@@ -31,11 +31,11 @@ export default async function AmenitiesPage({
       <PageIntro title={t("title")} dataset={[DATASETS.fountains, DATASETS.toilets]}>
         {t("body")}
       </PageIntro>
-      <DatasetNotice error={loaded.error} />
+      <DatasetNotice error={loaded.error || fountainCount.error || toiletCount.error} />
       <KpiStrip
         items={[
-          { label: t("fountains"), value: format.number(fountainCount) },
-          { label: t("toilets"), value: format.number(toiletCount) },
+          { label: t("fountains"), value: formatCount(fountainCount, (value) => format.number(value)) },
+          { label: t("toilets"), value: formatCount(toiletCount, (value) => format.number(value)) },
         ]}
       />
       <DatasetTabs

@@ -23,7 +23,7 @@ export function Button({
   children,
   ...props
 }: Props) {
-  const classes = `inline-flex h-11 items-center justify-center rounded-none px-5 text-sm font-medium transition ${variants[variant]} ${className}`;
+  const classes = `inline-flex h-11 items-center justify-center rounded-none px-5 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${variants[variant]} ${className}`;
   if (href) {
     return (
       <Link href={href} className={classes}>

@@ -39,5 +39,11 @@ export async function GET(request: NextRequest) {
     },
     config.revalidate,
   );
-  return NextResponse.json(result.page);
+  if (!result.ok) {
+    return NextResponse.json(
+      { ok: false, error: result.error, page: result.page },
+      { status: 502 },
+    );
+  }
+  return NextResponse.json({ ok: true, page: result.page });
 }

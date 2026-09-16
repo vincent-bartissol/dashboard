@@ -110,6 +110,7 @@
     "submitSignup": "Crear la cuenta",
     "pending": "Espere…",
     "genericError": "Se ha producido un error.",
+    "invalidCredentials": "Correo o contraseña incorrectos.",
     "verifyBeforeLogin": "Confirme su correo antes de iniciar sesión.",
     "signupSent": "Se ha enviado un correo de confirmación. Haga clic en el enlace para activar su cuenta.",
     "signupSentTo": "Se ha enviado un correo de confirmación a {email}. Haga clic en el enlace para activar su cuenta.",

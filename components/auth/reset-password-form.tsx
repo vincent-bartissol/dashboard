@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
+import { mapAuthError } from "@/lib/auth-errors";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 
@@ -35,19 +36,11 @@ export function ResetPasswordForm({ token }: { token: string }) {
     const result = await authClient.resetPassword({ newPassword, token });
     setPending(false);
     if (result.error) {
-      switch (result.error.code) {
-        case "INVALID_TOKEN":
-          setError(t("invalidToken"));
-          break;
-        case "PASSWORD_TOO_SHORT":
-          setError(t("passwordTooShort"));
-          break;
-        case "PASSWORD_TOO_LONG":
-          setError(t("passwordTooLong"));
-          break;
-        default:
-          setError(result.error.message ?? t("genericError"));
-      }
+      const mapped = mapAuthError(result.error);
+      if (mapped === "invalidToken") setError(t("invalidToken"));
+      else if (mapped === "passwordTooShort") setError(t("passwordTooShort"));
+      else if (mapped === "passwordTooLong") setError(t("passwordTooLong"));
+      else setError(t("genericError"));
       return;
     }
     router.push("/login");
@@ -77,7 +70,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
           autoComplete="new-password"
         />
       </div>
-      {error ? <p className="text-sm text-accent">{error}</p> : null}
+      {error ? <p className="text-sm text-danger">{error}</p> : null}
       <Button type="submit" className="w-full" disabled={pending}>
         {pending ? t("pending") : t("choosePassword")}
       </Button>
