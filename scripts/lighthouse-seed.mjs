@@ -20,16 +20,20 @@ if (!fs.existsSync(dbPath)) {
 const sqlite = new Database(dbPath);
 const now = Math.floor(Date.now() / 1000);
 const expires = now + 60 * 60 * 24 * 7;
-const userId = randomUUID();
+const email = "lighthouse@localhost";
+const existing = sqlite.prepare(`SELECT id FROM user WHERE email = ?`).get(email);
+const userId = existing?.id ?? randomUUID();
 const sessionId = randomUUID();
 const token = randomBytes(32).toString("base64url");
 
-sqlite
-  .prepare(
-    `INSERT INTO user (id, name, email, email_verified, two_factor_enabled, created_at, updated_at)
-     VALUES (?, 'Lighthouse', 'lighthouse@localhost', 1, 0, ?, ?)`,
-  )
-  .run(userId, now, now);
+if (!existing) {
+  sqlite
+    .prepare(
+      `INSERT INTO user (id, name, email, email_verified, two_factor_enabled, created_at, updated_at)
+       VALUES (?, 'Lighthouse', ?, 1, 0, ?, ?)`,
+    )
+    .run(userId, email, now, now);
+}
 
 sqlite
   .prepare(
@@ -40,7 +44,7 @@ sqlite
 
 sqlite.close();
 
-const signature = createHmac("sha256", secret).digest("base64");
+const signature = createHmac("sha256", secret).update(token).digest("base64");
 const cookieValue = `${token}.${signature}`;
 
 if (process.env.GITHUB_ENV) {
