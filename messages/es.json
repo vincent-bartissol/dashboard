@@ -31,8 +31,8 @@
     "overview": "Vista general",
     "montreuil": "Montreuil",
     "velib": "Vélib’",
-    "nature": "Nature",
-    "air": "Air",
+    "nature": "Naturaleza",
+    "air": "Aire",
     "amenities": "Servicios",
     "events": "Eventos",
     "traffic": "Vías",
@@ -126,7 +126,7 @@
     "resendConfirm": "Reenviar el correo de confirmación",
     "otpSent": "Se ha enviado un código a su correo. Caduca en 3 minutos.",
     "otpSentTo": "Se ha enviado un código a {email}. Caduca en 3 minutos.",
-    "code": "Code",
+    "code": "Código",
     "invalidCode": "Código no válido.",
     "otpResent": "Se ha enviado un nuevo código.",
     "validate": "Validar",
@@ -140,6 +140,7 @@
     "passwordMismatch": "Las contraseñas no coinciden.",
     "invalidToken": "Este enlace ya no es válido.",
     "passwordTooLong": "La contraseña es demasiado larga.",
+    "namesTooLong": "El nombre y el apellido deben tener 80 caracteres como máximo.",
     "choosePassword": "Elegir la contraseña"
   },
   "Explorer": {
@@ -152,6 +153,8 @@
     "removeFavorite": "Quitar de favoritos",
     "noMatches": "Ningún resultado para este filtro.",
     "favoriteColumn": "Favorito",
+    "favoriteError": "No se ha podido actualizar este favorito.",
+    "favoriteLimit": "Ya tiene 100 favoritos. Elimine uno para añadir otro.",
     "mapLabel": "Mapa de registros",
     "mapHint": "El mapa no se puede usar con el teclado. Use la tabla siguiente."
   },
@@ -175,11 +178,11 @@
         "body": "Disponibilidad en tiempo real de las estaciones."
       },
       "nature": {
-        "title": "Nature",
+        "title": "Naturaleza",
         "body": "Árboles de alineación y espacios verdes."
       },
       "air": {
-        "title": "Air",
+        "title": "Aire",
         "body": "Días por índice ATMO desde 2021."
       },
       "amenities": {
@@ -204,13 +207,13 @@
     "velib": {
       "title": "Vélib’",
       "body": "Disponibilidad en tiempo real de las estaciones Vélib’ Métropole. Verde: más de 5 bicis, naranja: algunas, rojo: ninguna.",
-      "stations": "Stations",
+      "stations": "Estaciones",
       "bikes": "Bicicletas",
       "ebikes": "Eléctricas",
       "docks": "Anclajes libres"
     },
     "nature": {
-      "title": "Nature",
+      "title": "Naturaleza",
       "body": "Árboles de alineación (mapa por extensión, nunca los 200 000 de una vez) y espacios verdes municipales.",
       "trees": "Árboles",
       "parks": "Espacios verdes"
@@ -262,7 +265,7 @@
     "montreuil": {
       "title": "Montreuil · Robespierre",
       "velib": "Vélib’",
-      "trees": "Arbres",
+      "trees": "Árboles",
       "gardens": "Jardines",
       "water": "Agua",
       "bikes": "Rue Étienne Marcel",
@@ -312,16 +315,17 @@
     "bikeTitle": "Pasos de bicicletas · rue Étienne Marcel (7 últimos días)",
     "passages": "Pasos",
     "airSummary": "Días por índice ATMO de {from} a {to}.",
-    "bikeSummary": "Pasos del {from} al {to}, máximo {peak}."
+    "bikeSummary": "Pasos del {from} al {to}, máximo {peak}.",
+    "empty": "No hay datos para el gráfico."
   },
   "Landmarks": {
     "metro": {
       "label": "Métro Robespierre",
-      "description": "Ligne 9 · Île-de-France Mobilités"
+      "description": "Línea 9 · Île-de-France Mobilités"
     },
     "street": {
       "label": "Rue Étienne Marcel",
-      "description": "Compteur vélos vers Paris / Croix de Chavaux"
+      "description": "Contador de bicis hacia París / Croix de Chavaux"
     }
   },
   "Mail": {

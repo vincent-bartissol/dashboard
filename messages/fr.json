@@ -140,6 +140,7 @@
     "passwordMismatch": "Les mots de passe ne correspondent pas.",
     "invalidToken": "Ce lien n’est plus valide.",
     "passwordTooLong": "Le mot de passe est trop long.",
+    "namesTooLong": "Le prénom et le nom doivent faire 80 caractères maximum.",
     "choosePassword": "Choisir le mot de passe"
   },
   "Explorer": {
@@ -152,6 +153,8 @@
     "removeFavorite": "Retirer des favoris",
     "noMatches": "Aucun résultat pour ce filtre.",
     "favoriteColumn": "Favori",
+    "favoriteError": "Impossible de mettre à jour ce favori.",
+    "favoriteLimit": "Vous avez déjà 100 favoris. Retirez-en un pour en ajouter un autre.",
     "mapLabel": "Carte des enregistrements",
     "mapHint": "La carte n’est pas navigable au clavier. Utilisez le tableau ci-dessous."
   },
@@ -312,7 +315,8 @@
     "bikeTitle": "Passages vélos · rue Étienne Marcel (7 derniers jours)",
     "passages": "Passages",
     "airSummary": "Jours par indice ATMO de {from} à {to}.",
-    "bikeSummary": "Passages du {from} au {to}, pic {peak}."
+    "bikeSummary": "Passages du {from} au {to}, pic {peak}.",
+    "empty": "Aucune donnée à afficher."
   },
   "Landmarks": {
     "metro": {
