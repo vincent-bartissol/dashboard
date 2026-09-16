@@ -5,6 +5,7 @@ import { arrondissementWhere } from "@/lib/opendata/arrondissement";
 import { recordsQueryFromSearch } from "@/lib/opendata/bbox";
 import { bboxWhere, fetchRecordsSafe, joinWhere, type DatasetConfig } from "@/lib/opendata/client";
 import { DATASETS, PARIS_BBOX } from "@/lib/opendata/datasets";
+import { opendataRecordsLimit } from "@/lib/rate-limit";
 
 const ALLOWED = new Map(
   Object.values(DATASETS)
@@ -16,6 +17,14 @@ export async function GET(request: NextRequest) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+  }
+
+  const limited = opendataRecordsLimit.check(session.user.id);
+  if (!limited.ok) {
+    return NextResponse.json(
+      { ok: false, error: "opendata" },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSec) } },
+    );
   }
 
   const query = recordsQueryFromSearch(request.nextUrl.searchParams, PARIS_BBOX);
@@ -40,8 +49,9 @@ export async function GET(request: NextRequest) {
     config.revalidate,
   );
   if (!result.ok) {
+    console.error(result.error);
     return NextResponse.json(
-      { ok: false, error: result.error, page: result.page },
+      { ok: false, error: "opendata", page: result.page },
       { status: 502 },
     );
   }
