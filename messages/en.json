@@ -110,6 +110,7 @@
     "submitSignup": "Create account",
     "pending": "Please wait…",
     "genericError": "Something went wrong.",
+    "invalidCredentials": "Incorrect email or password.",
     "verifyBeforeLogin": "Confirm your email before signing in.",
     "signupSent": "A confirmation email has been sent. Click the link to activate your account.",
     "signupSentTo": "A confirmation email has been sent to {email}. Click the link to activate your account.",

@@ -48,7 +48,7 @@ export function ProfileForm({
     });
     setEmailPending(false);
     if (result.error) {
-      setEmailError(result.error.message ?? t("genericError"));
+      setEmailError(t("genericError"));
       return;
     }
     setEmailSent(true);

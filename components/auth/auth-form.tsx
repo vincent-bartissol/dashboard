@@ -6,15 +6,17 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { stripLocalePrefix } from "@/i18n/path";
 import { authClient } from "@/lib/auth-client";
+import {
+  isExistingUserSignupError,
+  isUnverifiedAuthError,
+  mapAuthError,
+  type AuthErrorLike,
+} from "@/lib/auth-errors";
 import { safeNext } from "@/lib/safe-next";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 
 type Mode = "login" | "signup";
-
-function isUnverifiedError(error: { status?: number; code?: string }) {
-  return error.status === 403 || error.code === "EMAIL_NOT_VERIFIED";
-}
 
 function needsTwoFactor(data: unknown): boolean {
   return Boolean(
@@ -23,6 +25,16 @@ function needsTwoFactor(data: unknown): boolean {
       "twoFactorRedirect" in data &&
       (data as { twoFactorRedirect?: boolean }).twoFactorRedirect,
   );
+}
+
+function authErrorText(
+  t: (key: "genericError" | "invalidCredentials" | "invalidCode" | "otpSendFailed") => string,
+  error: AuthErrorLike,
+) {
+  const mapped = mapAuthError(error);
+  if (mapped === "invalidCredentials") return t("invalidCredentials");
+  if (mapped === "invalidCode") return t("invalidCode");
+  return t("genericError");
 }
 
 export function AuthForm({ mode }: { mode: Mode }) {
@@ -39,10 +51,6 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const [awaitingOtp, setAwaitingOtp] = useState(false);
   const [resent, setResent] = useState(false);
 
-  function genericError(message?: string) {
-    return message ?? t("genericError");
-  }
-
   async function resendVerification() {
     if (!emailForResend) return;
     setPending(true);
@@ -54,7 +62,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
     });
     setPending(false);
     if (result.error) {
-      setError(genericError(result.error.message));
+      setError(t("genericError"));
       return;
     }
     setResent(true);
@@ -63,11 +71,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
   async function sendLoginOtp() {
     const result = await authClient.twoFactor.sendOtp({});
     if (result.error) {
-      setError(
-        result.error.status === 500 || !result.error.message
-          ? t("otpSendFailed")
-          : result.error.message,
-      );
+      setError(t("otpSendFailed"));
       return false;
     }
     return true;
@@ -94,8 +98,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
     const result = await authClient.twoFactor.verifyOtp({ code });
     setPending(false);
     if (result.error) {
-      const text = `${result.error.code ?? ""} ${result.error.message ?? ""}`.toLowerCase();
-      setError(text.includes("invalid") ? t("invalidCode") : genericError(result.error.message));
+      setError(authErrorText(t, result.error));
       return;
     }
     router.push(nextHref);
@@ -121,13 +124,18 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
     if (result.error) {
       setPending(false);
-      if (mode === "login" && isUnverifiedError(result.error)) {
+      if (mode === "signup" && isExistingUserSignupError(result.error)) {
+        setEmailForResend(email);
+        setAwaitingVerification(true);
+        return;
+      }
+      if (mode === "login" && isUnverifiedAuthError(result.error)) {
         setEmailForResend(email);
         setAwaitingVerification(true);
         setError(t("verifyBeforeLogin"));
         return;
       }
-      setError(genericError(result.error.message));
+      setError(authErrorText(t, result.error));
       return;
     }
 

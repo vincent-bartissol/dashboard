@@ -27,7 +27,7 @@ export function ForgotPasswordForm() {
     });
     setPending(false);
     if (result.error) {
-      setError(result.error.message ?? t("genericError"));
+      setError(t("genericError"));
       return;
     }
     setSent(true);
