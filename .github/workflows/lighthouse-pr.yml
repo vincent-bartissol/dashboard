@@ -49,6 +49,9 @@ jobs:
         with:
           configPath: ./lighthouse/lighthouserc.public.cjs
           uploadArtifacts: true
+      - name: Summarize public Lighthouse scores
+        if: always()
+        run: node lighthouse/summarize-scores.mjs
       - name: Install puppeteer-core for session cookie
         run: pnpm add -D puppeteer-core
       - name: Audit dashboard pages
@@ -57,3 +60,6 @@ jobs:
         with:
           configPath: ./lighthouse/lighthouserc.auth.cjs
           uploadArtifacts: true
+      - name: Summarize dashboard Lighthouse scores
+        if: always()
+        run: node lighthouse/summarize-scores.mjs

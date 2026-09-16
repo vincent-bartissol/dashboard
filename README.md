@@ -26,7 +26,7 @@ SQLite lives in `data/` (gitignored). On boot the app applies Drizzle migrations
 
 ## Lighthouse
 
-GitHub Actions runs Lighthouse without failing the job on scores. Reports are artifacts on the workflow run.
+GitHub Actions runs Lighthouse without failing the job on scores. Category scores (median of the runs) appear on the Actions **job summary**. Full HTML reports are artifacts on the workflow run.
 
 - **PRs** — [`.github/workflows/lighthouse-pr.yml`](.github/workflows/lighthouse-pr.yml) audits `/fr`, `/fr/login`, `/fr/signup`, then `/fr/dashboard` and `/fr/dashboard/velib` against a local build (seeded session cookie, no production login).
 - **Production** — [`.github/workflows/lighthouse-production.yml`](.github/workflows/lighthouse-production.yml) audits [dashboard.vvbb.fr](https://dashboard.vvbb.fr) public pages every Monday at 08:00 UTC. Run it by hand from the Actions tab (`workflow_dispatch`).

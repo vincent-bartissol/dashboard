@@ -15,3 +15,6 @@ jobs:
         with:
           configPath: ./lighthouse/lighthouserc.production.cjs
           uploadArtifacts: true
+      - name: Summarize Lighthouse scores
+        if: always()
+        run: node lighthouse/summarize-scores.mjs
