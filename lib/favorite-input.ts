@@ -5,6 +5,11 @@ const DATASET_IDS = new Set(Object.values(DATASETS).map((dataset) => dataset.id)
 export const MAX_FAVORITE_RECORD_ID = 200;
 export const MAX_FAVORITE_LABEL = 200;
 export const MAX_FAVORITE_GEO = 400;
+export const FAVORITE_MAX = 100;
+
+export function isAtFavoriteLimit(count: number) {
+  return count >= FAVORITE_MAX;
+}
 
 export type FavoriteInput = {
   datasetId: string;

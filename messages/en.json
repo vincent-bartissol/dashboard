@@ -140,6 +140,7 @@
     "passwordMismatch": "Passwords do not match.",
     "invalidToken": "This link is no longer valid.",
     "passwordTooLong": "The password is too long.",
+    "namesTooLong": "First and last name must be 80 characters or fewer.",
     "choosePassword": "Choose password"
   },
   "Explorer": {
@@ -152,6 +153,9 @@
     "removeFavorite": "Remove from favourites",
     "noMatches": "No results for this filter.",
     "favoriteColumn": "Favourite",
+    "favoriteError": "Could not update this favourite.",
+    "favoriteLimit": "You already have 100 favourites. Remove one to add another.",
+    "untitled": "Untitled",
     "mapLabel": "Map of records",
     "mapHint": "The map is not keyboard-accessible. Use the table below."
   },
@@ -262,7 +266,7 @@
     "montreuil": {
       "title": "Montreuil · Robespierre",
       "velib": "Vélib’",
-      "trees": "Arbres",
+      "trees": "Trees",
       "gardens": "Gardens",
       "water": "Water",
       "bikes": "Rue Étienne Marcel",
@@ -312,7 +316,8 @@
     "bikeTitle": "Bike counts · rue Étienne Marcel (last 7 days)",
     "passages": "Passages",
     "airSummary": "ATMO index days from {from} to {to}.",
-    "bikeSummary": "Passages from {from} to {to}, peak {peak}."
+    "bikeSummary": "Passages from {from} to {to}, peak {peak}.",
+    "empty": "No data to chart."
   },
   "Landmarks": {
     "metro": {

@@ -8,7 +8,7 @@ export function Card({
   className?: string;
 }) {
   return (
-    <section className={`surface-panel p-4 ${className}`}>{children}</section>
+    <div className={`surface-panel p-4 ${className}`}>{children}</div>
   );
 }
 

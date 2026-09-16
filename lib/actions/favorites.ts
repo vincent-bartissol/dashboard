@@ -4,8 +4,9 @@ import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { favorite } from "@/lib/db/schema";
-import { parseFavoriteInput } from "@/lib/favorite-input";
+import { isAtFavoriteLimit, parseFavoriteInput } from "@/lib/favorite-input";
 import { routing } from "@/i18n/routing";
+import { listFavorites } from "@/lib/db/queries";
 import { NAV_ITEMS } from "@/lib/opendata/datasets";
 import { requireSession } from "@/lib/session";
 
@@ -38,6 +39,10 @@ export async function toggleFavorite(input: {
     if (existing[0]) {
       await db.delete(favorite).where(eq(favorite.id, existing[0].id));
     } else {
+      const current = await listFavorites(session.user.id);
+      if (isAtFavoriteLimit(current.length)) {
+        return { ok: false, error: "favoriteLimit" };
+      }
       await db.insert(favorite).values({
         id: crypto.randomUUID(),
         userId: session.user.id,

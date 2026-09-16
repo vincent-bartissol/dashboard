@@ -11,7 +11,7 @@ export default async function EventsPage() {
   const session = await requireSession();
   const t = await getTranslations("Pages.events");
   const format = await getFormatter();
-  const { page, favoriteIds, error } = await loadTheme(DATASETS.events, session.user.id);
+  const { page, favoriteIds, error, ok } = await loadTheme(DATASETS.events, session.user.id);
 
   return (
     <div className="space-y-6">
@@ -21,8 +21,8 @@ export default async function EventsPage() {
       <DatasetNotice error={error} />
       <KpiStrip
         items={[
-          { label: t("events"), value: format.number(page.total_count) },
-          { label: t("shown"), value: format.number(page.results.length) },
+          { label: t("events"), value: ok ? format.number(page.total_count) : "—" },
+          { label: t("shown"), value: ok ? format.number(page.results.length) : "—" },
         ]}
       />
       <ThemeExplorer

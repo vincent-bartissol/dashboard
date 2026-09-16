@@ -1,4 +1,4 @@
-import { recordId, type GeoPoint, type OpenDataRecord } from "@/lib/opendata/client";
+import { recordId, recordLabel, type GeoPoint, type OpenDataRecord } from "@/lib/opendata/client";
 
 export type MapMarker = {
   id: string;
@@ -21,15 +21,17 @@ export function recordsToMarkers(
   return records.flatMap((record, index) => {
     const geo = record[options.geoField];
     if (!geo || typeof geo !== "object") return [];
-    const point = geo as { lat?: number; lon?: number };
-    if (!Number.isFinite(point.lat) || !Number.isFinite(point.lon)) return [];
-    if (point.lat === 0 && point.lon === 0) return [];
-    const baseId = recordId(record, options.idField) || `${point.lat}-${point.lon}`;
+    const point = geo as { lat?: unknown; lon?: unknown; lng?: unknown };
+    const lat = Number(point.lat);
+    const lon = Number(point.lon ?? point.lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return [];
+    if (lat === 0 && lon === 0) return [];
+    const baseId = recordId(record, options.idField) || `${lat}-${lon}`;
     return [
       {
         id: `${baseId}::${index}`,
-        position: { lat: Number(point.lat), lon: Number(point.lon) },
-        label: String(record[options.titleField] ?? "Point"),
+        position: { lat, lon },
+        label: recordLabel(record, options.titleField),
         color: options.color?.(record),
         description: options.description?.(record),
       },

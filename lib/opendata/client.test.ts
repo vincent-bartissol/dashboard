@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchAllRecords, fetchCount, formatCount } from "./client";
+import { fetchAllRecords, fetchCount, FETCH_TIMEOUT_MS, formatCount } from "./client";
 
 describe("fetchCount", () => {
   afterEach(() => {
@@ -35,6 +35,34 @@ describe("fetchCount", () => {
       ok: true,
       count: 42,
     });
+  });
+
+  it("returns ok false when total_count is not finite", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ total_count: "nope", results: [] }),
+      }),
+    );
+    await expect(fetchCount("les-arbres", 60)).resolves.toEqual({
+      ok: false,
+      count: 0,
+      error: "Open Data les-arbres: invalid payload",
+    });
+  });
+
+  it("passes a timeout abort signal to fetch", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ total_count: 1, results: [] }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    await fetchCount("les-arbres", 60);
+    const init = fetchMock.mock.calls[0]?.[1] as { signal?: AbortSignal };
+    expect(init.signal).toBeInstanceOf(AbortSignal);
+    expect(FETCH_TIMEOUT_MS).toBe(10_000);
   });
 
   it("returns ok false when the payload is not a page", async () => {
