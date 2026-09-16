@@ -15,8 +15,9 @@ export type FetchResult<T = OpenDataRecord> = {
 
 export type CountResult = {
   ok: boolean;
-  count: number;
-  error?: string;
+  count: number; 
+  error?: string; 
+ 
 };
 
 export function formatCount(
@@ -231,7 +232,19 @@ export async function fetchAllRecords<T = OpenDataRecord>(
       ),
   );
   const failed = rest.find((page) => !page.ok);
-  if (failed) return failed;
+  if (failed) {
+    return {
+      ok: false,
+      error: failed.error,
+      page: {
+        total_count: first.page.total_count,
+        results: [...first.page.results, ...rest.flatMap((page) => (page.ok ? page.page.results : []))].slice(
+          0,
+          max,
+        ),
+      },
+    };
+  }
   return {
     ok: true,
     page: {

@@ -31,6 +31,19 @@ function ordinalLabel(code: string) {
   return `${n}E`;
 }
 
+export type PreferredDistrict = ArrondissementCode | "montreuil";
+
+export function parsePreferredDistrict(
+  value: string | null | undefined,
+): { ok: true; value: PreferredDistrict | null } | { ok: false } {
+  if (value == null || value === "") return { ok: true, value: null };
+  if (value === "montreuil") return { ok: true, value: "montreuil" };
+  if (ARRONDISSEMENTS.some((item) => item.code === value)) {
+    return { ok: true, value: value as ArrondissementCode };
+  }
+  return { ok: false };
+}
+
 export function arrondissementWhere(dataset: DatasetConfig, code?: string | null) {
   if (!code || !dataset.district) return undefined;
   if (code === "montreuil") return dataset.district.montreuil;

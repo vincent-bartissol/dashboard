@@ -13,3 +13,5 @@ export function splitDisplayName(name: string): { firstName: string; lastName: s
 export function displayName(firstName: string, lastName: string) {
   return `${firstName} ${lastName}`.trim();
 }
+
+export const PROFILE_NAME_MAX = 80;

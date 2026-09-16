@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { arrondissementWhere } from "./arrondissement";
+import { arrondissementWhere, parsePreferredDistrict } from "./arrondissement";
 import { DATASETS } from "./datasets";
 
 describe("arrondissementWhere", () => {
@@ -26,5 +26,19 @@ describe("arrondissementWhere", () => {
     expect(arrondissementWhere(DATASETS.air, "11")).toBeUndefined();
     expect(arrondissementWhere(DATASETS.trees)).toBeUndefined();
     expect(arrondissementWhere(DATASETS.trees, "99")).toBeUndefined();
+  });
+});
+
+describe("parsePreferredDistrict", () => {
+  it("accepts empty, Montreuil, and arrondissement codes", () => {
+    expect(parsePreferredDistrict(null)).toEqual({ ok: true, value: null });
+    expect(parsePreferredDistrict("")).toEqual({ ok: true, value: null });
+    expect(parsePreferredDistrict("montreuil")).toEqual({ ok: true, value: "montreuil" });
+    expect(parsePreferredDistrict("11")).toEqual({ ok: true, value: "11" });
+  });
+
+  it("rejects unknown districts", () => {
+    expect(parsePreferredDistrict("99")).toEqual({ ok: false });
+    expect(parsePreferredDistrict("paris")).toEqual({ ok: false });
   });
 });

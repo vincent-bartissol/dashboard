@@ -27,6 +27,7 @@ ENV PORT=3000
 ENV DATA_DIR=/app/data
 
 RUN mkdir -p /app/data
+VOLUME ["/app/data"]
 
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchCount, formatCount } from "./client";
+import { fetchAllRecords, fetchCount, formatCount } from "./client";
 
 describe("fetchCount", () => {
   afterEach(() => {
@@ -44,5 +44,37 @@ describe("formatCount", () => {
     expect(formatCount({ ok: false, count: 0, error: "down" }, (value) => String(value))).toBe(
       "—",
     );
+  });
+});
+
+describe("fetchAllRecords", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it("keeps first-page rows when a later page fails", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const firstPage = {
+      total_count: 150,
+      results: Array.from({ length: 100 }, (_, index) => ({ id: index })),
+    };
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => firstPage,
+        })
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 503,
+        }),
+    );
+    const result = await fetchAllRecords("les-arbres", 60, { max: 150 });
+    expect(result.ok).toBe(false);
+    expect(result.page.results).toHaveLength(100);
+    expect(result.page.total_count).toBe(150);
   });
 });
