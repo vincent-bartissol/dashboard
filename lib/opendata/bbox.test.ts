@@ -48,4 +48,10 @@ describe("recordsQueryFromSearch", () => {
       },
     });
   });
+
+  it("returns invalid_bbox for missing coordinates", () => {
+    expect(recordsQueryFromSearch(new URLSearchParams({ dataset: "les-arbres" }), PARIS_BBOX)).toEqual(
+      { ok: false, error: "invalid_bbox" },
+    );
+  });
 });

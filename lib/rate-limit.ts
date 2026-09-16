@@ -12,9 +12,13 @@ export function createRateLimiter(options: {
     check(key: string): RateLimitResult {
       const t = clock();
       const windowStart = t - options.windowMs;
-      const recent = (hits.get(key) ?? []).filter((stamp) => stamp > windowStart);
+      for (const [id, stamps] of hits) {
+        const kept = stamps.filter((stamp) => stamp > windowStart);
+        if (kept.length === 0) hits.delete(id);
+        else hits.set(id, kept);
+      }
+      const recent = hits.get(key) ?? [];
       if (recent.length >= options.max) {
-        hits.set(key, recent);
         const oldest = recent[0] ?? t;
         const retryAfterSec = Math.max(1, Math.ceil((oldest + options.windowMs - t) / 1000));
         return { ok: false, retryAfterSec };
@@ -22,6 +26,9 @@ export function createRateLimiter(options: {
       recent.push(t);
       hits.set(key, recent);
       return { ok: true };
+    },
+    size() {
+      return hits.size;
     },
   };
 }
