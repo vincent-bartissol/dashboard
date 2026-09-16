@@ -4,7 +4,7 @@ import { DatasetTabs } from "@/components/dashboard/dataset-tabs";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { PageIntro } from "@/components/dashboard/page-intro";
 import { ThemeExplorer } from "@/components/dashboard/theme-explorer";
-import { fetchAggregate, fetchAllRecords, fetchCount } from "@/lib/opendata/client";
+import { fetchAggregate, fetchAllRecords, fetchCount, formatCount } from "@/lib/opendata/client";
 import { isoDateDaysAgo } from "@/lib/opendata/dates";
 import {
   DATASETS,
@@ -81,13 +81,26 @@ export default async function MontreuilPage({
       >
         {t("body")}
       </PageIntro>
-      <DatasetNotice error={tabData.error || (velibAgg.ok ? undefined : velibAgg.error)} />
+      <DatasetNotice
+        error={
+          tabData.error ||
+          velibAgg.error ||
+          velibCount.error ||
+          treeCount.error ||
+          gardenCount.error ||
+          eventCount.error
+        }
+      />
       <KpiStrip
         items={[
-          { label: t("kpiVelib"), value: velibCount, hint: t("kpiVelibHint", { count: format.number(bikes) }) },
-          { label: t("kpiTrees"), value: format.number(treeCount) },
-          { label: t("kpiGardens"), value: format.number(gardenCount) },
-          { label: t("kpiEvents"), value: format.number(eventCount) },
+          {
+            label: t("kpiVelib"),
+            value: formatCount(velibCount, (value) => format.number(value)),
+            hint: velibAgg.ok ? t("kpiVelibHint", { count: format.number(bikes) }) : undefined,
+          },
+          { label: t("kpiTrees"), value: formatCount(treeCount, (value) => format.number(value)) },
+          { label: t("kpiGardens"), value: formatCount(gardenCount, (value) => format.number(value)) },
+          { label: t("kpiEvents"), value: formatCount(eventCount, (value) => format.number(value)) },
         ]}
       />
       <DatasetTabs

@@ -5,7 +5,7 @@ import { DatasetTabs } from "@/components/dashboard/dataset-tabs";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { PageIntro } from "@/components/dashboard/page-intro";
 import { ThemeExplorer } from "@/components/dashboard/theme-explorer";
-import { fetchCount } from "@/lib/opendata/client";
+import { fetchCount, formatCount } from "@/lib/opendata/client";
 import { DATASETS } from "@/lib/opendata/datasets";
 import { loadTheme } from "@/lib/opendata/load";
 import { requireSession } from "@/lib/session";
@@ -32,11 +32,11 @@ export default async function NaturePage({
       <PageIntro title={t("title")} dataset={[DATASETS.trees, DATASETS.parks]}>
         {t("body")}
       </PageIntro>
-      <DatasetNotice error={loaded.error} />
+      <DatasetNotice error={loaded.error || treeCount.error || parkCount.error} />
       <KpiStrip
         items={[
-          { label: t("trees"), value: format.number(treeCount) },
-          { label: t("parks"), value: format.number(parkCount) },
+          { label: t("trees"), value: formatCount(treeCount, (value) => format.number(value)) },
+          { label: t("parks"), value: formatCount(parkCount, (value) => format.number(value)) },
         ]}
       />
       <DatasetTabs

@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { SectionTitle } from "@/components/ui/heading";
 import { DatasetNotice } from "@/components/dashboard/dataset-notice";
 import { getProfile, listFavorites } from "@/lib/db/queries";
-import { fetchAggregate, fetchCount } from "@/lib/opendata/client";
+import { fetchAggregate, fetchCount, formatCount } from "@/lib/opendata/client";
 import { ARRONDISSEMENTS } from "@/lib/opendata/arrondissement";
 import { DATASETS } from "@/lib/opendata/datasets";
 import { requireSession } from "@/lib/session";
@@ -64,6 +64,7 @@ export default async function DashboardPage() {
 
   const bikes = Number(velib.page.results[0]?.bikes ?? 0);
   const ebikes = Number(velib.page.results[0]?.ebikes ?? 0);
+  const countError = [velib, trees, events, fountains, markets].find((result) => !result.ok)?.error;
 
   return (
     <div>
@@ -73,12 +74,16 @@ export default async function DashboardPage() {
           district: districtLabel(profile.arrondissement, common),
         })}
       </PageIntro>
-      <DatasetNotice error={velib.ok ? undefined : velib.error} />
+      <DatasetNotice error={countError} />
       <KpiStrip
         items={[
-          { label: t("bikes"), value: format.number(bikes), hint: t("ebikes", { count: format.number(ebikes) }) },
-          { label: t("trees"), value: format.number(trees) },
-          { label: t("events"), value: format.number(events) },
+          {
+            label: t("bikes"),
+            value: velib.ok ? format.number(bikes) : "—",
+            hint: velib.ok ? t("ebikes", { count: format.number(ebikes) }) : undefined,
+          },
+          { label: t("trees"), value: formatCount(trees, (value) => format.number(value)) },
+          { label: t("events"), value: formatCount(events, (value) => format.number(value)) },
           { label: t("favorites"), value: favorites.length },
         ]}
       />
@@ -94,8 +99,8 @@ export default async function DashboardPage() {
       </div>
       <p className="mt-6 text-sm text-muted">
         {t.rich("catalog", {
-          fountains: format.number(fountains),
-          markets: format.number(markets),
+          fountains: formatCount(fountains, (value) => format.number(value)),
+          markets: formatCount(markets, (value) => format.number(value)),
           profile: (chunks) => (
             <Link href="/dashboard/profile" className="text-navy hover:underline">
               {chunks}

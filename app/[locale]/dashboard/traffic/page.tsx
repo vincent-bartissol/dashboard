@@ -4,7 +4,7 @@ import { DatasetNotice } from "@/components/dashboard/dataset-notice";
 import { DatasetTabs } from "@/components/dashboard/dataset-tabs";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { PageIntro } from "@/components/dashboard/page-intro";
-import { fetchCount } from "@/lib/opendata/client";
+import { fetchCount, formatCount } from "@/lib/opendata/client";
 import { DATASETS } from "@/lib/opendata/datasets";
 import { loadTheme } from "@/lib/opendata/load";
 import { requireSession } from "@/lib/session";
@@ -31,11 +31,11 @@ export default async function TrafficPage({
       <PageIntro title={t("title")} dataset={[DATASETS.works, DATASETS.street]}>
         {t("body")}
       </PageIntro>
-      <DatasetNotice error={loaded.error} />
+      <DatasetNotice error={loaded.error || worksCount.error || streetCount.error} />
       <KpiStrip
         items={[
-          { label: t("works"), value: format.number(worksCount) },
-          { label: t("reports"), value: format.number(streetCount) },
+          { label: t("works"), value: formatCount(worksCount, (value) => format.number(value)) },
+          { label: t("reports"), value: formatCount(streetCount, (value) => format.number(value)) },
         ]}
       />
       <DatasetTabs
