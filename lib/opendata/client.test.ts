@@ -36,6 +36,22 @@ describe("fetchCount", () => {
       count: 42,
     });
   });
+
+  it("returns ok false when the payload is not a page", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ error_code: "ODSQLSyntaxError" }),
+      }),
+    );
+    await expect(fetchCount("marches-decouverts", 60)).resolves.toEqual({
+      ok: false,
+      count: 0,
+      error: "Open Data marches-decouverts: invalid payload",
+    });
+  });
 });
 
 describe("formatCount", () => {
