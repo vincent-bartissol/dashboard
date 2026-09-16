@@ -27,13 +27,15 @@ function getSnapshot() {
   return readThemeCookie();
 }
 
-function getServerSnapshot(): ColorScheme {
-  return "system";
-}
-
-export function ThemeToggle({ invert = false }: { invert?: boolean }) {
+export function ThemeToggle({
+  invert = false,
+  initial = "system",
+}: {
+  invert?: boolean;
+  initial?: ColorScheme;
+}) {
   const t = useTranslations("Common");
-  const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const theme = useSyncExternalStore(subscribe, getSnapshot, () => initial);
 
   function onSelect(next: ColorScheme) {
     writeThemeCookie(next);

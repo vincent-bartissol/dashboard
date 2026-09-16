@@ -7,8 +7,9 @@ import { authClient } from "@/lib/auth-client";
 import { Wordmark } from "@/components/layout/wordmark";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import type { ColorScheme } from "@/lib/theme";
 
-export function Sidebar({ userName }: { userName: string }) {
+export function Sidebar({ userName, theme }: { userName: string; theme: ColorScheme }) {
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations("Nav");
@@ -49,7 +50,7 @@ export function Sidebar({ userName }: { userName: string }) {
       </nav>
       <div className="space-y-2 p-3">
         <LocaleSwitcher invert />
-        <ThemeToggle invert />
+        <ThemeToggle invert initial={theme} />
         <button
           type="button"
           onClick={logout}
@@ -62,7 +63,7 @@ export function Sidebar({ userName }: { userName: string }) {
   );
 }
 
-export function MobileNav({ userName }: { userName: string }) {
+export function MobileNav({ userName, theme }: { userName: string; theme: ColorScheme }) {
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations("Nav");
@@ -79,7 +80,7 @@ export function MobileNav({ userName }: { userName: string }) {
         <Wordmark invert />
         <div className="flex items-center gap-2">
           <LocaleSwitcher invert />
-          <ThemeToggle invert />
+          <ThemeToggle invert initial={theme} />
           <button type="button" onClick={logout} className="text-sm text-white/80">
             {t("logoutShort")}
           </button>
