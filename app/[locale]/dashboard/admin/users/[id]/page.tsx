@@ -1,6 +1,7 @@
 import { getFormatter, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Link } from "@/i18n/navigation";
+import { AdminUserControls } from "@/components/admin/user-controls";
 import { PageIntro } from "@/components/dashboard/page-intro";
 import { Card } from "@/components/ui/card";
 import { SectionTitle } from "@/components/ui/heading";
@@ -27,7 +28,7 @@ export default async function AdminUserDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireAdmin();
+  const session = await requireAdmin();
   const { id } = await params;
   const user = await getUserForAdmin(id);
   if (!user) notFound();
@@ -42,9 +43,9 @@ export default async function AdminUserDetailPage({
   ]);
 
   const now = Date.now();
-  const liveSessions = sessions.filter((row) => {
+  const sessionRows = sessions.map((row) => {
     const expires = row.expiresAt instanceof Date ? row.expiresAt.getTime() : Number(row.expiresAt);
-    return expires > now;
+    return { ...row, live: expires > now };
   });
 
   return (
@@ -54,6 +55,18 @@ export default async function AdminUserDetailPage({
           {t("backToUsers")}
         </Link>
       </PageIntro>
+
+      <AdminUserControls
+        userId={user.id}
+        role={user.role}
+        banned={user.banned}
+        isSelf={session.user.id === user.id}
+        sessions={sessionRows.map((row) => ({
+          id: row.id,
+          token: row.token,
+          live: row.live,
+        }))}
+      />
 
       <Card>
         <SectionTitle>{t("user.profile")}</SectionTitle>
@@ -112,7 +125,7 @@ export default async function AdminUserDetailPage({
               </tr>
             ) : null}
             {sessions.map((row) => {
-              const live = liveSessions.some((item) => item.id === row.id);
+              const live = sessionRows.find((item) => item.id === row.id)?.live ?? false;
               return (
                 <tr key={row.id} className="border-b border-line/80 last:border-0">
                   <td className="px-3 py-2 tabular-nums">

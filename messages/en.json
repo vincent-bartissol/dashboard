@@ -553,6 +553,32 @@
       "action": "Action",
       "details": "Details",
       "empty": "No activity."
+    },
+    "moderation": {
+      "title": "Moderation",
+      "ban": "Ban",
+      "unban": "Unban",
+      "banReason": "Reason",
+      "cannotSelfBan": "You cannot ban yourself.",
+      "confirmBan": "Ban this user and revoke their sessions?",
+      "roleTitle": "Role",
+      "makeAdmin": "Promote to admin",
+      "makeUser": "Demote to user",
+      "confirmPromote": "Give this user the admin role?",
+      "confirmDemote": "Remove the admin role from this user?",
+      "sessionsTitle": "Revoke a session",
+      "revoke": "Revoke",
+      "confirmRevoke": "Revoke this session?"
+    },
+    "errors": {
+      "selfBan": "You cannot ban yourself.",
+      "lastAdmin": "Cannot demote the last admin.",
+      "notFound": "User not found.",
+      "ban": "Ban failed.",
+      "unban": "Unban failed.",
+      "role": "Role change failed.",
+      "session": "Session revoke failed.",
+      "generic": "Something went wrong."
     }
   }
 }

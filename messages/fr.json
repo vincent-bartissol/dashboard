@@ -553,6 +553,32 @@
       "action": "Action",
       "details": "Détails",
       "empty": "Aucune activité."
+    },
+    "moderation": {
+      "title": "Modération",
+      "ban": "Bannir",
+      "unban": "Lever le ban",
+      "banReason": "Motif",
+      "cannotSelfBan": "Vous ne pouvez pas vous bannir vous-même.",
+      "confirmBan": "Bannir cet utilisateur et révoquer ses sessions ?",
+      "roleTitle": "Rôle",
+      "makeAdmin": "Promouvoir admin",
+      "makeUser": "Rétrograder utilisateur",
+      "confirmPromote": "Donner le rôle admin à cet utilisateur ?",
+      "confirmDemote": "Retirer le rôle admin à cet utilisateur ?",
+      "sessionsTitle": "Révoquer une session",
+      "revoke": "Révoquer",
+      "confirmRevoke": "Révoquer cette session ?"
+    },
+    "errors": {
+      "selfBan": "Impossible de vous bannir.",
+      "lastAdmin": "Impossible de rétrograder le dernier admin.",
+      "notFound": "Utilisateur introuvable.",
+      "ban": "Échec du ban.",
+      "unban": "Échec de la levée du ban.",
+      "role": "Échec du changement de rôle.",
+      "session": "Échec de la révocation.",
+      "generic": "Une erreur est survenue."
     }
   }
 }

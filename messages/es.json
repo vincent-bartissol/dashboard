@@ -553,6 +553,32 @@
       "action": "Acción",
       "details": "Detalles",
       "empty": "Ninguna actividad."
+    },
+    "moderation": {
+      "title": "Moderación",
+      "ban": "Bloquear",
+      "unban": "Desbloquear",
+      "banReason": "Motivo",
+      "cannotSelfBan": "No puede bloquearse a sí mismo.",
+      "confirmBan": "¿Bloquear a este usuario y revocar sus sesiones?",
+      "roleTitle": "Rol",
+      "makeAdmin": "Promover a admin",
+      "makeUser": "Bajar a usuario",
+      "confirmPromote": "¿Dar el rol admin a este usuario?",
+      "confirmDemote": "¿Quitar el rol admin a este usuario?",
+      "sessionsTitle": "Revocar una sesión",
+      "revoke": "Revocar",
+      "confirmRevoke": "¿Revocar esta sesión?"
+    },
+    "errors": {
+      "selfBan": "No puede bloquearse a sí mismo.",
+      "lastAdmin": "No se puede bajar al último admin.",
+      "notFound": "Usuario no encontrado.",
+      "ban": "Error al bloquear.",
+      "unban": "Error al desbloquear.",
+      "role": "Error al cambiar el rol.",
+      "session": "Error al revocar la sesión.",
+      "generic": "Se produjo un error."
     }
   }
 }
