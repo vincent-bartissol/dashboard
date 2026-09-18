@@ -4,6 +4,7 @@ import { and, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { favorite } from "@/lib/db/schema";
+import { recordActivity } from "@/lib/activity";
 import { isAtFavoriteLimit, parseFavoriteInput } from "@/lib/favorite-input";
 import { routing } from "@/i18n/routing";
 import { listFavorites } from "@/lib/db/queries";
@@ -38,6 +39,11 @@ export async function toggleFavorite(input: {
 
     if (existing[0]) {
       await db.delete(favorite).where(eq(favorite.id, existing[0].id));
+      await recordActivity(session.user.id, "favorite.remove", {
+        datasetId: parsed.datasetId,
+        recordId: parsed.recordId,
+        label: parsed.label,
+      });
     } else {
       const current = await listFavorites(session.user.id);
       if (isAtFavoriteLimit(current.length)) {
@@ -51,6 +57,11 @@ export async function toggleFavorite(input: {
         label: parsed.label,
         geo: parsed.geo,
         createdAt: new Date(),
+      });
+      await recordActivity(session.user.id, "favorite.add", {
+        datasetId: parsed.datasetId,
+        recordId: parsed.recordId,
+        label: parsed.label,
       });
     }
 

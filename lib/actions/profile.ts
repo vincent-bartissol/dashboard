@@ -8,6 +8,7 @@ import { displayName, PROFILE_NAME_MAX } from "@/lib/profile-name";
 import { getTranslations } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { parsePreferredDistrict } from "@/lib/opendata/arrondissement";
+import { recordActivity } from "@/lib/activity";
 import { requireSession } from "@/lib/session";
 
 export type ProfileUpdateResult = { ok: true } | { ok: false; error: string };
@@ -55,6 +56,10 @@ export async function updateProfile(input: {
       updatedAt: new Date(),
     })
     .where(eq(user.id, session.user.id));
+
+  await recordActivity(session.user.id, "profile.update", {
+    arrondissement: district.value,
+  });
 
   for (const locale of routing.locales) {
     revalidatePath(`/${locale}/dashboard`, "layout");

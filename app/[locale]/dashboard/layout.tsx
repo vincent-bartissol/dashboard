@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { cookies } from "next/headers";
+import { DashboardActivityTracker } from "@/components/dashboard/activity-tracker";
 import { MobileNav, Sidebar } from "@/components/layout/sidebar";
 import { SkipLink } from "@/components/layout/skip-link";
 import { parseTheme } from "@/lib/theme";
@@ -12,6 +13,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   return (
     <div className="relative flex min-h-full flex-col bg-ground lg:flex-row">
       <SkipLink />
+      <DashboardActivityTracker />
       <div className="hidden lg:flex">
         <Sidebar userName={session.user.name || session.user.email} theme={theme} />
       </div>
