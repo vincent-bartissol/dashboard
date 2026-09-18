@@ -15,6 +15,13 @@
       "when": 1789369365621,
       "tag": "0001_two_factor_backfill",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1789714653175,
+      "tag": "0002_omniscient_naoko",
+      "breakpoints": true
     }
   ]
 }

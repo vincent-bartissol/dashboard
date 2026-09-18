@@ -9,6 +9,10 @@ export const user = sqliteTable("user", {
     .notNull()
     .default(false),
   image: text("image"),
+  role: text("role").notNull().default("user"),
+  banned: integer("banned", { mode: "boolean" }).notNull().default(false),
+  banReason: text("ban_reason"),
+  banExpires: integer("ban_expires", { mode: "timestamp" }),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
@@ -24,6 +28,7 @@ export const session = sqliteTable("session", {
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
+  impersonatedBy: text("impersonated_by"),
 });
 
 export const account = sqliteTable("account", {
@@ -104,3 +109,20 @@ export const profile = sqliteTable("profile", {
   lastName: text("last_name"),
   arrondissement: text("arrondissement"),
 });
+
+export const activity = sqliteTable(
+  "activity",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    action: text("action").notNull(),
+    metadata: text("metadata"),
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  },
+  (table) => [
+    index("activity_user_created_idx").on(table.userId, table.createdAt),
+    index("activity_action_idx").on(table.action),
+  ],
+);
