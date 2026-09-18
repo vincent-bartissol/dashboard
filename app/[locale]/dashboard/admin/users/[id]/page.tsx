@@ -42,6 +42,8 @@ export default async function AdminUserDetailPage({
     listActivityForUser(user.id),
   ]);
 
+  // Request-time boundary for “session still valid”.
+  // eslint-disable-next-line react-hooks/purity -- server page, once per request
   const now = Date.now();
   const sessionRows = sessions.map((row) => {
     const expires = row.expiresAt instanceof Date ? row.expiresAt.getTime() : Number(row.expiresAt);

@@ -13,25 +13,10 @@ export type AdminUserRow = {
   emailVerified: boolean;
   role: string;
   banned: boolean;
-  createdAt: Date | string | number;
+  createdLabel: string;
 };
 
-function formatDate(value: Date | string | number, locale: string) {
-  const date = value instanceof Date ? value : new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
-  return new Intl.DateTimeFormat(locale, {
-    dateStyle: "short",
-    timeStyle: "short",
-  }).format(date);
-}
-
-export function AdminUserTable({
-  users,
-  locale,
-}: {
-  users: AdminUserRow[];
-  locale: string;
-}) {
+export function AdminUserTable({ users }: { users: AdminUserRow[] }) {
   const t = useTranslations("Admin");
   const [query, setQuery] = useState("");
 
@@ -94,7 +79,7 @@ export function AdminUserTable({
                     ? t("status.active")
                     : t("status.unverified")}
               </td>
-              <td className="px-3 py-2 tabular-nums">{formatDate(row.createdAt, locale)}</td>
+              <td className="px-3 py-2 tabular-nums">{row.createdLabel}</td>
             </tr>
           ))}
         </tbody>

@@ -1,4 +1,4 @@
-import { getFormatter, getLocale, getTranslations } from "next-intl/server";
+import { getFormatter, getTranslations } from "next-intl/server";
 import { AdminUserTable } from "@/components/admin/user-table";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { PageIntro } from "@/components/dashboard/page-intro";
@@ -11,8 +11,20 @@ export default async function AdminPage() {
   await requireAdmin();
   const t = await getTranslations("Admin");
   const format = await getFormatter();
-  const locale = await getLocale();
   const [users, stats] = await Promise.all([listUsersForAdmin(), getAdminStats()]);
+
+  const userRows = users.map((row) => ({
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    emailVerified: row.emailVerified,
+    role: row.role,
+    banned: row.banned,
+    createdLabel: format.dateTime(new Date(row.createdAt), {
+      dateStyle: "short",
+      timeStyle: "short",
+    }),
+  }));
 
   return (
     <div className="space-y-6">
@@ -70,7 +82,7 @@ export default async function AdminPage() {
           </ul>
         </Card>
       </div>
-      <AdminUserTable users={users} locale={locale} />
+      <AdminUserTable users={userRows} />
     </div>
   );
 }
