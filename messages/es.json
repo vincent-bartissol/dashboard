@@ -39,6 +39,7 @@
     "markets": "Mercados",
     "favorites": "Favoritos",
     "profile": "Perfil",
+    "admin": "Admin",
     "logout": "Cerrar sesión",
     "logoutShort": "Salir",
     "privateSpace": "Espacio privado",
@@ -502,6 +503,102 @@
         "vers_paris": "Hacia París",
         "vers_croix": "Hacia Croix de Chavaux"
       }
+    }
+  },
+  "Admin": {
+    "title": "Administración",
+    "body": "Usuarios, sesiones y actividad de Paris Ouverte.",
+    "searchUsers": "Buscar un usuario…",
+    "noUsers": "Ningún usuario.",
+    "backToUsers": "Volver a la lista",
+    "columns": {
+      "name": "Nombre",
+      "email": "Correo",
+      "role": "Rol",
+      "status": "Estado",
+      "created": "Creado"
+    },
+    "status": {
+      "active": "Activo",
+      "unverified": "No verificado",
+      "banned": "Bloqueado"
+    },
+    "roles": {
+      "admin": "admin",
+      "adminBreakGlass": "admin (emergencia)",
+      "user": "user"
+    },
+    "user": {
+      "profile": "Perfil",
+      "arrondissement": "Distrito",
+      "banReason": "Motivo del bloqueo",
+      "sessions": "Sesiones",
+      "favorites": "Favoritos",
+      "activity": "Actividad"
+    },
+    "sessions": {
+      "created": "Creada",
+      "expires": "Caduca",
+      "ip": "IP",
+      "ua": "Navegador",
+      "live": "Activa",
+      "liveYes": "Sesión activa",
+      "liveNo": "Sesión caducada",
+      "yes": "Sí",
+      "no": "No",
+      "empty": "Ninguna sesión."
+    },
+    "favorites": {
+      "label": "Etiqueta",
+      "dataset": "Conjunto de datos",
+      "record": "Registro",
+      "created": "Añadido",
+      "empty": "Ningún favorito."
+    },
+    "activity": {
+      "when": "Cuándo",
+      "action": "Acción",
+      "details": "Detalles",
+      "empty": "Ninguna actividad."
+    },
+    "moderation": {
+      "title": "Moderación",
+      "ban": "Bloquear",
+      "unban": "Desbloquear",
+      "banReason": "Motivo",
+      "cannotSelfBan": "No puede bloquearse a sí mismo.",
+      "cannotBanAdmin": "No puede bloquear a otro administrador.",
+      "cannotSelfDemote": "No puede bajarse a sí mismo.",
+      "confirmBan": "¿Bloquear a este usuario y revocar sus sesiones?",
+      "roleTitle": "Rol",
+      "makeAdmin": "Promover a admin",
+      "makeUser": "Bajar a usuario",
+      "confirmPromote": "¿Dar el rol admin a este usuario?",
+      "confirmDemote": "¿Quitar el rol admin a este usuario?",
+      "sessionsTitle": "Revocar una sesión",
+      "revoke": "Revocar",
+      "confirmRevoke": "¿Revocar esta sesión?"
+    },
+    "errors": {
+      "selfBan": "No puede bloquearse a sí mismo.",
+      "peerAdmin": "No puede bloquear a otro administrador.",
+      "selfDemote": "No puede bajarse a sí mismo.",
+      "lastAdmin": "No se puede bajar al último admin.",
+      "notFound": "Usuario no encontrado.",
+      "ban": "Error al bloquear.",
+      "unban": "Error al desbloquear.",
+      "role": "Error al cambiar el rol.",
+      "session": "Error al revocar la sesión.",
+      "generic": "Se produjo un error."
+    },
+    "stats": {
+      "users": "Usuarios",
+      "verified": "Verificados",
+      "banned": "Bloqueados",
+      "sessions": "Sesiones activas",
+      "signupsWeek": "{count} altas (7 d)",
+      "topFavorites": "Favoritos más añadidos",
+      "topPaths": "Páginas más vistas"
     }
   }
 }

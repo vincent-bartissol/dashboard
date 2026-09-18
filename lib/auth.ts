@@ -1,13 +1,15 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
-import { twoFactor } from "better-auth/plugins";
+import { admin, twoFactor } from "better-auth/plugins";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { withLocaleInAbsoluteUrl } from "@/i18n/path";
 import { mailLocale } from "@/lib/email/locale";
 import { changeEmailMail, otpMail, resetPasswordMail, verificationMail } from "@/lib/email/templates";
+import { ADMIN_ROLES, parseAdminUserIds, USER_ROLE } from "@/lib/admin";
+import { recordActivity } from "@/lib/activity";
 import * as schema from "@/lib/db/schema";
 
 export const auth = betterAuth({
@@ -21,6 +23,15 @@ export const auth = betterAuth({
     minPasswordLength: 8,
     requireEmailVerification: true,
     revokeSessionsOnPasswordReset: true,
+    customSyntheticUser: ({ coreFields, additionalFields, id }) => ({
+      ...coreFields,
+      role: USER_ROLE,
+      banned: false,
+      banReason: null,
+      banExpires: null,
+      ...additionalFields,
+      id,
+    }),
     sendResetPassword: async ({ user, url }) => {
       const locale = await mailLocale();
       const mail = resetPasswordMail(withLocaleInAbsoluteUrl(url, locale), locale);
@@ -67,6 +78,14 @@ export const auth = betterAuth({
             verified: false,
             failedVerificationCount: 0,
           });
+          await recordActivity(created.id, "signup");
+        },
+      },
+    },
+    session: {
+      create: {
+        after: async (created) => {
+          await recordActivity(created.userId, "login");
         },
       },
     },
@@ -82,6 +101,19 @@ export const auth = betterAuth({
         },
       },
     }),
+    admin({
+      defaultRole: USER_ROLE,
+      adminRoles: [...ADMIN_ROLES],
+      adminUserIds: parseAdminUserIds(),
+      defaultBanReason: "Banned by admin",
+    }),
     nextCookies(),
   ],
 });
+
+export type SessionUser = {
+  id: string;
+  role?: string | null;
+  banned?: boolean | null;
+  banExpires?: Date | string | number | null;
+};

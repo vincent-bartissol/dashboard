@@ -22,13 +22,14 @@ flowchart LR
   overview --> markets["/dashboard/markets"]
   overview --> favorites["/dashboard/favorites"]
   overview --> profile["/dashboard/profile"]
+  overview --> admin["/dashboard/admin admin-only"]
 ```
 
 **Public landing (`/` → `/fr`)** — what the app is, who the data comes from, a few live headline stats (Vélib’ bikes available, tree count, today’s ATMO-style air snapshot, event count), and CTAs to sign up / log in. Logged-in users can still visit it (no bounce-away). The same page exists at `/en` and `/es`.
 
-**Auth** — email + password, email verification (Mailpit locally, Resend in production), then an email OTP as a second step. No OAuth.
+**Auth** — email + password, email verification (Mailpit locally, Resend in production), then an email OTP as a second step. No OAuth. Admins keep the full dashboard; `/dashboard/admin` is gated by role.
 
-**Private shell** — sidebar + top bar: overview, Montreuil, one link per Paris theme, favorites, profile, logout.
+**Private shell** — sidebar + top bar: overview, Montreuil, one link per Paris theme, favorites, profile, logout. Admins also see an Admin link.
 
 Each theme page follows the same layout: KPI strip, map and/or chart, searchable table, favorite button on rows. Themes that wrap two datasets use **tabs on that page**, not extra routes:
 

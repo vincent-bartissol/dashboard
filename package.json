@@ -10,7 +10,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "db:seed-demo": "node scripts/seed-admin-demo.mjs"
   },
   "dependencies": {
     "better-auth": "^1.7.3",

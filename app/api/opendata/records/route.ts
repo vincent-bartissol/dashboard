@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getProfile } from "@/lib/db/queries";
+import { isBannedUser } from "@/lib/admin";
 import { getSession } from "@/lib/session";
 import { arrondissementWhere } from "@/lib/opendata/arrondissement";
 import { recordsQueryFromSearch } from "@/lib/opendata/bbox";
@@ -15,7 +16,7 @@ const ALLOWED = new Map(
 
 export async function GET(request: NextRequest) {
   const session = await getSession();
-  if (!session) {
+  if (!session || isBannedUser(session.user)) {
     return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 

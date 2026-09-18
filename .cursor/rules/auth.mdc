@@ -6,13 +6,15 @@ alwaysApply: false
 
 # Auth
 
-Two layers; do not collapse them.
+Three layers; do not collapse them.
 
 1. `proxy.ts` — optimistic cookie check on `/dashboard/:path*` only. No cookie → `/login?next=…`. Does not validate the session.
-2. `requireSession()` in `lib/session.ts` — real Better Auth session. Use in dashboard layouts/pages and server actions. No session → `/login`.
-3. `requireGuest()` — signed-in users hitting `/login`, `/signup`, `/forgot-password`, or `/reset-password` → `safeNext(?next)` (internal path only, else `/dashboard`).
+2. `requireSession()` in `lib/session.ts` — real Better Auth session. Use in dashboard layouts/pages and server actions. No session → `/login`. Also rejects banned users.
+3. `requireAdmin()` — same as `requireSession()`, then `isAdminUser()` (role `admin` or id in `ADMIN_USER_IDS`). Use on `/dashboard/admin` layout/pages and admin actions. Non-admin → `/dashboard`.
+4. `requireGuest()` — signed-in (non-banned) users hitting `/login`, `/signup`, `/forgot-password`, or `/reset-password` → `safeNext(?next)` (internal path only, else `/dashboard`).
 
 - Guest-only pages: `/login`, `/signup`, `/forgot-password`, `/reset-password`. Keep `/` public even when logged in.
 - `?next=` must go through `safeNext` (starts with `/`, not `//`).
 - Client auth: `lib/auth-client.ts` + `components/auth/auth-form.tsx`. Route handler: `app/api/auth/[...all]/route.ts`.
-- Reads (`listFavorites`, `getProfile`) live in `lib/db/queries.ts`, not `"use server"` files. Actions take the user id from `requireSession()` only.
+- Reads (`listFavorites`, `getProfile`) live in `lib/db/queries.ts`, not `"use server"` files. Actions take the user id from `requireSession()` / `requireAdmin()` only.
+- First admin: sign up normally (2FA hook), then `UPDATE user SET role = 'admin' WHERE email = '…'`. Do not use `npx auth create-admin`.
