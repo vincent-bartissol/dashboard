@@ -9,7 +9,27 @@ import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import type { ColorScheme } from "@/lib/theme";
 
-export function Sidebar({ userName, theme }: { userName: string; theme: ColorScheme }) {
+const linkClass = (active: boolean) =>
+  `border-l-4 px-3 py-2 text-sm transition focus-field ${
+    active
+      ? "border-accent bg-white/10 font-medium text-white"
+      : "border-transparent text-white/75 hover:bg-white/5 hover:text-white"
+  }`;
+
+const mobileLinkClass = (active: boolean) =>
+  `shrink-0 rounded-none border-b-2 px-3 py-1.5 text-sm focus-field ${
+    active ? "border-accent text-white" : "border-transparent bg-white/5 text-white/80"
+  }`;
+
+export function Sidebar({
+  userName,
+  theme,
+  isAdmin = false,
+}: {
+  userName: string;
+  theme: ColorScheme;
+  isAdmin?: boolean;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations("Nav");
@@ -37,16 +57,21 @@ export function Sidebar({ userName, theme }: { userName: string; theme: ColorSch
               key={item.href}
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`border-l-4 px-3 py-2 text-sm transition focus-field ${
-                active
-                  ? "border-accent bg-white/10 font-medium text-white"
-                  : "border-transparent text-white/75 hover:bg-white/5 hover:text-white"
-              }`}
+              className={linkClass(active)}
             >
               {t(item.id)}
             </Link>
           );
         })}
+        {isAdmin ? (
+          <Link
+            href="/dashboard/admin"
+            aria-current={pathname.startsWith("/dashboard/admin") ? "page" : undefined}
+            className={linkClass(pathname.startsWith("/dashboard/admin"))}
+          >
+            {t("admin")}
+          </Link>
+        ) : null}
       </nav>
       <div className="space-y-2 p-3">
         <LocaleSwitcher invert />
@@ -63,7 +88,15 @@ export function Sidebar({ userName, theme }: { userName: string; theme: ColorSch
   );
 }
 
-export function MobileNav({ userName, theme }: { userName: string; theme: ColorScheme }) {
+export function MobileNav({
+  userName,
+  theme,
+  isAdmin = false,
+}: {
+  userName: string;
+  theme: ColorScheme;
+  isAdmin?: boolean;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations("Nav");
@@ -97,16 +130,21 @@ export function MobileNav({ userName, theme }: { userName: string; theme: ColorS
               key={item.href}
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`shrink-0 rounded-none border-b-2 px-3 py-1.5 text-sm focus-field ${
-                active
-                  ? "border-accent text-white"
-                  : "border-transparent bg-white/5 text-white/80"
-              }`}
+              className={mobileLinkClass(active)}
             >
               {t(item.id)}
             </Link>
           );
         })}
+        {isAdmin ? (
+          <Link
+            href="/dashboard/admin"
+            aria-current={pathname.startsWith("/dashboard/admin") ? "page" : undefined}
+            className={mobileLinkClass(pathname.startsWith("/dashboard/admin"))}
+          >
+            {t("admin")}
+          </Link>
+        ) : null}
       </nav>
       <p className="sr-only">{userName}</p>
     </div>

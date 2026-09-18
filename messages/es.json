@@ -507,6 +507,52 @@
   },
   "Admin": {
     "title": "Administración",
-    "body": "Usuarios, sesiones y actividad de Paris Ouverte."
+    "body": "Usuarios, sesiones y actividad de Paris Ouverte.",
+    "searchUsers": "Buscar un usuario…",
+    "noUsers": "Ningún usuario.",
+    "backToUsers": "Volver a la lista",
+    "columns": {
+      "name": "Nombre",
+      "email": "Correo",
+      "role": "Rol",
+      "status": "Estado",
+      "created": "Creado"
+    },
+    "status": {
+      "active": "Activo",
+      "unverified": "No verificado",
+      "banned": "Bloqueado"
+    },
+    "user": {
+      "profile": "Perfil",
+      "arrondissement": "Distrito",
+      "banReason": "Motivo del bloqueo",
+      "sessions": "Sesiones",
+      "favorites": "Favoritos",
+      "activity": "Actividad"
+    },
+    "sessions": {
+      "created": "Creada",
+      "expires": "Caduca",
+      "ip": "IP",
+      "ua": "Navegador",
+      "live": "Activa",
+      "yes": "Sí",
+      "no": "No",
+      "empty": "Ninguna sesión."
+    },
+    "favorites": {
+      "label": "Etiqueta",
+      "dataset": "Conjunto de datos",
+      "record": "Registro",
+      "created": "Añadido",
+      "empty": "Ningún favorito."
+    },
+    "activity": {
+      "when": "Cuándo",
+      "action": "Acción",
+      "details": "Detalles",
+      "empty": "Ninguna actividad."
+    }
   }
 }

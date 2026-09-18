@@ -507,6 +507,52 @@
   },
   "Admin": {
     "title": "Administration",
-    "body": "Utilisateurs, sessions et activité de Paris Ouverte."
+    "body": "Utilisateurs, sessions et activité de Paris Ouverte.",
+    "searchUsers": "Rechercher un utilisateur…",
+    "noUsers": "Aucun utilisateur.",
+    "backToUsers": "Retour à la liste",
+    "columns": {
+      "name": "Nom",
+      "email": "E-mail",
+      "role": "Rôle",
+      "status": "Statut",
+      "created": "Créé"
+    },
+    "status": {
+      "active": "Actif",
+      "unverified": "Non vérifié",
+      "banned": "Banni"
+    },
+    "user": {
+      "profile": "Profil",
+      "arrondissement": "Arrondissement",
+      "banReason": "Motif du ban",
+      "sessions": "Sessions",
+      "favorites": "Favoris",
+      "activity": "Activité"
+    },
+    "sessions": {
+      "created": "Créée",
+      "expires": "Expire",
+      "ip": "IP",
+      "ua": "Navigateur",
+      "live": "Active",
+      "yes": "Oui",
+      "no": "Non",
+      "empty": "Aucune session."
+    },
+    "favorites": {
+      "label": "Libellé",
+      "dataset": "Jeu de données",
+      "record": "Enregistrement",
+      "created": "Ajouté",
+      "empty": "Aucun favori."
+    },
+    "activity": {
+      "when": "Quand",
+      "action": "Action",
+      "details": "Détails",
+      "empty": "Aucune activité."
+    }
   }
 }
