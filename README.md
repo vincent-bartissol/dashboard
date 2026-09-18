@@ -32,6 +32,14 @@ sqlite3 data/dashboard.sqlite "UPDATE user SET role = 'admin' WHERE email = 'you
 
 Optional break-glass: set `ADMIN_USER_IDS` to a comma-separated list of user ids in `.env.local` (and Railway). Prefer the `role` column over the env list for day-to-day admins.
 
+To fill the admin UI with demo users, sessions, favorites, and activity (local SQLite only):
+
+```bash
+DATA_DIR=./data BETTER_AUTH_URL=http://localhost:3000 pnpm db:seed-demo
+```
+
+Use `pnpm db:seed-demo -- --reset` to remove `@seed.local` users and any `seed-*` demo rows, then reseed. Seed accounts are for admin viewing only (no login password).
+
 `pnpm test` and `pnpm lint` before pushing. After `pnpm build`, `pnpm test:e2e` runs Playwright smokes (landing, login error, seeded dashboard) plus axe on those pages.
 
 Dependabot opens weekly PRs for npm and GitHub Actions. CI runs `pnpm audit` as a warning (it does not fail the job). [`.github/workflows/uptime.yml`](.github/workflows/uptime.yml) curls [dashboard.vvbb.fr/fr](https://dashboard.vvbb.fr/fr) every hour; a failed run is the alert.
