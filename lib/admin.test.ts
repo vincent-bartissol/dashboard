@@ -1,7 +1,10 @@
 import { afterEach, describe, expect, it } from "vitest";
 import {
+  banUserBlockReason,
   canBanUser,
   canDemoteAdmin,
+  clampBanReason,
+  demoteAdminBlockReason,
   isAdminUser,
   isBannedUser,
   parseAdminUserIds,
@@ -47,6 +50,17 @@ describe("isAdminUser", () => {
     process.env.ADMIN_USER_IDS = "u1";
     expect(isAdminUser({ id: "u1", role: "admin", banned: true })).toBe(false);
   });
+
+  it("allows admin when ban has expired", () => {
+    expect(
+      isAdminUser({
+        id: "u1",
+        role: "admin",
+        banned: true,
+        banExpires: Date.now() - 1000,
+      }),
+    ).toBe(true);
+  });
 });
 
 describe("isBannedUser", () => {
@@ -64,15 +78,66 @@ describe("isBannedUser", () => {
   });
 });
 
+describe("banUserBlockReason", () => {
+  it("blocks self-ban and peer admins", () => {
+    expect(
+      banUserBlockReason({ targetUserId: "a", actorUserId: "a", targetIsAdmin: false }),
+    ).toBe("selfBan");
+    expect(
+      banUserBlockReason({ targetUserId: "b", actorUserId: "a", targetIsAdmin: true }),
+    ).toBe("peerAdmin");
+    expect(
+      banUserBlockReason({ targetUserId: "b", actorUserId: "a", targetIsAdmin: false }),
+    ).toBeNull();
+  });
+});
+
 describe("canBanUser", () => {
-  it("blocks self-ban", () => {
+  it("blocks self-ban and peer admins", () => {
     expect(canBanUser({ targetUserId: "a", actorUserId: "a" })).toBe(false);
-    expect(canBanUser({ targetUserId: "b", actorUserId: "a" })).toBe(true);
+    expect(canBanUser({ targetUserId: "b", actorUserId: "a", targetIsAdmin: true })).toBe(false);
+    expect(canBanUser({ targetUserId: "b", actorUserId: "a", targetIsAdmin: false })).toBe(true);
+  });
+});
+
+describe("demoteAdminBlockReason", () => {
+  it("distinguishes self-demote from last admin", () => {
+    expect(
+      demoteAdminBlockReason({
+        targetUserId: "a",
+        targetIsAdmin: true,
+        actorUserId: "a",
+        adminCount: 2,
+      }),
+    ).toBe("selfDemote");
+    expect(
+      demoteAdminBlockReason({
+        targetUserId: "b",
+        targetIsAdmin: true,
+        actorUserId: "a",
+        adminCount: 1,
+      }),
+    ).toBe("lastAdmin");
+    expect(
+      demoteAdminBlockReason({
+        targetUserId: "b",
+        targetIsAdmin: true,
+        actorUserId: "a",
+        adminCount: 2,
+      }),
+    ).toBeNull();
   });
 });
 
 describe("canDemoteAdmin", () => {
+  const original = process.env.ADMIN_USER_IDS;
+  afterEach(() => {
+    if (original === undefined) delete process.env.ADMIN_USER_IDS;
+    else process.env.ADMIN_USER_IDS = original;
+  });
+
   it("blocks demoting self or last admin", () => {
+    delete process.env.ADMIN_USER_IDS;
     expect(
       canDemoteAdmin({
         targetUserId: "a",
@@ -99,7 +164,8 @@ describe("canDemoteAdmin", () => {
     ).toBe(true);
   });
 
-  it("allows demoting non-admins", () => {
+  it("treats break-glass ids as admins for demotion checks", () => {
+    process.env.ADMIN_USER_IDS = "b";
     expect(
       canDemoteAdmin({
         targetUserId: "b",
@@ -107,6 +173,14 @@ describe("canDemoteAdmin", () => {
         actorUserId: "a",
         adminCount: 1,
       }),
-    ).toBe(true);
+    ).toBe(false);
+  });
+});
+
+describe("clampBanReason", () => {
+  it("trims and caps length", () => {
+    expect(clampBanReason("  spam  ")).toBe("spam");
+    expect(clampBanReason(undefined)).toBe("Banned by admin");
+    expect(clampBanReason("x".repeat(250)).length).toBe(200);
   });
 });

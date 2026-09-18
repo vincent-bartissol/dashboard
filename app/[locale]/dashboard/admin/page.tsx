@@ -4,7 +4,12 @@ import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { PageIntro } from "@/components/dashboard/page-intro";
 import { Card } from "@/components/ui/card";
 import { SectionTitle } from "@/components/ui/heading";
-import { getAdminStats, listUsersForAdmin } from "@/lib/db/queries";
+import {
+  adminRoleLabel,
+  adminUserStatus,
+  getAdminStats,
+  listUsersForAdmin,
+} from "@/lib/db/queries";
 import { requireAdmin } from "@/lib/session";
 
 export default async function AdminPage() {
@@ -13,18 +18,22 @@ export default async function AdminPage() {
   const format = await getFormatter();
   const [users, stats] = await Promise.all([listUsersForAdmin(), getAdminStats()]);
 
-  const userRows = users.map((row) => ({
-    id: row.id,
-    name: row.name,
-    email: row.email,
-    emailVerified: row.emailVerified,
-    role: row.role,
-    banned: row.banned,
-    createdLabel: format.dateTime(new Date(row.createdAt), {
-      dateStyle: "short",
-      timeStyle: "short",
-    }),
-  }));
+  const userRows = users.map((row) => {
+    const status = adminUserStatus(row);
+    const roleKey = adminRoleLabel(row);
+    return {
+      id: row.id,
+      name: row.name,
+      email: row.email,
+      emailVerified: row.emailVerified,
+      roleLabel: t(`roles.${roleKey}`),
+      statusLabel: t(`status.${status}`),
+      createdLabel: format.dateTime(new Date(row.createdAt), {
+        dateStyle: "short",
+        timeStyle: "short",
+      }),
+    };
+  });
 
   return (
     <div className="space-y-6">

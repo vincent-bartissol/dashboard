@@ -523,6 +523,11 @@
       "unverified": "Non vérifié",
       "banned": "Banni"
     },
+    "roles": {
+      "admin": "admin",
+      "adminBreakGlass": "admin (secours)",
+      "user": "user"
+    },
     "user": {
       "profile": "Profil",
       "arrondissement": "Arrondissement",
@@ -537,6 +542,8 @@
       "ip": "IP",
       "ua": "Navigateur",
       "live": "Active",
+      "liveYes": "Session active",
+      "liveNo": "Session expirée",
       "yes": "Oui",
       "no": "Non",
       "empty": "Aucune session."
@@ -560,6 +567,8 @@
       "unban": "Lever le ban",
       "banReason": "Motif",
       "cannotSelfBan": "Vous ne pouvez pas vous bannir vous-même.",
+      "cannotBanAdmin": "Impossible de bannir un autre administrateur.",
+      "cannotSelfDemote": "Vous ne pouvez pas vous rétrograder vous-même.",
       "confirmBan": "Bannir cet utilisateur et révoquer ses sessions ?",
       "roleTitle": "Rôle",
       "makeAdmin": "Promouvoir admin",
@@ -572,6 +581,8 @@
     },
     "errors": {
       "selfBan": "Impossible de vous bannir.",
+      "peerAdmin": "Impossible de bannir un autre administrateur.",
+      "selfDemote": "Impossible de vous rétrograder.",
       "lastAdmin": "Impossible de rétrograder le dernier admin.",
       "notFound": "Utilisateur introuvable.",
       "ban": "Échec du ban.",

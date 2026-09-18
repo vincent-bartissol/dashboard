@@ -11,8 +11,8 @@ export type AdminUserRow = {
   name: string;
   email: string;
   emailVerified: boolean;
-  role: string;
-  banned: boolean;
+  roleLabel: string;
+  statusLabel: string;
   createdLabel: string;
 };
 
@@ -27,7 +27,8 @@ export function AdminUserTable({ users }: { users: AdminUserRow[] }) {
       (user) =>
         user.email.toLowerCase().includes(q) ||
         user.name.toLowerCase().includes(q) ||
-        user.role.toLowerCase().includes(q),
+        user.roleLabel.toLowerCase().includes(q) ||
+        user.statusLabel.toLowerCase().includes(q),
     );
   }, [users, query]);
 
@@ -71,14 +72,8 @@ export function AdminUserTable({ users }: { users: AdminUserRow[] }) {
                 </Link>
               </td>
               <td className="px-3 py-2">{row.email}</td>
-              <td className="px-3 py-2">{row.role}</td>
-              <td className="px-3 py-2">
-                {row.banned
-                  ? t("status.banned")
-                  : row.emailVerified
-                    ? t("status.active")
-                    : t("status.unverified")}
-              </td>
+              <td className="px-3 py-2">{row.roleLabel}</td>
+              <td className="px-3 py-2">{row.statusLabel}</td>
               <td className="px-3 py-2 tabular-nums">{row.createdLabel}</td>
             </tr>
           ))}

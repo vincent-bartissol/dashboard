@@ -14,18 +14,51 @@ import {
   unbanUserAction,
 } from "@/lib/actions/admin";
 
+type ErrorKey =
+  | "errors.selfBan"
+  | "errors.peerAdmin"
+  | "errors.selfDemote"
+  | "errors.lastAdmin"
+  | "errors.notFound"
+  | "errors.ban"
+  | "errors.unban"
+  | "errors.role"
+  | "errors.session"
+  | "errors.generic";
+
+const ERROR_KEYS = new Set<string>([
+  "selfBan",
+  "peerAdmin",
+  "selfDemote",
+  "lastAdmin",
+  "notFound",
+  "ban",
+  "unban",
+  "role",
+  "session",
+  "generic",
+]);
+
 export function AdminUserControls({
   userId,
   role,
   banned,
   isSelf,
+  targetIsAdmin,
   sessions,
 }: {
   userId: string;
   role: string;
   banned: boolean;
   isSelf: boolean;
-  sessions: { id: string; token: string; live: boolean }[];
+  targetIsAdmin: boolean;
+  sessions: {
+    id: string;
+    live: boolean;
+    createdLabel: string;
+    ipAddress: string | null;
+    userAgent: string | null;
+  }[];
 }) {
   const t = useTranslations("Admin");
   const router = useRouter();
@@ -38,21 +71,16 @@ export function AdminUserControls({
     startTransition(async () => {
       const result = await action();
       if (!result.ok) {
-        const key = `errors.${result.error ?? "generic"}` as
-          | "errors.selfBan"
-          | "errors.lastAdmin"
-          | "errors.notFound"
-          | "errors.ban"
-          | "errors.unban"
-          | "errors.role"
-          | "errors.session"
-          | "errors.generic";
-        setError(t(key));
+        const code = result.error && ERROR_KEYS.has(result.error) ? result.error : "generic";
+        setError(t(`errors.${code}` as ErrorKey));
         return;
       }
       router.refresh();
     });
   }
+
+  const canBan = !isSelf && !targetIsAdmin && !banned;
+  const canDemote = targetIsAdmin && role === "admin" && !isSelf;
 
   return (
     <div className="space-y-4">
@@ -74,13 +102,14 @@ export function AdminUserControls({
               <Input
                 id="ban-reason"
                 value={banReason}
+                maxLength={200}
                 onChange={(event) => setBanReason(event.target.value)}
-                disabled={pending || isSelf}
+                disabled={pending || !canBan}
               />
               <Button
                 type="button"
                 variant="primary"
-                disabled={pending || isSelf}
+                disabled={pending || !canBan}
                 onClick={() => {
                   if (!window.confirm(t("moderation.confirmBan"))) return;
                   run(() => banUserAction({ userId, banReason }));
@@ -89,6 +118,9 @@ export function AdminUserControls({
                 {t("moderation.ban")}
               </Button>
               {isSelf ? <p className="text-sm text-muted">{t("moderation.cannotSelfBan")}</p> : null}
+              {!isSelf && targetIsAdmin ? (
+                <p className="text-sm text-muted">{t("moderation.cannotBanAdmin")}</p>
+              ) : null}
             </div>
           )}
         </div>
@@ -111,7 +143,7 @@ export function AdminUserControls({
           <Button
             type="button"
             variant={role === "user" ? "secondary" : "ghost"}
-            disabled={pending || role === "user"}
+            disabled={pending || !canDemote}
             onClick={() => {
               if (!window.confirm(t("moderation.confirmDemote"))) return;
               run(() => setUserRoleAction({ userId, role: "user" }));
@@ -120,6 +152,9 @@ export function AdminUserControls({
             {t("moderation.makeUser")}
           </Button>
         </div>
+        {isSelf && role === "admin" ? (
+          <p className="mt-2 text-sm text-muted">{t("moderation.cannotSelfDemote")}</p>
+        ) : null}
       </Card>
 
       <Card>
@@ -131,23 +166,29 @@ export function AdminUserControls({
           {sessions.map((row) => (
             <li
               key={row.id}
-              className="flex flex-wrap items-center justify-between gap-2 border border-line px-3 py-2 text-sm"
+              className="flex flex-wrap items-center justify-between gap-3 border border-line px-3 py-2 text-sm"
             >
-              <span>{row.live ? t("sessions.yes") : t("sessions.no")}</span>
-              <form
-                onSubmit={(event) => {
-                  event.preventDefault();
+              <div className="min-w-0 flex-1">
+                <p className="tabular-nums text-heading">{row.createdLabel}</p>
+                <p className="truncate text-muted">
+                  {row.ipAddress || "—"}
+                  {row.userAgent ? ` · ${row.userAgent}` : ""}
+                </p>
+                <p className="text-xs text-muted">
+                  {row.live ? t("sessions.liveYes") : t("sessions.liveNo")}
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={pending || !row.live}
+                onClick={() => {
                   if (!window.confirm(t("moderation.confirmRevoke"))) return;
-                  run(() =>
-                    revokeSessionAction({ userId, sessionToken: row.token }),
-                  );
+                  run(() => revokeSessionAction({ userId, sessionId: row.id }));
                 }}
               >
-                <input type="hidden" name="sessionToken" value={row.token} />
-                <Button type="submit" variant="ghost" disabled={pending || !row.live}>
-                  {t("moderation.revoke")}
-                </Button>
-              </form>
+                {t("moderation.revoke")}
+              </Button>
             </li>
           ))}
         </ul>

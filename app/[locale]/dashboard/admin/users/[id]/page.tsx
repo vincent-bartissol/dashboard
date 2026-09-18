@@ -5,7 +5,10 @@ import { AdminUserControls } from "@/components/admin/user-controls";
 import { PageIntro } from "@/components/dashboard/page-intro";
 import { Card } from "@/components/ui/card";
 import { SectionTitle } from "@/components/ui/heading";
+import { isAdminUser } from "@/lib/admin";
 import {
+  adminRoleLabel,
+  adminUserStatus,
   getProfile,
   getUserForAdmin,
   listActivityForUser,
@@ -47,8 +50,19 @@ export default async function AdminUserDetailPage({
   const now = Date.now();
   const sessionRows = sessions.map((row) => {
     const expires = row.expiresAt instanceof Date ? row.expiresAt.getTime() : Number(row.expiresAt);
-    return { ...row, live: expires > now };
+    return {
+      ...row,
+      live: expires > now,
+      createdLabel: format.dateTime(new Date(row.createdAt), {
+        dateStyle: "short",
+        timeStyle: "short",
+      }),
+    };
   });
+
+  const status = adminUserStatus(user);
+  const roleKey = adminRoleLabel(user);
+  const effectivelyBanned = status === "banned";
 
   return (
     <div className="space-y-6">
@@ -61,12 +75,15 @@ export default async function AdminUserDetailPage({
       <AdminUserControls
         userId={user.id}
         role={user.role}
-        banned={user.banned}
+        banned={effectivelyBanned}
         isSelf={session.user.id === user.id}
+        targetIsAdmin={isAdminUser(user)}
         sessions={sessionRows.map((row) => ({
           id: row.id,
-          token: row.token,
           live: row.live,
+          createdLabel: row.createdLabel,
+          ipAddress: row.ipAddress,
+          userAgent: row.userAgent,
         }))}
       />
 
@@ -79,23 +96,17 @@ export default async function AdminUserDetailPage({
           </div>
           <div>
             <dt className="text-muted">{t("columns.role")}</dt>
-            <dd>{user.role}</dd>
+            <dd>{t(`roles.${roleKey}`)}</dd>
           </div>
           <div>
             <dt className="text-muted">{t("columns.status")}</dt>
-            <dd>
-              {user.banned
-                ? t("status.banned")
-                : user.emailVerified
-                  ? t("status.active")
-                  : t("status.unverified")}
-            </dd>
+            <dd>{t(`status.${status}`)}</dd>
           </div>
           <div>
             <dt className="text-muted">{t("user.arrondissement")}</dt>
             <dd>{profile.arrondissement || "—"}</dd>
           </div>
-          {user.banned && user.banReason ? (
+          {effectivelyBanned && user.banReason ? (
             <div className="sm:col-span-2">
               <dt className="text-muted">{t("user.banReason")}</dt>
               <dd>{user.banReason}</dd>
@@ -126,30 +137,24 @@ export default async function AdminUserDetailPage({
                 </td>
               </tr>
             ) : null}
-            {sessions.map((row) => {
-              const live = sessionRows.find((item) => item.id === row.id)?.live ?? false;
-              return (
-                <tr key={row.id} className="border-b border-line/80 last:border-0">
-                  <td className="px-3 py-2 tabular-nums">
-                    {format.dateTime(new Date(row.createdAt), {
-                      dateStyle: "short",
-                      timeStyle: "short",
-                    })}
-                  </td>
-                  <td className="px-3 py-2 tabular-nums">
-                    {format.dateTime(new Date(row.expiresAt), {
-                      dateStyle: "short",
-                      timeStyle: "short",
-                    })}
-                  </td>
-                  <td className="px-3 py-2">{row.ipAddress || "—"}</td>
-                  <td className="max-w-xs truncate px-3 py-2" title={row.userAgent ?? undefined}>
-                    {row.userAgent || "—"}
-                  </td>
-                  <td className="px-3 py-2">{live ? t("sessions.yes") : t("sessions.no")}</td>
-                </tr>
-              );
-            })}
+            {sessionRows.map((row) => (
+              <tr key={row.id} className="border-b border-line/80 last:border-0">
+                <td className="px-3 py-2 tabular-nums">{row.createdLabel}</td>
+                <td className="px-3 py-2 tabular-nums">
+                  {format.dateTime(new Date(row.expiresAt), {
+                    dateStyle: "short",
+                    timeStyle: "short",
+                  })}
+                </td>
+                <td className="px-3 py-2">{row.ipAddress || "—"}</td>
+                <td className="max-w-xs truncate px-3 py-2" title={row.userAgent ?? undefined}>
+                  {row.userAgent || "—"}
+                </td>
+                <td className="px-3 py-2">
+                  {row.live ? t("sessions.yes") : t("sessions.no")}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </Card>

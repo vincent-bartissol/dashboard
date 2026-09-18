@@ -523,6 +523,11 @@
       "unverified": "Unverified",
       "banned": "Banned"
     },
+    "roles": {
+      "admin": "admin",
+      "adminBreakGlass": "admin (break-glass)",
+      "user": "user"
+    },
     "user": {
       "profile": "Profile",
       "arrondissement": "District",
@@ -537,6 +542,8 @@
       "ip": "IP",
       "ua": "Browser",
       "live": "Active",
+      "liveYes": "Active session",
+      "liveNo": "Expired session",
       "yes": "Yes",
       "no": "No",
       "empty": "No sessions."
@@ -560,6 +567,8 @@
       "unban": "Unban",
       "banReason": "Reason",
       "cannotSelfBan": "You cannot ban yourself.",
+      "cannotBanAdmin": "You cannot ban another administrator.",
+      "cannotSelfDemote": "You cannot demote yourself.",
       "confirmBan": "Ban this user and revoke their sessions?",
       "roleTitle": "Role",
       "makeAdmin": "Promote to admin",
@@ -572,6 +581,8 @@
     },
     "errors": {
       "selfBan": "You cannot ban yourself.",
+      "peerAdmin": "You cannot ban another administrator.",
+      "selfDemote": "You cannot demote yourself.",
       "lastAdmin": "Cannot demote the last admin.",
       "notFound": "User not found.",
       "ban": "Ban failed.",

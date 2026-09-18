@@ -1,8 +1,9 @@
 "use client";
 
 import { createAuthClient } from "better-auth/react";
-import { adminClient, twoFactorClient } from "better-auth/client/plugins";
+import { twoFactorClient } from "better-auth/client/plugins";
 
+// Admin APIs stay server-only via lib/actions/admin.ts (not adminClient).
 export const authClient = createAuthClient({
-  plugins: [twoFactorClient(), adminClient()],
+  plugins: [twoFactorClient()],
 });

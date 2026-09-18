@@ -3,9 +3,20 @@
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
-import { ADMIN_ROLE, USER_ROLE, canBanUser, canDemoteAdmin } from "@/lib/admin";
+import {
+  ADMIN_ROLE,
+  USER_ROLE,
+  banUserBlockReason,
+  clampBanReason,
+  demoteAdminBlockReason,
+  isAdminUser,
+} from "@/lib/admin";
 import { recordActivity } from "@/lib/activity";
-import { countAdmins, getUserForAdmin } from "@/lib/db/queries";
+import {
+  countAdmins,
+  getOwnedSessionToken,
+  getUserForAdmin,
+} from "@/lib/db/queries";
 import { routing } from "@/i18n/routing";
 import { requireAdmin } from "@/lib/session";
 
@@ -23,23 +34,29 @@ export async function banUserAction(input: {
   banReason?: string;
 }): Promise<AdminActionResult> {
   const session = await requireAdmin();
-  if (!canBanUser({ targetUserId: input.userId, actorUserId: session.user.id })) {
-    return { ok: false, error: "selfBan" };
-  }
   const target = await getUserForAdmin(input.userId);
   if (!target) return { ok: false, error: "notFound" };
+
+  const block = banUserBlockReason({
+    targetUserId: input.userId,
+    actorUserId: session.user.id,
+    targetIsAdmin: isAdminUser(target),
+  });
+  if (block) return { ok: false, error: block };
+
+  const banReason = clampBanReason(input.banReason);
 
   try {
     await auth.api.banUser({
       body: {
         userId: input.userId,
-        banReason: input.banReason?.trim() || "Banned by admin",
+        banReason,
       },
       headers: await headers(),
     });
     await recordActivity(session.user.id, "admin.ban", {
       targetUserId: input.userId,
-      banReason: input.banReason?.trim() || "Banned by admin",
+      banReason,
     });
     await revalidateAdmin(input.userId);
     return { ok: true };
@@ -84,16 +101,13 @@ export async function setUserRoleAction(input: {
 
   if (input.role === USER_ROLE) {
     const adminCount = await countAdmins();
-    if (
-      !canDemoteAdmin({
-        targetUserId: input.userId,
-        targetRole: target.role,
-        actorUserId: session.user.id,
-        adminCount,
-      })
-    ) {
-      return { ok: false, error: "lastAdmin" };
-    }
+    const block = demoteAdminBlockReason({
+      targetUserId: input.userId,
+      targetIsAdmin: isAdminUser(target),
+      actorUserId: session.user.id,
+      adminCount,
+    });
+    if (block) return { ok: false, error: block };
   }
 
   try {
@@ -115,18 +129,22 @@ export async function setUserRoleAction(input: {
 
 export async function revokeSessionAction(input: {
   userId: string;
-  sessionToken: string;
+  sessionId: string;
 }): Promise<AdminActionResult> {
   const session = await requireAdmin();
-  if (!input.sessionToken.trim()) return { ok: false, error: "session" };
+  if (!input.sessionId.trim()) return { ok: false, error: "session" };
+
+  const owned = await getOwnedSessionToken(input.sessionId, input.userId);
+  if (!owned) return { ok: false, error: "session" };
 
   try {
     await auth.api.revokeUserSession({
-      body: { sessionToken: input.sessionToken },
+      body: { sessionToken: owned.token },
       headers: await headers(),
     });
     await recordActivity(session.user.id, "admin.revokeSession", {
       targetUserId: input.userId,
+      sessionId: input.sessionId,
     });
     await revalidateAdmin(input.userId);
     return { ok: true };

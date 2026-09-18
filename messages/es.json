@@ -523,6 +523,11 @@
       "unverified": "No verificado",
       "banned": "Bloqueado"
     },
+    "roles": {
+      "admin": "admin",
+      "adminBreakGlass": "admin (emergencia)",
+      "user": "user"
+    },
     "user": {
       "profile": "Perfil",
       "arrondissement": "Distrito",
@@ -537,6 +542,8 @@
       "ip": "IP",
       "ua": "Navegador",
       "live": "Activa",
+      "liveYes": "Sesión activa",
+      "liveNo": "Sesión caducada",
       "yes": "Sí",
       "no": "No",
       "empty": "Ninguna sesión."
@@ -560,6 +567,8 @@
       "unban": "Desbloquear",
       "banReason": "Motivo",
       "cannotSelfBan": "No puede bloquearse a sí mismo.",
+      "cannotBanAdmin": "No puede bloquear a otro administrador.",
+      "cannotSelfDemote": "No puede bajarse a sí mismo.",
       "confirmBan": "¿Bloquear a este usuario y revocar sus sesiones?",
       "roleTitle": "Rol",
       "makeAdmin": "Promover a admin",
@@ -572,6 +581,8 @@
     },
     "errors": {
       "selfBan": "No puede bloquearse a sí mismo.",
+      "peerAdmin": "No puede bloquear a otro administrador.",
+      "selfDemote": "No puede bajarse a sí mismo.",
       "lastAdmin": "No se puede bajar al último admin.",
       "notFound": "Usuario no encontrado.",
       "ban": "Error al bloquear.",

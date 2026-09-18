@@ -1,7 +1,7 @@
 import { and, count, desc, eq, gt, like, or, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { activity, favorite, profile, session, user } from "@/lib/db/schema";
-import { ADMIN_ROLE } from "@/lib/admin";
+import { isAdminUser, isBannedUser } from "@/lib/admin";
 
 export async function listFavorites(userId: string, datasetId?: string) {
   if (datasetId) {
@@ -74,11 +74,11 @@ export async function getUserForAdmin(userId: string) {
   return rows[0] ?? null;
 }
 
+/** Public session fields for admin UI — never includes the bearer token. */
 export async function listSessionsForUser(userId: string) {
   return db
     .select({
       id: session.id,
-      token: session.token,
       createdAt: session.createdAt,
       expiresAt: session.expiresAt,
       ipAddress: session.ipAddress,
@@ -87,6 +87,20 @@ export async function listSessionsForUser(userId: string) {
     .from(session)
     .where(eq(session.userId, userId))
     .orderBy(desc(session.createdAt));
+}
+
+/** Server-only: resolve a session token for revoke after ownership check. */
+export async function getOwnedSessionToken(sessionId: string, userId: string) {
+  const rows = await db
+    .select({
+      id: session.id,
+      token: session.token,
+      userId: session.userId,
+    })
+    .from(session)
+    .where(and(eq(session.id, sessionId), eq(session.userId, userId)))
+    .limit(1);
+  return rows[0] ?? null;
 }
 
 export async function listActivityForUser(userId: string, limit = 100) {
@@ -98,12 +112,17 @@ export async function listActivityForUser(userId: string, limit = 100) {
     .limit(limit);
 }
 
+/** Counts users who currently pass isAdminUser (role or break-glass, not banned). */
 export async function countAdmins() {
   const rows = await db
-    .select({ value: count() })
-    .from(user)
-    .where(eq(user.role, ADMIN_ROLE));
-  return rows[0]?.value ?? 0;
+    .select({
+      id: user.id,
+      role: user.role,
+      banned: user.banned,
+      banExpires: user.banExpires,
+    })
+    .from(user);
+  return rows.filter((row) => isAdminUser(row)).length;
 }
 
 export async function getAdminStats() {
@@ -115,7 +134,7 @@ export async function getAdminStats() {
       .select({
         users: count(),
         verified: sql<number>`sum(case when ${user.emailVerified} = 1 then 1 else 0 end)`,
-        banned: sql<number>`sum(case when ${user.banned} = 1 then 1 else 0 end)`,
+        banned: sql<number>`sum(case when ${user.banned} = 1 and (${user.banExpires} is null or ${user.banExpires} > ${now}) then 1 else 0 end)`,
       })
       .from(user),
     db
@@ -158,4 +177,20 @@ export async function getAdminStats() {
     topFavorites,
     topPaths: topPaths.filter((row) => row.path),
   };
+}
+
+export function adminUserStatus(row: {
+  emailVerified: boolean;
+  banned: boolean | null;
+  banExpires?: Date | string | number | null;
+}): "banned" | "active" | "unverified" {
+  if (isBannedUser(row)) return "banned";
+  if (row.emailVerified) return "active";
+  return "unverified";
+}
+
+export function adminRoleLabel(row: { id: string; role: string }): "admin" | "adminBreakGlass" | "user" {
+  if (row.role === "admin") return "admin";
+  if (isAdminUser({ id: row.id, role: row.role })) return "adminBreakGlass";
+  return "user";
 }
