@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gt, like, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, gt, isNull, like, or, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { activity, favorite, profile, session, user } from "@/lib/db/schema";
 import { isAdminUser, isBannedUser } from "@/lib/admin";
@@ -129,49 +129,56 @@ export async function getAdminStats() {
   const now = new Date();
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-  const [totals, activeSessions, recentSignups, topFavorites, topPaths] = await Promise.all([
-    db
-      .select({
-        users: count(),
-        verified: sql<number>`sum(case when ${user.emailVerified} = 1 then 1 else 0 end)`,
-        banned: sql<number>`sum(case when ${user.banned} = 1 and (${user.banExpires} is null or ${user.banExpires} > ${now}) then 1 else 0 end)`,
-      })
-      .from(user),
-    db
-      .select({ value: count() })
-      .from(session)
-      .where(gt(session.expiresAt, now)),
-    db
-      .select({ value: count() })
-      .from(user)
-      .where(gt(user.createdAt, weekAgo)),
-    db
-      .select({
-        datasetId: favorite.datasetId,
-        recordId: favorite.recordId,
-        label: favorite.label,
-        value: count(),
-      })
-      .from(favorite)
-      .groupBy(favorite.datasetId, favorite.recordId, favorite.label)
-      .orderBy(desc(count()))
-      .limit(10),
-    db
-      .select({
-        path: sql<string>`json_extract(${activity.metadata}, '$.path')`,
-        value: count(),
-      })
-      .from(activity)
-      .where(eq(activity.action, "page.view"))
-      .groupBy(sql`json_extract(${activity.metadata}, '$.path')`)
-      .orderBy(desc(count()))
-      .limit(10),
-  ]);
+  const [totals, bannedRows, activeSessions, recentSignups, topFavorites, topPaths] =
+    await Promise.all([
+      db
+        .select({
+          users: count(),
+          verified: sql<number>`sum(case when ${user.emailVerified} = 1 then 1 else 0 end)`,
+        })
+        .from(user),
+      // Use column helpers so Dates bind correctly (raw sql`${date}` is not bindable by better-sqlite3).
+      db
+        .select({ value: count() })
+        .from(user)
+        .where(
+          and(eq(user.banned, true), or(isNull(user.banExpires), gt(user.banExpires, now))),
+        ),
+      db
+        .select({ value: count() })
+        .from(session)
+        .where(gt(session.expiresAt, now)),
+      db
+        .select({ value: count() })
+        .from(user)
+        .where(gt(user.createdAt, weekAgo)),
+      db
+        .select({
+          datasetId: favorite.datasetId,
+          recordId: favorite.recordId,
+          label: favorite.label,
+          value: count(),
+        })
+        .from(favorite)
+        .groupBy(favorite.datasetId, favorite.recordId, favorite.label)
+        .orderBy(desc(count()))
+        .limit(10),
+      db
+        .select({
+          path: sql<string>`json_extract(${activity.metadata}, '$.path')`,
+          value: count(),
+        })
+        .from(activity)
+        .where(eq(activity.action, "page.view"))
+        .groupBy(sql`json_extract(${activity.metadata}, '$.path')`)
+        .orderBy(desc(count()))
+        .limit(10),
+    ]);
 
   return {
     users: totals[0]?.users ?? 0,
     verified: Number(totals[0]?.verified ?? 0),
-    banned: Number(totals[0]?.banned ?? 0),
+    banned: bannedRows[0]?.value ?? 0,
     activeSessions: activeSessions[0]?.value ?? 0,
     signupsLast7Days: recentSignups[0]?.value ?? 0,
     topFavorites,
