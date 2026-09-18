@@ -22,6 +22,16 @@ Open [http://localhost:3000](http://localhost:3000). Mailpit UI: [http://localho
 
 SQLite lives in `data/` (gitignored). On boot the app applies Drizzle migrations from `lib/db/migrations` (existing files are baselined, then any new SQL runs once). After changing [`lib/db/schema.ts`](lib/db/schema.ts), run `pnpm db:generate` and commit the new files.
 
+### First admin
+
+Sign up through the normal flow (email verification + OTP), then promote in SQLite:
+
+```bash
+sqlite3 data/dashboard.sqlite "UPDATE user SET role = 'admin' WHERE email = 'you@example.com';"
+```
+
+Optional break-glass: set `ADMIN_USER_IDS` to a comma-separated list of user ids in `.env.local` (and Railway). Prefer the `role` column over the env list for day-to-day admins.
+
 `pnpm test` and `pnpm lint` before pushing. After `pnpm build`, `pnpm test:e2e` runs Playwright smokes (landing, login error, seeded dashboard) plus axe on those pages.
 
 Dependabot opens weekly PRs for npm and GitHub Actions. CI runs `pnpm audit` as a warning (it does not fail the job). [`.github/workflows/uptime.yml`](.github/workflows/uptime.yml) curls [dashboard.vvbb.fr/fr](https://dashboard.vvbb.fr/fr) every hour; a failed run is the alert.
@@ -49,6 +59,7 @@ This is a Node app with a SQLite file. It cannot run on OVH mutualisé (`vvbb.fr
    | `MAILER_PROVIDER` | `resend` |
    | `RESEND_API_KEY` | from Resend |
    | `EMAIL_FROM` | a sender Resend accepts, e.g. `Paris Ouverte <noreply@vvbb.fr>` |
+   | `ADMIN_USER_IDS` | optional comma-separated break-glass admin user ids |
 
 4. Generate a Railway domain, then add custom domain `dashboard.vvbb.fr`.
 5. At OVH (DNS zone `vvbb.fr`): `CNAME` name `dashboard` → the hostname Railway shows. Wait for SSL.

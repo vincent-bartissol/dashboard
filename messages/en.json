@@ -39,6 +39,7 @@
     "markets": "Markets",
     "favorites": "Favorites",
     "profile": "Profile",
+    "admin": "Admin",
     "logout": "Sign out",
     "logoutShort": "Leave",
     "privateSpace": "Private area",
@@ -503,5 +504,9 @@
         "vers_croix": "Towards Croix de Chavaux"
       }
     }
+  },
+  "Admin": {
+    "title": "Administration",
+    "body": "Users, sessions and activity for Paris Ouverte."
   }
 }

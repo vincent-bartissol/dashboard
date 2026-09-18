@@ -39,6 +39,7 @@
     "markets": "Mercados",
     "favorites": "Favoritos",
     "profile": "Perfil",
+    "admin": "Admin",
     "logout": "Cerrar sesión",
     "logoutShort": "Salir",
     "privateSpace": "Espacio privado",
@@ -503,5 +504,9 @@
         "vers_croix": "Hacia Croix de Chavaux"
       }
     }
+  },
+  "Admin": {
+    "title": "Administración",
+    "body": "Usuarios, sesiones y actividad de Paris Ouverte."
   }
 }
