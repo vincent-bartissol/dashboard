@@ -16,6 +16,10 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
+# Placeholders for `next build` page-data collection only (not used at runtime).
+ENV BETTER_AUTH_SECRET=build-placeholder-secret-32chars-minok
+ENV BETTER_AUTH_URL=http://localhost:3000
+ENV DATA_DIR=/tmp/dashboard-build-data
 RUN pnpm build
 
 FROM node:22-bookworm-slim AS runner
