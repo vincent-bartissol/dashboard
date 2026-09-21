@@ -158,7 +158,9 @@
     "favoriteLimit": "Ya tiene 100 favoritos. Elimine uno para añadir otro.",
     "untitled": "Sin nombre",
     "mapLabel": "Mapa de registros",
-    "mapHint": "El mapa no se puede usar con el teclado. Use la tabla siguiente."
+    "mapHint": "El mapa no se puede usar con el teclado. Use la tabla siguiente.",
+    "sortAsc": "Ordenar {column} ascendente",
+    "sortDesc": "Ordenar {column} descendente"
   },
   "Overview": {
     "title": "Vista general",
@@ -511,6 +513,8 @@
     "searchUsers": "Buscar un usuario…",
     "noUsers": "Ningún usuario.",
     "backToUsers": "Volver a la lista",
+    "sortAsc": "Ordenar {column} ascendente",
+    "sortDesc": "Ordenar {column} descendente",
     "columns": {
       "name": "Nombre",
       "email": "Correo",
