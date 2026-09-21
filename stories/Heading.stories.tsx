@@ -16,7 +16,7 @@ export const Page: Story = {
   },
 };
 
-export const Section: Story = {
+export const Section: StoryObj = {
   render: () => (
     <div className="space-y-3">
       <SectionTitle size="lg">Nature</SectionTitle>
@@ -25,7 +25,7 @@ export const Section: Story = {
   ),
 };
 
-export const Invert: Story = {
+export const Invert: StoryObj = {
   render: () => (
     <div className="bg-navy p-6">
       <SectionTitle invert>Espace privé</SectionTitle>
