@@ -1,6 +1,6 @@
 # Paris Ouverte
 
-French-first civic dashboard on [opendata.paris.fr](https://opendata.paris.fr). Next.js 16, Better Auth, SQLite.
+French-first civic dashboard on [opendata.paris.fr](https://opendata.paris.fr). Next.js 16, Better Auth, SQLite. Node 22 (what CI and the Docker image use).
 
 Live: [dashboard.vvbb.fr](https://dashboard.vvbb.fr)
 
@@ -20,7 +20,7 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000). Mailpit UI: [http://localhost:8025](http://localhost:8025).
 
-SQLite lives in `data/` (gitignored). On boot the app applies Drizzle migrations from `lib/db/migrations` (existing files are baselined, then any new SQL runs once). After changing [`lib/db/schema.ts`](lib/db/schema.ts), run `pnpm db:generate` and commit the new files.
+SQLite lives in `data/` (gitignored). **Runtime** (`pnpm dev`, `pnpm start`, the Docker `CMD`) applies Drizzle migrations from `lib/db/migrations` (existing files are baselined, then any new SQL runs once). `pnpm build` / `next build` does **not** migrate — parallel build workers would race on the same file. After changing [`lib/db/schema.ts`](lib/db/schema.ts), run `pnpm db:generate` and commit the new files.
 
 ### First admin
 
@@ -30,7 +30,7 @@ Sign up through the normal flow (email verification + OTP), then promote in SQLi
 sqlite3 data/dashboard.sqlite "UPDATE user SET role = 'admin' WHERE email = 'you@example.com';"
 ```
 
-Optional break-glass: set `ADMIN_USER_IDS` to a comma-separated list of user ids in `.env.local` (and Railway). Prefer the `role` column over the env list for day-to-day admins.
+The admin UI is at `/fr/dashboard/admin` (user list, stats, activity). Open a user for ban / unban, role changes, and session revoke. Optional break-glass: set `ADMIN_USER_IDS` to a comma-separated list of user ids in `.env.local` (and Railway). Prefer the `role` column over the env list for day-to-day admins.
 
 To fill the admin UI with demo users, sessions, favorites, and activity (local SQLite only):
 
@@ -40,7 +40,7 @@ DATA_DIR=./data BETTER_AUTH_URL=http://localhost:3000 pnpm db:seed-demo
 
 Use `pnpm db:seed-demo -- --reset` to remove `@seed.local` users and any `seed-*` demo rows, then reseed. Seed accounts are for admin viewing only (no login password).
 
-`pnpm test` and `pnpm lint` before pushing. After `pnpm build`, `pnpm test:e2e` runs Playwright smokes (landing, login error, seeded dashboard) plus axe on those pages.
+`pnpm test` and `pnpm lint` before pushing. After `pnpm build`, `pnpm test:e2e` runs Playwright smokes (landing, login error, seeded dashboard) plus axe on those pages. First time locally: `pnpm exec playwright install --with-deps chromium`.
 
 Dependabot opens weekly PRs for npm and GitHub Actions. CI runs `pnpm audit` as a warning (it does not fail the job). [`.github/workflows/uptime.yml`](.github/workflows/uptime.yml) curls [dashboard.vvbb.fr/fr](https://dashboard.vvbb.fr/fr) every hour; a failed run is the alert.
 
@@ -53,7 +53,9 @@ GitHub Actions runs Lighthouse without failing the job on scores. Category score
 
 ## Production (Railway)
 
-This is a Node app with a SQLite file. It cannot run on OVH mutualisé (`vvbb.fr` FTP). Railway runs the container; DNS points **dashboard.vvbb.fr** at it.
+This is a Node app with a SQLite file. It cannot run on OVH mutualisé (`vvbb.fr` FTP). Railway builds [`Dockerfile`](Dockerfile) and runs the container; DNS points **dashboard.vvbb.fr** at it.
+
+The image entrypoint `chown`s `$DATA_DIR` (Railway volumes are often root-owned), then drops to the `node` user. Do not add a Docker `VOLUME` instruction — it breaks Railway’s build.
 
 1. Deploy this GitHub repo on [Railway](https://railway.app) (one replica).
 2. Attach a volume mounted at `/app/data`.
