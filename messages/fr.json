@@ -25,7 +25,9 @@
     },
     "mapLoading": "Chargement de la carte…",
     "skipToContent": "Aller au contenu",
-    "opensInNewTab": "(nouvelle fenêtre)"
+    "opensInNewTab": "(nouvelle fenêtre)",
+    "cancel": "Annuler",
+    "confirm": "Confirmer"
   },
   "Nav": {
     "overview": "Vue d’ensemble",
@@ -515,6 +517,9 @@
     "backToUsers": "Retour à la liste",
     "sortAsc": "Trier {column} croissant",
     "sortDesc": "Trier {column} décroissant",
+    "page": "Page {current} / {count}",
+    "previous": "Précédent",
+    "next": "Suivant",
     "columns": {
       "name": "Nom",
       "email": "E-mail",
@@ -573,6 +578,7 @@
       "cannotSelfBan": "Vous ne pouvez pas vous bannir vous-même.",
       "cannotBanAdmin": "Impossible de bannir un autre administrateur.",
       "cannotSelfDemote": "Vous ne pouvez pas vous rétrograder vous-même.",
+      "confirmTitle": "Confirmer l’action",
       "confirmBan": "Bannir cet utilisateur et révoquer ses sessions ?",
       "roleTitle": "Rôle",
       "makeAdmin": "Promouvoir admin",

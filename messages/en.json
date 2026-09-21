@@ -25,7 +25,9 @@
     },
     "mapLoading": "Loading the map…",
     "skipToContent": "Skip to content",
-    "opensInNewTab": "(opens in a new tab)"
+    "opensInNewTab": "(opens in a new tab)",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
   },
   "Nav": {
     "overview": "Overview",
@@ -515,6 +517,9 @@
     "backToUsers": "Back to list",
     "sortAsc": "Sort {column} ascending",
     "sortDesc": "Sort {column} descending",
+    "page": "Page {current} / {count}",
+    "previous": "Previous",
+    "next": "Next",
     "columns": {
       "name": "Name",
       "email": "Email",
@@ -573,6 +578,7 @@
       "cannotSelfBan": "You cannot ban yourself.",
       "cannotBanAdmin": "You cannot ban another administrator.",
       "cannotSelfDemote": "You cannot demote yourself.",
+      "confirmTitle": "Confirm action",
       "confirmBan": "Ban this user and revoke their sessions?",
       "roleTitle": "Role",
       "makeAdmin": "Promote to admin",

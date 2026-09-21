@@ -11,6 +11,6 @@ French-first civic dashboard. Three locales (`fr`, `en`, `es`), default `fr`, al
 - Auth: Better Auth email/password. DB: Drizzle + SQLite (`data/dashboard.sqlite`, gitignored).
 - Public: `/` redirects to `/fr`; auth at `/[locale]/login`, `/[locale]/signup`. Private: `/[locale]/dashboard/*`. APIs stay unprefixed (`/api/*`).
 - Theme pages: KPI strip + map and/or chart + searchable table. Two datasets on one theme use tabs, not extra routes.
-- Reuse `components/ui` (`Button`, `Card`, `Input`) and tokens in `app/globals.css` (`navy`, `ground`, `paper`, `accent`). Do not add a design-system package. Typography: Newsreader (display) + IBM Plex Sans (UI). Square geometry, red accent as a rule — not cream/gold hospitality.
+- Reuse `components/ui` (`Button`, `Card`, `Input`, `Heading`, plus owned shadcn copies for Table/Badge/Pagination/Dialog/Select) and tokens in `app/globals.css` (`navy`, `ground`, `paper`, `accent`). Do not add a third-party visual kit (MUI, Chakra, etc.); restyle shadcn copies to square geometry and Paris red. Typography: Newsreader (display) + IBM Plex Sans (UI). Storybook: `pnpm storybook`.
 - Product intent: `PLAN.md`. Dataset catalog: `lib/opendata/datasets.ts`.
 - Do not commit or push unless asked. Do not commit `.env*` or `data/`.

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 export function Card({
   children,
@@ -8,7 +9,7 @@ export function Card({
   className?: string;
 }) {
   return (
-    <div className={`surface-panel p-4 ${className}`}>{children}</div>
+    <div className={cn("surface-panel p-4", className)}>{children}</div>
   );
 }
 

@@ -1,5 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 const variants = {
   primary:
@@ -23,7 +24,11 @@ export function Button({
   children,
   ...props
 }: Props) {
-  const classes = `inline-flex h-11 items-center justify-center rounded-none px-5 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${variants[variant]} ${className}`;
+  const classes = cn(
+    "inline-flex h-11 items-center justify-center rounded-none px-5 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
+    variants[variant],
+    className,
+  );
   if (href) {
     return (
       <Link href={href} className={classes}>
