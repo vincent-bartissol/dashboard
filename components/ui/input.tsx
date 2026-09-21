@@ -1,14 +1,15 @@
 import type { InputHTMLAttributes, SelectHTMLAttributes } from "react";
+import { cn } from "@/lib/utils";
 
 const fieldClass =
   "h-11 w-full surface-panel focus-field px-3 text-sm text-ink outline-none transition";
 
 export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
-  return <input className={`${fieldClass} ${className ?? ""}`} {...props} />;
+  return <input className={cn(fieldClass, className)} {...props} />;
 }
 
 export function Select({ className, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select className={`${fieldClass} ${className ?? ""}`} {...props} />;
+  return <select className={cn(fieldClass, className)} {...props} />;
 }
 
 export function Label({

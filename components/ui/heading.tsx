@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 const pageSizes = {
   md: "text-2xl",
@@ -16,7 +17,11 @@ export function PageTitle({
 }) {
   return (
     <h1
-      className={`font-display font-semibold tracking-tight text-heading ${pageSizes[size]} ${className}`}
+      className={cn(
+        "font-display font-semibold tracking-tight text-heading",
+        pageSizes[size],
+        className,
+      )}
     >
       {children}
     </h1>
@@ -43,9 +48,12 @@ export function SectionTitle({
 }) {
   return (
     <Tag
-      className={`font-display font-semibold ${
-        invert ? "text-white" : "text-heading"
-      } ${sectionSizes[size]} ${className}`}
+      className={cn(
+        "font-display font-semibold",
+        invert ? "text-white" : "text-heading",
+        sectionSizes[size],
+        className,
+      )}
     >
       {children}
     </Tag>
