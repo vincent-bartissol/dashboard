@@ -8,6 +8,14 @@ import { Input, Label } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { SectionTitle } from "@/components/ui/heading";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   banUserAction,
   revokeSessionAction,
   setUserRoleAction,
@@ -39,6 +47,14 @@ const ERROR_KEYS = new Set<string>([
   "generic",
 ]);
 
+type ConfirmKind = "ban" | "promote" | "demote" | "revoke";
+
+type PendingConfirm = {
+  kind: ConfirmKind;
+  message: string;
+  action: () => Promise<{ ok: boolean; error?: string }>;
+};
+
 export function AdminUserControls({
   userId,
   role,
@@ -61,10 +77,12 @@ export function AdminUserControls({
   }[];
 }) {
   const t = useTranslations("Admin");
+  const tCommon = useTranslations("Common");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [banReason, setBanReason] = useState("");
+  const [confirm, setConfirm] = useState<PendingConfirm | null>(null);
 
   function run(action: () => Promise<{ ok: boolean; error?: string }>) {
     setError(null);
@@ -77,6 +95,17 @@ export function AdminUserControls({
       }
       router.refresh();
     });
+  }
+
+  function askConfirm(next: PendingConfirm) {
+    setConfirm(next);
+  }
+
+  function onConfirm() {
+    if (!confirm) return;
+    const action = confirm.action;
+    setConfirm(null);
+    run(action);
   }
 
   const canBan = !isSelf && !targetIsAdmin && !banned;
@@ -110,10 +139,13 @@ export function AdminUserControls({
                 type="button"
                 variant="primary"
                 disabled={pending || !canBan}
-                onClick={() => {
-                  if (!window.confirm(t("moderation.confirmBan"))) return;
-                  run(() => banUserAction({ userId, banReason }));
-                }}
+                onClick={() =>
+                  askConfirm({
+                    kind: "ban",
+                    message: t("moderation.confirmBan"),
+                    action: () => banUserAction({ userId, banReason }),
+                  })
+                }
               >
                 {t("moderation.ban")}
               </Button>
@@ -133,10 +165,13 @@ export function AdminUserControls({
             type="button"
             variant={role === "admin" ? "secondary" : "ghost"}
             disabled={pending || role === "admin"}
-            onClick={() => {
-              if (!window.confirm(t("moderation.confirmPromote"))) return;
-              run(() => setUserRoleAction({ userId, role: "admin" }));
-            }}
+            onClick={() =>
+              askConfirm({
+                kind: "promote",
+                message: t("moderation.confirmPromote"),
+                action: () => setUserRoleAction({ userId, role: "admin" }),
+              })
+            }
           >
             {t("moderation.makeAdmin")}
           </Button>
@@ -144,10 +179,13 @@ export function AdminUserControls({
             type="button"
             variant={role === "user" ? "secondary" : "ghost"}
             disabled={pending || !canDemote}
-            onClick={() => {
-              if (!window.confirm(t("moderation.confirmDemote"))) return;
-              run(() => setUserRoleAction({ userId, role: "user" }));
-            }}
+            onClick={() =>
+              askConfirm({
+                kind: "demote",
+                message: t("moderation.confirmDemote"),
+                action: () => setUserRoleAction({ userId, role: "user" }),
+              })
+            }
           >
             {t("moderation.makeUser")}
           </Button>
@@ -182,10 +220,13 @@ export function AdminUserControls({
                 type="button"
                 variant="ghost"
                 disabled={pending || !row.live}
-                onClick={() => {
-                  if (!window.confirm(t("moderation.confirmRevoke"))) return;
-                  run(() => revokeSessionAction({ userId, sessionId: row.id }));
-                }}
+                onClick={() =>
+                  askConfirm({
+                    kind: "revoke",
+                    message: t("moderation.confirmRevoke"),
+                    action: () => revokeSessionAction({ userId, sessionId: row.id }),
+                  })
+                }
               >
                 {t("moderation.revoke")}
               </Button>
@@ -195,6 +236,32 @@ export function AdminUserControls({
       </Card>
 
       {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
+
+      <Dialog
+        open={confirm != null}
+        onOpenChange={(open) => {
+          if (!open) setConfirm(null);
+        }}
+      >
+        <DialogContent showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle>{t("moderation.confirmTitle")}</DialogTitle>
+            <DialogDescription>{confirm?.message}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button type="button" variant="ghost" onClick={() => setConfirm(null)}>
+              {tCommon("cancel")}
+            </Button>
+            <Button
+              type="button"
+              variant={confirm?.kind === "ban" || confirm?.kind === "revoke" ? "primary" : "secondary"}
+              onClick={onConfirm}
+            >
+              {tCommon("confirm")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

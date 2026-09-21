@@ -26,7 +26,9 @@ export default async function AdminPage() {
       name: row.name,
       email: row.email,
       emailVerified: row.emailVerified,
+      roleKey,
       roleLabel: t(`roles.${roleKey}`),
+      statusKey: status,
       statusLabel: t(`status.${status}`),
       createdLabel: format.dateTime(new Date(row.createdAt), {
         dateStyle: "short",

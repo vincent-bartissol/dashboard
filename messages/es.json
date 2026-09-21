@@ -25,7 +25,9 @@
     },
     "mapLoading": "Cargando el mapa…",
     "skipToContent": "Ir al contenido",
-    "opensInNewTab": "(se abre en una pestaña nueva)"
+    "opensInNewTab": "(se abre en una pestaña nueva)",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar"
   },
   "Nav": {
     "overview": "Vista general",
@@ -515,6 +517,9 @@
     "backToUsers": "Volver a la lista",
     "sortAsc": "Ordenar {column} ascendente",
     "sortDesc": "Ordenar {column} descendente",
+    "page": "Página {current} / {count}",
+    "previous": "Anterior",
+    "next": "Siguiente",
     "columns": {
       "name": "Nombre",
       "email": "Correo",
@@ -573,6 +578,7 @@
       "cannotSelfBan": "No puede bloquearse a sí mismo.",
       "cannotBanAdmin": "No puede bloquear a otro administrador.",
       "cannotSelfDemote": "No puede bajarse a sí mismo.",
+      "confirmTitle": "Confirmar la acción",
       "confirmBan": "¿Bloquear a este usuario y revocar sus sesiones?",
       "roleTitle": "Rol",
       "makeAdmin": "Promover a admin",

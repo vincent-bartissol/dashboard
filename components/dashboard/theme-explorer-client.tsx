@@ -10,9 +10,23 @@ import { DynamicParisMap } from "@/components/map/dynamic-map";
 import { recordsToMarkers } from "@/lib/opendata/markers";
 import { recordMatchesQuery } from "@/lib/opendata/search";
 import { compareCellValues, type SortDir } from "@/lib/opendata/sort";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import type { MapMarker } from "@/lib/opendata/markers";
 
 type ColorScheme = "velib" | "status";
@@ -179,19 +193,18 @@ export function ThemeExplorerClient({
         />
       ) : null}
       <Card className="overflow-x-auto p-0">
-        <table className="min-w-full text-left text-sm">
-          <thead className="text-label border-b border-line bg-ground">
-            <tr>
-              <th className="w-12 px-3 py-2">
+        <Table>
+          <TableHeader className="bg-ground">
+            <TableRow className="hover:bg-transparent">
+              <TableHead className="w-12">
                 <span className="sr-only">{t("favoriteColumn")}</span>
-              </th>
+              </TableHead>
               {dataset.columns.map((column) => {
                 const active = sortKey === column.key;
                 const nextDir: SortDir = active && sortDir === "asc" ? "desc" : "asc";
                 return (
-                  <th
+                  <TableHead
                     key={column.key}
-                    className="px-3 py-2"
                     aria-sort={
                       active ? (sortDir === "asc" ? "ascending" : "descending") : "none"
                     }
@@ -215,28 +228,28 @@ export function ThemeExplorerClient({
                         )
                       ) : null}
                     </button>
-                  </th>
+                  </TableHead>
                 );
               })}
-            </tr>
-          </thead>
-          <tbody>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {pageRows.length === 0 ? (
-              <tr>
-                <td
+              <TableRow className="hover:bg-transparent">
+                <TableCell
                   colSpan={dataset.columns.length + 1}
                   className="px-3 py-6 text-center text-muted"
                 >
                   {t("noMatches")}
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ) : null}
             {pageRows.map((record, index) => {
               const id = recordId(record, dataset.idField) || String(index);
               const saved = favorites.has(id);
               return (
-                <tr key={`${id}::${index}`} className="border-b border-line/80 last:border-0">
-                  <td className="px-2 py-1.5">
+                <TableRow key={`${id}::${index}`}>
+                  <TableCell className="px-2">
                     <button
                       type="button"
                       onClick={() => onToggle(record)}
@@ -245,41 +258,39 @@ export function ThemeExplorerClient({
                     >
                       <Heart className={`h-4 w-4 ${saved ? "fill-accent text-accent" : ""}`} />
                     </button>
-                  </td>
+                  </TableCell>
                   {dataset.columns.map((column) => (
-                    <td key={column.key} className="max-w-xs truncate px-3 py-1.5">
+                    <TableCell key={column.key} className="max-w-xs truncate">
                       {formatCell(record[column.key])}
-                    </td>
+                    </TableCell>
                   ))}
-                </tr>
+                </TableRow>
               );
             })}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
         <div className="flex items-center justify-between gap-3 border-t border-line px-4 py-3">
           <p className="text-sm text-muted">
             {t("page", { current: currentPage + 1, count: pageCount })}
           </p>
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              className="h-9 px-3"
-              disabled={currentPage === 0}
-              onClick={() => setPageIndex(currentPage - 1)}
-            >
-              {t("previous")}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              className="h-9 px-3"
-              disabled={currentPage >= pageCount - 1}
-              onClick={() => setPageIndex(currentPage + 1)}
-            >
-              {t("next")}
-            </Button>
-          </div>
+          <Pagination className="mx-0 w-auto justify-end">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  text={t("previous")}
+                  disabled={currentPage === 0}
+                  onClick={() => setPageIndex(currentPage - 1)}
+                />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext
+                  text={t("next")}
+                  disabled={currentPage >= pageCount - 1}
+                  onClick={() => setPageIndex(currentPage + 1)}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       </Card>
     </div>
