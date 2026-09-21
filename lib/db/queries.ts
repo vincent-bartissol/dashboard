@@ -152,15 +152,16 @@ export async function getAdminStats() {
         .select({ value: count() })
         .from(user)
         .where(gt(user.createdAt, weekAgo)),
+      // Group by place only — label is a snapshot and can differ across users.
       db
         .select({
           datasetId: favorite.datasetId,
           recordId: favorite.recordId,
-          label: favorite.label,
+          label: sql<string>`max(${favorite.label})`,
           value: count(),
         })
         .from(favorite)
-        .groupBy(favorite.datasetId, favorite.recordId, favorite.label)
+        .groupBy(favorite.datasetId, favorite.recordId)
         .orderBy(desc(count()))
         .limit(10),
       db
