@@ -119,3 +119,9 @@ a {
 .skip-link:focus-visible {
   top: 1rem;
 }
+
+/* Native <option> lists inherit select color; force readable OS popup text. */
+select option {
+  color: #12141a;
+  background-color: #ffffff;
+}

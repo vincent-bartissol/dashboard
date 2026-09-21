@@ -66,6 +66,7 @@ export default async function AdminPage() {
                   {row.label}
                   <span className="mt-0.5 block truncate text-xs text-muted">
                     {row.datasetId}
+                    {row.recordId ? ` · ${row.recordId}` : null}
                   </span>
                 </span>
                 <span className="tabular-nums text-heading">{format.number(row.value)}</span>

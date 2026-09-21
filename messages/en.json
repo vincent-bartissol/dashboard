@@ -158,7 +158,9 @@
     "favoriteLimit": "You already have 100 favourites. Remove one to add another.",
     "untitled": "Untitled",
     "mapLabel": "Map of records",
-    "mapHint": "The map is not keyboard-accessible. Use the table below."
+    "mapHint": "The map is not keyboard-accessible. Use the table below.",
+    "sortAsc": "Sort {column} ascending",
+    "sortDesc": "Sort {column} descending"
   },
   "Overview": {
     "title": "Overview",
@@ -511,6 +513,8 @@
     "searchUsers": "Search users…",
     "noUsers": "No users.",
     "backToUsers": "Back to list",
+    "sortAsc": "Sort {column} ascending",
+    "sortDesc": "Sort {column} descending",
     "columns": {
       "name": "Name",
       "email": "Email",

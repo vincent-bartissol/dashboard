@@ -2,13 +2,14 @@
 
 import { useId, useMemo, useState, useTransition } from "react";
 import { useFormatter, useTranslations } from "next-intl";
-import { Heart } from "lucide-react";
+import { ChevronDown, ChevronUp, Heart } from "lucide-react";
 import { toggleFavorite } from "@/lib/actions/favorites";
 import { extractGeo, recordId, recordLabel, type OpenDataRecord } from "@/lib/opendata/client";
 import type { ExplorerDataset } from "@/lib/opendata/client";
 import { DynamicParisMap } from "@/components/map/dynamic-map";
 import { recordsToMarkers } from "@/lib/opendata/markers";
 import { recordMatchesQuery } from "@/lib/opendata/search";
+import { compareCellValues, type SortDir } from "@/lib/opendata/sort";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -71,6 +72,8 @@ export function ThemeExplorerClient({
   const filterId = useId();
   const [query, setQuery] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
+  const [sortKey, setSortKey] = useState<string | null>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [favorites, setFavorites] = useState(new Set(favoriteIds));
   const [favoriteError, setFavoriteError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
@@ -80,9 +83,16 @@ export function ThemeExplorerClient({
     [dataset.columns, query, records],
   );
 
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const sorted = useMemo(() => {
+    if (!sortKey) return filtered;
+    return [...filtered].sort((a, b) =>
+      compareCellValues(a[sortKey], b[sortKey], sortDir),
+    );
+  }, [filtered, sortDir, sortKey]);
+
+  const pageCount = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
   const currentPage = Math.min(pageIndex, pageCount - 1);
-  const pageRows = filtered.slice(currentPage * PAGE_SIZE, currentPage * PAGE_SIZE + PAGE_SIZE);
+  const pageRows = sorted.slice(currentPage * PAGE_SIZE, currentPage * PAGE_SIZE + PAGE_SIZE);
 
   const markers = useMemo(
     () =>
@@ -97,6 +107,16 @@ export function ThemeExplorerClient({
         : [],
     [colorScheme, dataset, descriptionKeys, filtered],
   );
+
+  function onSort(columnKey: string) {
+    if (sortKey === columnKey) {
+      setSortDir((dir) => (dir === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(columnKey);
+      setSortDir("asc");
+    }
+    setPageIndex(0);
+  }
 
   function onToggle(record: OpenDataRecord) {
     const id = recordId(record, dataset.idField);
@@ -165,11 +185,39 @@ export function ThemeExplorerClient({
               <th className="w-12 px-3 py-2">
                 <span className="sr-only">{t("favoriteColumn")}</span>
               </th>
-              {dataset.columns.map((column) => (
-                <th key={column.key} className="px-3 py-2">
-                  {column.label}
-                </th>
-              ))}
+              {dataset.columns.map((column) => {
+                const active = sortKey === column.key;
+                const nextDir: SortDir = active && sortDir === "asc" ? "desc" : "asc";
+                return (
+                  <th
+                    key={column.key}
+                    className="px-3 py-2"
+                    aria-sort={
+                      active ? (sortDir === "asc" ? "ascending" : "descending") : "none"
+                    }
+                  >
+                    <button
+                      type="button"
+                      onClick={() => onSort(column.key)}
+                      className="inline-flex items-center gap-1 focus-field hover:text-heading"
+                      aria-label={
+                        nextDir === "asc"
+                          ? t("sortAsc", { column: column.label })
+                          : t("sortDesc", { column: column.label })
+                      }
+                    >
+                      {column.label}
+                      {active ? (
+                        sortDir === "asc" ? (
+                          <ChevronUp className="h-3.5 w-3.5" aria-hidden />
+                        ) : (
+                          <ChevronDown className="h-3.5 w-3.5" aria-hidden />
+                        )
+                      ) : null}
+                    </button>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
