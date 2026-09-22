@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
+import { useId, useMemo, useState, type ReactNode, type RefObject } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { ChevronDown, ChevronUp, Bell, Heart } from "lucide-react";
 import { extractGeo, recordId, recordLabel, type OpenDataRecord } from "@/lib/opendata/client";
@@ -35,6 +35,12 @@ type Props = {
   extraMarkers?: MapMarker[];
   /** When false, show every loaded row (for server-side infinite scroll). Default true. */
   paginate?: boolean;
+  /** Cap table body height and scroll inside the card. */
+  tableMaxHeight?: string;
+  /** Content after rows, inside the scroll container (e.g. load-more sentinel). */
+  tableEnd?: ReactNode;
+  /** Optional ref to the table scroll container (for IntersectionObserver root). */
+  tableScrollRef?: RefObject<HTMLDivElement | null>;
 };
 
 function colorFor(scheme: ColorScheme | undefined, record: OpenDataRecord) {
@@ -82,6 +88,9 @@ export function ThemeExplorerClient({
   mapZoom,
   extraMarkers = [],
   paginate = true,
+  tableMaxHeight,
+  tableEnd,
+  tableScrollRef,
 }: Props) {
   const t = useTranslations("Explorer");
   const format = useFormatter();
@@ -232,97 +241,108 @@ export function ThemeExplorerClient({
           zoom={mapZoom}
         />
       ) : null}
-      <Card className="overflow-x-auto p-0">
-        <table className="min-w-full text-left text-sm">
-          <thead className="text-label border-b border-line bg-ground">
-            <tr>
-              <th className="w-12 px-3 py-2">
-                <span className="sr-only">{t("favoriteColumn")}</span>
-              </th>
-              {canAlert ? <th className="w-12 px-3 py-2" /> : null}
-              {dataset.columns.map((column) => {
-                const active = sortKey === column.key;
-                const nextDir: SortDir = active && sortDir === "asc" ? "desc" : "asc";
-                return (
-                  <th
-                    key={column.key}
-                    className="px-3 py-2"
-                    aria-sort={
-                      active ? (sortDir === "asc" ? "ascending" : "descending") : "none"
-                    }
-                  >
-                    <button
-                      type="button"
-                      onClick={() => onSort(column.key)}
-                      className="inline-flex items-center gap-1 focus-field hover:text-heading"
-                      aria-label={
-                        nextDir === "asc"
-                          ? t("sortAsc", { column: column.label })
-                          : t("sortDesc", { column: column.label })
+      <Card className="p-0">
+        <div
+          ref={tableScrollRef}
+          className={tableMaxHeight ? "overflow-auto" : "overflow-x-auto"}
+          style={tableMaxHeight ? { maxHeight: tableMaxHeight } : undefined}
+        >
+          <table className="min-w-full text-left text-sm">
+            <thead
+              className={`text-label border-b border-line bg-ground ${
+                tableMaxHeight ? "sticky top-0 z-10" : ""
+              }`}
+            >
+              <tr>
+                <th className="w-12 px-3 py-2">
+                  <span className="sr-only">{t("favoriteColumn")}</span>
+                </th>
+                {canAlert ? <th className="w-12 px-3 py-2" /> : null}
+                {dataset.columns.map((column) => {
+                  const active = sortKey === column.key;
+                  const nextDir: SortDir = active && sortDir === "asc" ? "desc" : "asc";
+                  return (
+                    <th
+                      key={column.key}
+                      className="px-3 py-2"
+                      aria-sort={
+                        active ? (sortDir === "asc" ? "ascending" : "descending") : "none"
                       }
                     >
-                      {column.label}
-                      {active ? (
-                        sortDir === "asc" ? (
-                          <ChevronUp className="h-3.5 w-3.5" aria-hidden />
-                        ) : (
-                          <ChevronDown className="h-3.5 w-3.5" aria-hidden />
-                        )
-                      ) : null}
-                    </button>
-                  </th>
-                );
-              })}
-            </tr>
-          </thead>
-          <tbody>
-            {pageRows.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={dataset.columns.length + 1 + (canAlert ? 1 : 0)}
-                  className="px-3 py-6 text-center text-muted"
-                >
-                  {t("noMatches")}
-                </td>
+                      <button
+                        type="button"
+                        onClick={() => onSort(column.key)}
+                        className="inline-flex items-center gap-1 focus-field hover:text-heading"
+                        aria-label={
+                          nextDir === "asc"
+                            ? t("sortAsc", { column: column.label })
+                            : t("sortDesc", { column: column.label })
+                        }
+                      >
+                        {column.label}
+                        {active ? (
+                          sortDir === "asc" ? (
+                            <ChevronUp className="h-3.5 w-3.5" aria-hidden />
+                          ) : (
+                            <ChevronDown className="h-3.5 w-3.5" aria-hidden />
+                          )
+                        ) : null}
+                      </button>
+                    </th>
+                  );
+                })}
               </tr>
-            ) : null}
-            {pageRows.map((record, index) => {
-              const id = recordId(record, dataset.idField) || String(index);
-              const saved = favorites.has(id);
-              return (
-                <tr key={`${id}::${index}`} className="border-b border-line/80 last:border-0">
-                  <td className="px-2 py-1.5">
-                    <button
-                      type="button"
-                      onClick={() => onToggle(record)}
-                      className="focus-field rounded-none p-1 text-muted hover:text-accent"
-                      aria-label={saved ? t("removeFavorite") : t("addFavorite")}
-                    >
-                      <Heart className={`h-4 w-4 ${saved ? "fill-accent text-accent" : ""}`} />
-                    </button>
+            </thead>
+            <tbody>
+              {pageRows.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={dataset.columns.length + 1 + (canAlert ? 1 : 0)}
+                    className="px-3 py-6 text-center text-muted"
+                  >
+                    {t("noMatches")}
                   </td>
-                  {canAlert ? (
+                </tr>
+              ) : null}
+              {pageRows.map((record, index) => {
+                const id = recordId(record, dataset.idField) || String(index);
+                const saved = favorites.has(id);
+                return (
+                  <tr key={`${id}::${index}`} className="border-b border-line/80 last:border-0">
                     <td className="px-2 py-1.5">
                       <button
                         type="button"
-                        onClick={() => void onAlert(record)}
-                        className="focus-field rounded-none p-1 text-muted hover:text-heading"
-                        aria-label={t("addAlert", { n: 3 })}
+                        onClick={() => onToggle(record)}
+                        className="focus-field rounded-none p-1 text-muted hover:text-accent"
+                        aria-label={saved ? t("removeFavorite") : t("addFavorite")}
                       >
-                        <Bell className="h-4 w-4" aria-hidden />
+                        <Heart className={`h-4 w-4 ${saved ? "fill-accent text-accent" : ""}`} />
                       </button>
                     </td>
-                  ) : null}
-                  {dataset.columns.map((column) => (
-                    <td key={column.key} className="max-w-xs truncate px-3 py-1.5">
-                      {formatCell(record[column.key])}
-                    </td>
-                  ))}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                    {canAlert ? (
+                      <td className="px-2 py-1.5">
+                        <button
+                          type="button"
+                          onClick={() => void onAlert(record)}
+                          className="focus-field rounded-none p-1 text-muted hover:text-heading"
+                          aria-label={t("addAlert", { n: 3 })}
+                        >
+                          <Bell className="h-4 w-4" aria-hidden />
+                        </button>
+                      </td>
+                    ) : null}
+                    {dataset.columns.map((column) => (
+                      <td key={column.key} className="max-w-xs truncate px-3 py-1.5">
+                        {formatCell(record[column.key])}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          {tableEnd}
+        </div>
         {paginate ? (
           <div className="flex items-center justify-between gap-3 border-t border-line px-4 py-3">
             <p className="text-sm text-muted">

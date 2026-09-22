@@ -44,6 +44,7 @@ export function EventsInfiniteExplorer({
   const t = useTranslations("Pages.events");
   const tCommon = useTranslations("Common");
   const format = useFormatter();
+  const scrollRef = useRef<HTMLDivElement | null>(null);
   const sentinel = useRef<HTMLDivElement | null>(null);
 
   const query = useInfiniteQuery({
@@ -75,19 +76,20 @@ export function EventsInfiniteExplorer({
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = query;
 
   useEffect(() => {
+    const root = scrollRef.current;
     const node = sentinel.current;
-    if (!node || !hasNextPage) return;
+    if (!root || !node || !hasNextPage) return;
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting) && !isFetchingNextPage) {
           void fetchNextPage();
         }
       },
-      { rootMargin: "200px" },
+      { root, rootMargin: "80px" },
     );
     observer.observe(node);
     return () => observer.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, records.length]);
 
   return (
     <div className="space-y-6">
@@ -119,19 +121,23 @@ export function EventsInfiniteExplorer({
         favoriteIds={favoriteIds}
         descriptionKeys={["lead_text", "address_name"]}
         paginate={false}
+        tableMaxHeight="28rem"
+        tableScrollRef={scrollRef}
+        tableEnd={
+          <div ref={sentinel} className="flex justify-center border-t border-line px-4 py-3">
+            {hasNextPage ? (
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={isFetchingNextPage}
+                onClick={() => void fetchNextPage()}
+              >
+                {isFetchingNextPage ? t("loadingMore") : t("loadMore")}
+              </Button>
+            ) : null}
+          </div>
+        }
       />
-      <div ref={sentinel} className="flex justify-center py-2">
-        {hasNextPage ? (
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={isFetchingNextPage}
-            onClick={() => void fetchNextPage()}
-          >
-            {isFetchingNextPage ? t("loadingMore") : t("loadMore")}
-          </Button>
-        ) : null}
-      </div>
     </div>
   );
 }
