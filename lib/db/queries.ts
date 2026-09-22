@@ -112,6 +112,23 @@ export async function listActivityForUser(userId: string, limit = 100) {
     .limit(limit);
 }
 
+export async function listRecentActivity(limit = 30) {
+  return db
+    .select({
+      id: activity.id,
+      action: activity.action,
+      metadata: activity.metadata,
+      createdAt: activity.createdAt,
+      userId: activity.userId,
+      userName: user.name,
+      userEmail: user.email,
+    })
+    .from(activity)
+    .innerJoin(user, eq(activity.userId, user.id))
+    .orderBy(desc(activity.createdAt))
+    .limit(limit);
+}
+
 /** Counts users who currently pass isAdminUser (role or break-glass, not banned). */
 export async function countAdmins() {
   const rows = await db
