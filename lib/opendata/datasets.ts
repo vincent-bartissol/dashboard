@@ -347,5 +347,6 @@ export const NAV_ITEMS = [
   { href: "/dashboard/traffic", id: "traffic" },
   { href: "/dashboard/markets", id: "markets" },
   { href: "/dashboard/favorites", id: "favorites" },
+  { href: "/dashboard/alerts", id: "alerts" },
   { href: "/dashboard/profile", id: "profile" },
 ] as const;

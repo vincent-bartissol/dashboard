@@ -132,3 +132,27 @@ export function resetPasswordMail(url: string, locale: AppLocale = "fr"): MailCo
     bodyText: interpolate(copy.resetText, { url }),
   });
 }
+
+export function alertMail(
+  values: { station: string; bikes: string; threshold: string; url: string },
+  locale: AppLocale = "fr",
+): MailContent {
+  const copy = mailCopy(locale);
+  return layout({
+    locale,
+    subject: interpolate(copy.alertSubject, { station: values.station }),
+    preview: interpolate(copy.alertPreview, {
+      bikes: values.bikes,
+      threshold: values.threshold,
+    }),
+    bodyHtml: `<p style="margin:0 0 16px;">${escapeHtml(
+      interpolate(copy.alertBody, {
+        station: values.station,
+        bikes: values.bikes,
+        threshold: values.threshold,
+      }),
+    )}</p>
+<p style="margin:0;">${button(values.url, copy.alertButton)}</p>`,
+    bodyText: interpolate(copy.alertText, values),
+  });
+}

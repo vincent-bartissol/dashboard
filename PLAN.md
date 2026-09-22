@@ -98,4 +98,4 @@ Signup/login pages at `/[locale]/signup` and `/[locale]/login`. Session cookie; 
 
 ## Out of scope
 
-OAuth, alert emails, CSV export, accidentology archive, map marker clustering. Locale is URL-only (`/fr`, `/en`, `/es`); preferred arrondissement lives on `profile`.
+OAuth, CSV export, accidentology archive, map marker clustering. Locale is URL-only (`/fr`, `/en`, `/es`); preferred arrondissement lives on `profile`. Vélib’ threshold alerts send e-mail via cron (`CRON_SECRET` + GitHub Actions).

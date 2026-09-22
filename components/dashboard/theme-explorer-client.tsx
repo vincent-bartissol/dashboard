@@ -2,7 +2,7 @@
 
 import { useId, useMemo, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
-import { ChevronDown, ChevronUp, Heart } from "lucide-react";
+import { ChevronDown, ChevronUp, Bell, Heart } from "lucide-react";
 import { extractGeo, recordId, recordLabel, type OpenDataRecord } from "@/lib/opendata/client";
 import type { ExplorerDataset } from "@/lib/opendata/client";
 import { DynamicParisMap } from "@/components/map/dynamic-map";
@@ -11,6 +11,7 @@ import { recordMatchesQuery } from "@/lib/opendata/search";
 import { compareCellValues, type SortDir } from "@/lib/opendata/sort";
 import { useFavoritesQuery, useToggleFavoriteMutation } from "@/lib/favorites-query";
 import type { FavoriteDto } from "@/lib/favorites";
+import { DATASETS } from "@/lib/opendata/datasets";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -86,9 +87,11 @@ export function ThemeExplorerClient({
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [favoriteError, setFavoriteError] = useState<string | null>(null);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
   const favoritesQuery = useFavoritesQuery(seedFavorites(dataset.id, favoriteIds));
   const toggleFavorite = useToggleFavoriteMutation();
+  const canAlert = dataset.id === DATASETS.velib.id;
 
   const favorites = useMemo(() => {
     const rows = favoritesQuery.data ?? [];
@@ -161,6 +164,26 @@ export function ThemeExplorerClient({
     );
   }
 
+  async function onAlert(record: OpenDataRecord) {
+    const id = recordId(record, dataset.idField);
+    if (!id) return;
+    const res = await fetch("/api/alerts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        datasetId: dataset.id,
+        recordId: id,
+        label: recordLabel(record, dataset.titleField, t("untitled")),
+        threshold: 3,
+      }),
+    });
+    if (!res.ok) {
+      setAlertMessage(null);
+      return;
+    }
+    setAlertMessage(t("alertCreated"));
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -187,6 +210,11 @@ export function ThemeExplorerClient({
           {favoriteError === "favoriteLimit" ? t("favoriteLimit") : t("favoriteError")}
         </p>
       ) : null}
+      {alertMessage ? (
+        <p role="status" className="text-sm text-muted">
+          {alertMessage}
+        </p>
+      ) : null}
       {dataset.geoField ? (
         <DynamicParisMap
           markers={[...markers, ...extraMarkers]}
@@ -202,6 +230,7 @@ export function ThemeExplorerClient({
               <th className="w-12 px-3 py-2">
                 <span className="sr-only">{t("favoriteColumn")}</span>
               </th>
+              {canAlert ? <th className="w-12 px-3 py-2" /> : null}
               {dataset.columns.map((column) => {
                 const active = sortKey === column.key;
                 const nextDir: SortDir = active && sortDir === "asc" ? "desc" : "asc";
@@ -241,7 +270,7 @@ export function ThemeExplorerClient({
             {pageRows.length === 0 ? (
               <tr>
                 <td
-                  colSpan={dataset.columns.length + 1}
+                  colSpan={dataset.columns.length + 1 + (canAlert ? 1 : 0)}
                   className="px-3 py-6 text-center text-muted"
                 >
                   {t("noMatches")}
@@ -263,6 +292,18 @@ export function ThemeExplorerClient({
                       <Heart className={`h-4 w-4 ${saved ? "fill-accent text-accent" : ""}`} />
                     </button>
                   </td>
+                  {canAlert ? (
+                    <td className="px-2 py-1.5">
+                      <button
+                        type="button"
+                        onClick={() => void onAlert(record)}
+                        className="focus-field rounded-none p-1 text-muted hover:text-heading"
+                        aria-label={t("addAlert", { n: 3 })}
+                      >
+                        <Bell className="h-4 w-4" aria-hidden />
+                      </button>
+                    </td>
+                  ) : null}
                   {dataset.columns.map((column) => (
                     <td key={column.key} className="max-w-xs truncate px-3 py-1.5">
                       {formatCell(record[column.key])}

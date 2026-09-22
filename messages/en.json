@@ -161,7 +161,9 @@
     "mapLabel": "Map of records",
     "mapHint": "The map is not keyboard-accessible. Use the table below.",
     "sortAsc": "Sort {column} ascending",
-    "sortDesc": "Sort {column} descending"
+    "sortDesc": "Sort {column} descending",
+    "addAlert": "Create alert (< {n} bikes)",
+    "alertCreated": "Alert saved."
   },
   "Overview": {
     "title": "Overview",
@@ -281,6 +283,18 @@
       "kpiEvents": "Agenda 93100",
       "bikeSource": "Fixed counter on rue Étienne Marcel (towards Paris / Croix de Chavaux). Source: <link>Montreuil Data</link>.",
       "body": "West neighbourhood: Robespierre metro, place de la République and rue Étienne Marcel. Data from the City of Montreuil, Vélib’ Métropole, Que faire à Paris and Île-de-France Mobilités."
+    },
+    "alerts": {
+      "title": "Alerts",
+      "body": "Get an email when a Vélib’ station drops below your threshold.",
+      "empty": "No alerts yet.",
+      "threshold": "Threshold",
+      "enabled": "On",
+      "disabled": "Paused",
+      "delete": "Delete",
+      "station": "Station",
+      "lastTriggered": "Last triggered",
+      "never": "Never"
     }
   },
   "Profile": {
@@ -353,7 +367,12 @@
     "resetPreview": "Choose a new password.",
     "resetBody": "Click to choose a new password.",
     "resetButton": "Choose a password",
-    "resetText": "Click to choose a new password: {url}"
+    "resetText": "Click to choose a new password: {url}",
+    "alertSubject": "Vélib’ alert · {station}",
+    "alertPreview": "{bikes} bike(s) left (threshold {threshold}).",
+    "alertBody": "Station “{station}” has only {bikes} bike(s) left (threshold {threshold}).",
+    "alertButton": "View my alerts",
+    "alertText": "Station {station}: {bikes} bike(s) (threshold {threshold}). {url}"
   },
   "Datasets": {
     "velib": {

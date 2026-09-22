@@ -70,8 +70,10 @@ The image entrypoint `chown`s `$DATA_DIR` (Railway volumes are often root-owned)
    | `RESEND_API_KEY` | from Resend |
    | `EMAIL_FROM` | a sender Resend accepts, e.g. `Paris Ouverte <noreply@vvbb.fr>` |
    | `ADMIN_USER_IDS` | optional comma-separated break-glass admin user ids |
+   | `CRON_SECRET` | shared secret for `/api/cron/alerts` (also set as GitHub Actions secret) |
 
 4. Generate a Railway domain, then add custom domain `dashboard.vvbb.fr`.
 5. At OVH (DNS zone `vvbb.fr`): `CNAME` name `dashboard` → the hostname Railway shows. Wait for SSL.
+6. Add the same `CRON_SECRET` as a GitHub Actions repository secret so `.github/workflows/alerts-cron.yml` can POST every 10 minutes.
 
-Signup and 2FA emails need a verified Resend domain.
+Signup and 2FA emails need a verified Resend domain. Vélib’ alert e-mails use the same mailer.

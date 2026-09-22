@@ -126,3 +126,31 @@ export const activity = sqliteTable(
     index("activity_action_idx").on(table.action),
   ],
 );
+
+export const alertRule = sqliteTable(
+  "alert_rule",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    datasetId: text("dataset_id").notNull(),
+    recordId: text("record_id").notNull(),
+    label: text("label").notNull(),
+    metric: text("metric").notNull().default("bikes_below"),
+    threshold: integer("threshold").notNull(),
+    enabled: integer("enabled", { mode: "boolean" }).notNull().default(true),
+    lastTriggeredAt: integer("last_triggered_at", { mode: "timestamp" }),
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  },
+  (table) => [
+    uniqueIndex("alert_rule_user_dataset_record_metric").on(
+      table.userId,
+      table.datasetId,
+      table.recordId,
+      table.metric,
+    ),
+    index("alert_rule_user_idx").on(table.userId),
+    index("alert_rule_enabled_idx").on(table.enabled),
+  ],
+);

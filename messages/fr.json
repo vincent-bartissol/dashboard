@@ -161,7 +161,9 @@
     "mapLabel": "Carte des enregistrements",
     "mapHint": "La carte n’est pas navigable au clavier. Utilisez le tableau ci-dessous.",
     "sortAsc": "Trier {column} croissant",
-    "sortDesc": "Trier {column} décroissant"
+    "sortDesc": "Trier {column} décroissant",
+    "addAlert": "Créer une alerte (< {n} vélos)",
+    "alertCreated": "Alerte enregistrée."
   },
   "Overview": {
     "title": "Vue d’ensemble",
@@ -281,6 +283,18 @@
       "kpiEvents": "Agenda 93100",
       "bikeSource": "Compteur fixe rue Étienne Marcel (sens Paris / Croix de Chavaux). Source : <link>Montreuil Data</link>.",
       "body": "Quartier ouest : métro Robespierre, place de la République et rue Étienne Marcel. Données Ville de Montreuil, Vélib’ Métropole, Que faire à Paris et Île-de-France Mobilités."
+    },
+    "alerts": {
+      "title": "Alertes",
+      "body": "Recevez un e-mail quand une station Vélib’ passe sous votre seuil.",
+      "empty": "Aucune alerte pour le moment.",
+      "threshold": "Seuil",
+      "enabled": "Active",
+      "disabled": "Pause",
+      "delete": "Supprimer",
+      "station": "Station",
+      "lastTriggered": "Dernier déclenchement",
+      "never": "Jamais"
     }
   },
   "Profile": {
@@ -353,7 +367,12 @@
     "resetPreview": "Choisissez un nouveau mot de passe.",
     "resetBody": "Cliquez pour choisir un nouveau mot de passe.",
     "resetButton": "Choisir un mot de passe",
-    "resetText": "Cliquez pour choisir un nouveau mot de passe : {url}"
+    "resetText": "Cliquez pour choisir un nouveau mot de passe : {url}",
+    "alertSubject": "Alerte Vélib’ · {station}",
+    "alertPreview": "Il reste {bikes} vélo(s) (seuil {threshold}).",
+    "alertBody": "La station « {station} » n’a plus que {bikes} vélo(s) disponible(s) (seuil {threshold}).",
+    "alertButton": "Voir mes alertes",
+    "alertText": "Station {station} : {bikes} vélo(s) (seuil {threshold}). {url}"
   },
   "Datasets": {
     "velib": {
