@@ -44,7 +44,8 @@
     "logoutShort": "Sortir",
     "privateSpace": "Espace privé",
     "login": "Connexion",
-    "signup": "Créer un compte"
+    "signup": "Créer un compte",
+    "alerts": "Alertes"
   },
   "Footer": {
     "license": "Données publiques de la Ville de Paris, licence ODbL."
@@ -604,5 +605,14 @@
       "topFavorites": "Favoris les plus ajoutés",
       "topPaths": "Pages les plus vues"
     }
+  },
+  "CommandPalette": {
+    "open": "Ouvrir la recherche",
+    "trigger": "Rechercher dans les données…",
+    "placeholder": "Station, événement, marché…",
+    "hint": "Tapez au moins 2 caractères.",
+    "loading": "Recherche…",
+    "empty": "Aucun résultat.",
+    "footer": "Échap pour fermer · Entrée pour ouvrir"
   }
 }

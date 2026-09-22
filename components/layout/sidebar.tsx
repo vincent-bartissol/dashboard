@@ -4,8 +4,8 @@ import { useTranslations } from "next-intl";
 import { usePathname, useRouter, Link } from "@/i18n/navigation";
 import { NAV_ITEMS } from "@/lib/opendata/datasets";
 import { authClient } from "@/lib/auth-client";
-import { Wordmark } from "@/components/layout/wordmark";
-import { LocaleSwitcher } from "@/components/layout/locale-switcher";
+import { CommandPalette } from "@/components/dashboard/command-palette";
+import { Wordmark } from "@/components/layout/wordmark";import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import type { ColorScheme } from "@/lib/theme";
 
@@ -45,6 +45,9 @@ export function Sidebar({
       <div className="border-b border-white/10 px-5 py-5">
         <Wordmark invert />
         <p className="mt-3 truncate text-sm text-white/70">{userName}</p>
+        <div className="mt-3">
+          <CommandPalette />
+        </div>
       </div>
       <nav className="flex flex-1 flex-col gap-0.5 p-3">
         {NAV_ITEMS.map((item) => {
@@ -112,6 +115,7 @@ export function MobileNav({
       <div className="flex items-center justify-between gap-3 px-4 py-3">
         <Wordmark invert />
         <div className="flex items-center gap-2">
+          <CommandPalette />
           <LocaleSwitcher invert />
           <ThemeToggle invert initial={theme} />
           <button type="button" onClick={logout} className="text-sm text-white/80 focus-field">

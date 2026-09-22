@@ -44,7 +44,8 @@
     "logoutShort": "Salir",
     "privateSpace": "Espacio privado",
     "login": "Iniciar sesión",
-    "signup": "Crear una cuenta"
+    "signup": "Crear una cuenta",
+    "alerts": "Alertas"
   },
   "Footer": {
     "license": "Datos públicos de la Ville de Paris, licencia ODbL."
@@ -604,5 +605,14 @@
       "topFavorites": "Favoritos más añadidos",
       "topPaths": "Páginas más vistas"
     }
+  },
+  "CommandPalette": {
+    "open": "Abrir búsqueda",
+    "trigger": "Buscar en los datos…",
+    "placeholder": "Estación, evento, mercado…",
+    "hint": "Escribe al menos 2 caracteres.",
+    "loading": "Buscando…",
+    "empty": "Sin resultados.",
+    "footer": "Esc para cerrar · Enter para abrir"
   }
 }

@@ -44,7 +44,8 @@
     "logoutShort": "Leave",
     "privateSpace": "Private area",
     "login": "Sign in",
-    "signup": "Create an account"
+    "signup": "Create an account",
+    "alerts": "Alerts"
   },
   "Footer": {
     "license": "Public data from the City of Paris, ODbL licence."
@@ -604,5 +605,14 @@
       "topFavorites": "Most favorited",
       "topPaths": "Most viewed pages"
     }
+  },
+  "CommandPalette": {
+    "open": "Open search",
+    "trigger": "Search open data…",
+    "placeholder": "Station, event, market…",
+    "hint": "Type at least 2 characters.",
+    "loading": "Searching…",
+    "empty": "No results.",
+    "footer": "Esc to close · Enter to open"
   }
 }
