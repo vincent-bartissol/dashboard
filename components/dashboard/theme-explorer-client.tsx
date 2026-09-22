@@ -1,15 +1,16 @@
 "use client";
 
-import { useId, useMemo, useState, useTransition } from "react";
+import { useId, useMemo, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { ChevronDown, ChevronUp, Heart } from "lucide-react";
-import { toggleFavorite } from "@/lib/actions/favorites";
 import { extractGeo, recordId, recordLabel, type OpenDataRecord } from "@/lib/opendata/client";
 import type { ExplorerDataset } from "@/lib/opendata/client";
 import { DynamicParisMap } from "@/components/map/dynamic-map";
 import { recordsToMarkers } from "@/lib/opendata/markers";
 import { recordMatchesQuery } from "@/lib/opendata/search";
 import { compareCellValues, type SortDir } from "@/lib/opendata/sort";
+import { useFavoritesQuery, useToggleFavoriteMutation } from "@/lib/favorites-query";
+import type { FavoriteDto } from "@/lib/favorites";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -55,6 +56,16 @@ function describe(record: OpenDataRecord, keys?: string[]) {
     .join(" · ");
 }
 
+function seedFavorites(datasetId: string, favoriteIds: string[]): FavoriteDto[] {
+  return favoriteIds.map((id) => ({
+    id: `seed-${id}`,
+    datasetId,
+    recordId: id,
+    label: id,
+    geo: null,
+  }));
+}
+
 export function ThemeExplorerClient({
   dataset,
   records,
@@ -74,9 +85,17 @@ export function ThemeExplorerClient({
   const [pageIndex, setPageIndex] = useState(0);
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
-  const [favorites, setFavorites] = useState(new Set(favoriteIds));
   const [favoriteError, setFavoriteError] = useState<string | null>(null);
-  const [, startTransition] = useTransition();
+
+  const favoritesQuery = useFavoritesQuery(seedFavorites(dataset.id, favoriteIds));
+  const toggleFavorite = useToggleFavoriteMutation();
+
+  const favorites = useMemo(() => {
+    const rows = favoritesQuery.data ?? [];
+    return new Set(
+      rows.filter((row) => row.datasetId === dataset.id).map((row) => row.recordId),
+    );
+  }, [dataset.id, favoritesQuery.data]);
 
   const filtered = useMemo(
     () => records.filter((record) => recordMatchesQuery(record, dataset.columns, query)),
@@ -121,27 +140,25 @@ export function ThemeExplorerClient({
   function onToggle(record: OpenDataRecord) {
     const id = recordId(record, dataset.idField);
     if (!id) return;
-    const previous = new Set(favorites);
-    const next = new Set(favorites);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
-    setFavorites(next);
     const geo = dataset.geoField ? extractGeo(record, dataset.geoField) : null;
-    startTransition(() => {
-      void toggleFavorite({
+    toggleFavorite.mutate(
+      {
         datasetId: dataset.id,
         recordId: id,
         label: recordLabel(record, dataset.titleField, t("untitled")),
         geo: geo ? JSON.stringify(geo) : null,
-      }).then((result) => {
-        if (!result.ok) {
-          setFavorites(previous);
-          setFavoriteError(result.error === "favoriteLimit" ? "favoriteLimit" : "favorite");
-          return;
-        }
-        setFavoriteError(null);
-      });
-    });
+      },
+      {
+        onError: (error) => {
+          setFavoriteError(
+            error instanceof Error && error.message === "favoriteLimit"
+              ? "favoriteLimit"
+              : "favorite",
+          );
+        },
+        onSuccess: () => setFavoriteError(null),
+      },
+    );
   }
 
   return (

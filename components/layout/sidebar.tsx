@@ -5,8 +5,11 @@ import { usePathname, useRouter, Link } from "@/i18n/navigation";
 import { NAV_ITEMS } from "@/lib/opendata/datasets";
 import { authClient } from "@/lib/auth-client";
 import { CommandPalette } from "@/components/dashboard/command-palette";
-import { Wordmark } from "@/components/layout/wordmark";import { LocaleSwitcher } from "@/components/layout/locale-switcher";
+import { Wordmark } from "@/components/layout/wordmark";
+import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { useFavoritesQuery } from "@/lib/favorites-query";
+import type { FavoriteDto } from "@/lib/favorites";
 import type { ColorScheme } from "@/lib/theme";
 
 const linkClass = (active: boolean) =>
@@ -25,14 +28,18 @@ export function Sidebar({
   userName,
   theme,
   isAdmin = false,
+  initialFavorites = [],
 }: {
   userName: string;
   theme: ColorScheme;
   isAdmin?: boolean;
+  initialFavorites?: FavoriteDto[];
 }) {
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations("Nav");
+  const favorites = useFavoritesQuery(initialFavorites);
+  const favoriteCount = favorites.data?.length ?? 0;
 
   async function logout() {
     await authClient.signOut();
@@ -55,6 +62,7 @@ export function Sidebar({
             item.href === "/dashboard"
               ? pathname === "/dashboard"
               : pathname.startsWith(item.href);
+          const showBadge = item.id === "favorites" && favoriteCount > 0;
           return (
             <Link
               key={item.href}
@@ -62,7 +70,12 @@ export function Sidebar({
               aria-current={active ? "page" : undefined}
               className={linkClass(active)}
             >
-              {t(item.id)}
+              <span className="flex items-center justify-between gap-2">
+                <span>{t(item.id)}</span>
+                {showBadge ? (
+                  <span className="tabular-nums text-xs text-white/70">{favoriteCount}</span>
+                ) : null}
+              </span>
             </Link>
           );
         })}
@@ -95,14 +108,18 @@ export function MobileNav({
   userName,
   theme,
   isAdmin = false,
+  initialFavorites = [],
 }: {
   userName: string;
   theme: ColorScheme;
   isAdmin?: boolean;
+  initialFavorites?: FavoriteDto[];
 }) {
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations("Nav");
+  const favorites = useFavoritesQuery(initialFavorites);
+  const favoriteCount = favorites.data?.length ?? 0;
 
   async function logout() {
     await authClient.signOut();
@@ -129,6 +146,7 @@ export function MobileNav({
             item.href === "/dashboard"
               ? pathname === "/dashboard"
               : pathname.startsWith(item.href);
+          const showBadge = item.id === "favorites" && favoriteCount > 0;
           return (
             <Link
               key={item.href}
@@ -137,6 +155,7 @@ export function MobileNav({
               className={mobileLinkClass(active)}
             >
               {t(item.id)}
+              {showBadge ? ` (${favoriteCount})` : ""}
             </Link>
           );
         })}
