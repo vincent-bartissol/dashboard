@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, Link } from "@/i18n/navigation";
 import { NAV_ITEMS } from "@/lib/opendata/datasets";
@@ -10,6 +11,8 @@ import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { useFavoritesQuery } from "@/lib/favorites-query";
 import type { FavoriteDto } from "@/lib/favorites";
+import { NAV_PREFETCH_DATASETS } from "@/lib/opendata/nav-prefetch";
+import { fetchThemePage, themeQueryKey } from "@/lib/opendata/theme-query";
 import type { ColorScheme } from "@/lib/theme";
 
 const linkClass = (active: boolean) =>
@@ -40,6 +43,18 @@ export function Sidebar({
   const t = useTranslations("Nav");
   const favorites = useFavoritesQuery(initialFavorites);
   const favoriteCount = favorites.data?.length ?? 0;
+  const queryClient = useQueryClient();
+
+  function prefetchNav(href: string) {
+    const datasets = NAV_PREFETCH_DATASETS[href];
+    if (!datasets?.length) return;
+    for (const datasetId of datasets) {
+      void queryClient.prefetchQuery({
+        queryKey: themeQueryKey(datasetId),
+        queryFn: ({ signal }) => fetchThemePage(datasetId, { signal }),
+      });
+    }
+  }
 
   async function logout() {
     await authClient.signOut();
@@ -69,6 +84,7 @@ export function Sidebar({
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={linkClass(active)}
+              onPointerEnter={() => prefetchNav(item.href)}
             >
               <span className="flex items-center justify-between gap-2">
                 <span>{t(item.id)}</span>
