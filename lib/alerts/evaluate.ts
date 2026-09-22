@@ -3,7 +3,7 @@ import { sendEmail } from "@/lib/email";
 import { alertMail } from "@/lib/email/templates";
 import { db } from "@/lib/db";
 import { user } from "@/lib/db/schema";
-import { fetchAllRecords } from "@/lib/opendata/client";
+import { fetchAllRecords, type DatasetConfig } from "@/lib/opendata/client";
 import { DATASETS } from "@/lib/opendata/datasets";
 import { themeOrderBy } from "@/lib/opendata/order-by";
 import {
@@ -35,7 +35,7 @@ export async function evaluateVelibAlerts(now = Date.now()): Promise<EvaluateAle
     return { checked: 0, triggered: 0, emailed: 0 };
   }
 
-  const velib = DATASETS.velib;
+  const velib: DatasetConfig = DATASETS.velib;
   const page = await fetchAllRecords(velib.id, velib.revalidate, {
     max: 1600,
     orderBy: themeOrderBy(velib),

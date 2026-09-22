@@ -3,7 +3,7 @@ import { EventsInfiniteExplorer } from "@/components/dashboard/events-infinite-e
 import { PageIntro } from "@/components/dashboard/page-intro";
 import { listFavorites, getProfile } from "@/lib/db/queries";
 import { arrondissementWhere } from "@/lib/opendata/arrondissement";
-import { fetchRecordsSafe, joinWhere } from "@/lib/opendata/client";
+import { fetchRecordsSafe, joinWhere, type DatasetConfig } from "@/lib/opendata/client";
 import { localizeExplorerDataset } from "@/lib/opendata/localize";
 import { DATASETS } from "@/lib/opendata/datasets";
 import { themeOrderBy } from "@/lib/opendata/order-by";
@@ -12,7 +12,7 @@ import { requireSession } from "@/lib/session";
 export default async function EventsPage() {
   const session = await requireSession();
   const t = await getTranslations("Pages.events");
-  const config = DATASETS.events;
+  const config: DatasetConfig = DATASETS.events;
   const profile = await getProfile(session.user.id);
   const district = arrondissementWhere(config, profile.arrondissement);
   const [result, favorites] = await Promise.all([

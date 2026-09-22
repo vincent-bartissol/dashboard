@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { isBannedUser } from "@/lib/admin";
 import { getProfile } from "@/lib/db/queries";
 import { arrondissementWhere } from "@/lib/opendata/arrondissement";
-import { fetchRecordsSafe, joinWhere } from "@/lib/opendata/client";
+import { fetchRecordsSafe, joinWhere, type DatasetConfig } from "@/lib/opendata/client";
 import { DATASETS } from "@/lib/opendata/datasets";
 import { themeOrderBy } from "@/lib/opendata/order-by";
 import { opendataEventsLimit } from "@/lib/rate-limit";
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
   }
 
   const offset = Math.max(0, Number(request.nextUrl.searchParams.get("offset") ?? 0) || 0);
-  const config = DATASETS.events;
+  const config: DatasetConfig = DATASETS.events;
   const profile = await getProfile(session.user.id);
   const district = arrondissementWhere(config, profile.arrondissement);
   const result = await fetchRecordsSafe(
