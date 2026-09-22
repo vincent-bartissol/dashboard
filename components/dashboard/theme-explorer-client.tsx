@@ -33,6 +33,8 @@ type Props = {
   mapCenter?: { lat: number; lon: number };
   mapZoom?: number;
   extraMarkers?: MapMarker[];
+  /** When false, show every loaded row (for server-side infinite scroll). Default true. */
+  paginate?: boolean;
 };
 
 function colorFor(scheme: ColorScheme | undefined, record: OpenDataRecord) {
@@ -79,6 +81,7 @@ export function ThemeExplorerClient({
   mapCenter,
   mapZoom,
   extraMarkers = [],
+  paginate = true,
 }: Props) {
   const t = useTranslations("Explorer");
   const format = useFormatter();
@@ -113,9 +116,11 @@ export function ThemeExplorerClient({
     );
   }, [filtered, sortDir, sortKey]);
 
-  const pageCount = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
-  const currentPage = Math.min(pageIndex, pageCount - 1);
-  const pageRows = sorted.slice(currentPage * PAGE_SIZE, currentPage * PAGE_SIZE + PAGE_SIZE);
+  const pageCount = paginate ? Math.max(1, Math.ceil(sorted.length / PAGE_SIZE)) : 1;
+  const currentPage = paginate ? Math.min(pageIndex, pageCount - 1) : 0;
+  const pageRows = paginate
+    ? sorted.slice(currentPage * PAGE_SIZE, currentPage * PAGE_SIZE + PAGE_SIZE)
+    : sorted;
 
   const markers = useMemo(
     () =>
@@ -318,31 +323,33 @@ export function ThemeExplorerClient({
             })}
           </tbody>
         </table>
-        <div className="flex items-center justify-between gap-3 border-t border-line px-4 py-3">
-          <p className="text-sm text-muted">
-            {t("page", { current: currentPage + 1, count: pageCount })}
-          </p>
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              className="h-9 px-3"
-              disabled={currentPage === 0}
-              onClick={() => setPageIndex(currentPage - 1)}
-            >
-              {t("previous")}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              className="h-9 px-3"
-              disabled={currentPage >= pageCount - 1}
-              onClick={() => setPageIndex(currentPage + 1)}
-            >
-              {t("next")}
-            </Button>
+        {paginate ? (
+          <div className="flex items-center justify-between gap-3 border-t border-line px-4 py-3">
+            <p className="text-sm text-muted">
+              {t("page", { current: currentPage + 1, count: pageCount })}
+            </p>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-9 px-3"
+                disabled={currentPage === 0}
+                onClick={() => setPageIndex(currentPage - 1)}
+              >
+                {t("previous")}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-9 px-3"
+                disabled={currentPage >= pageCount - 1}
+                onClick={() => setPageIndex(currentPage + 1)}
+              >
+                {t("next")}
+              </Button>
+            </div>
           </div>
-        </div>
+        ) : null}
       </Card>
     </div>
   );

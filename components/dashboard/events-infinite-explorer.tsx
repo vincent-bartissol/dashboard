@@ -72,17 +72,22 @@ export function EventsInfiniteExplorer({
         : "opendata"
       : null;
 
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = query;
+
   useEffect(() => {
     const node = sentinel.current;
-    if (!node) return;
-    const observer = new IntersectionObserver((entries) => {
-      if (entries.some((entry) => entry.isIntersecting) && query.hasNextPage && !query.isFetchingNextPage) {
-        void query.fetchNextPage();
-      }
-    });
+    if (!node || !hasNextPage) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting) && !isFetchingNextPage) {
+          void fetchNextPage();
+        }
+      },
+      { rootMargin: "200px" },
+    );
     observer.observe(node);
     return () => observer.disconnect();
-  }, [query]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <div className="space-y-6">
@@ -113,16 +118,17 @@ export function EventsInfiniteExplorer({
         totalCount={totalCount}
         favoriteIds={favoriteIds}
         descriptionKeys={["lead_text", "address_name"]}
+        paginate={false}
       />
       <div ref={sentinel} className="flex justify-center py-2">
-        {query.hasNextPage ? (
+        {hasNextPage ? (
           <Button
             type="button"
             variant="secondary"
-            disabled={query.isFetchingNextPage}
-            onClick={() => void query.fetchNextPage()}
+            disabled={isFetchingNextPage}
+            onClick={() => void fetchNextPage()}
           >
-            {query.isFetchingNextPage ? t("loadingMore") : t("loadMore")}
+            {isFetchingNextPage ? t("loadingMore") : t("loadMore")}
           </Button>
         ) : null}
       </div>
