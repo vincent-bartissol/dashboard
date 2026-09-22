@@ -12,6 +12,7 @@ import { compareCellValues, type SortDir } from "@/lib/opendata/sort";
 import { useFavoritesQuery, useToggleFavoriteMutation } from "@/lib/favorites-query";
 import type { FavoriteDto } from "@/lib/favorites";
 import { DATASETS } from "@/lib/opendata/datasets";
+import { CompareDistrictPanel } from "@/components/dashboard/compare-district-panel";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -186,6 +187,9 @@ export function ThemeExplorerClient({
 
   return (
     <div className="space-y-4">
+      {!dataset.bbox ? (
+        <CompareDistrictPanel datasetId={dataset.id} primaryCount={totalCount} />
+      ) : null}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Input
           id={filterId}

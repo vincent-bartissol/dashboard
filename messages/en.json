@@ -244,7 +244,9 @@
       "title": "Events",
       "body": "Que faire à Paris participatory calendar: events whose end date has not passed. Points without valid coordinates do not appear on the map.",
       "events": "Events",
-      "shown": "Shown"
+      "shown": "Shown",
+      "loadMore": "Load more",
+      "loadingMore": "Loading…"
     },
     "traffic": {
       "title": "Streets",
@@ -623,7 +625,10 @@
       "signupsWeek": "{count} signups (7d)",
       "topFavorites": "Most favorited",
       "topPaths": "Most viewed pages"
-    }
+    },
+    "recentActivity": "Recent activity",
+    "recentEmpty": "No recent activity.",
+    "refreshing": "Refreshing…"
   },
   "CommandPalette": {
     "open": "Open search",
@@ -633,5 +638,16 @@
     "loading": "Searching…",
     "empty": "No results.",
     "footer": "Esc to close · Enter to open"
+  },
+  "Compare": {
+    "title": "Compare an arrondissement",
+    "show": "Show",
+    "hide": "Hide",
+    "district": "Arrondissement to compare",
+    "pick": "Choose…",
+    "current": "Current view",
+    "compare": "Comparison",
+    "bikes": "Bikes",
+    "bboxHint": "Arrondissement comparison is not available on bbox maps."
   }
 }

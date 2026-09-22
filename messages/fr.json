@@ -244,7 +244,9 @@
       "title": "Événements",
       "body": "Agenda participatif Que faire à Paris : événements dont la date de fin n’est pas passée. Les points sans coordonnées valides n’apparaissent pas sur la carte.",
       "events": "Événements",
-      "shown": "Affichés"
+      "shown": "Affichés",
+      "loadMore": "Charger plus",
+      "loadingMore": "Chargement…"
     },
     "traffic": {
       "title": "Voirie",
@@ -623,7 +625,10 @@
       "signupsWeek": "{count} inscriptions (7 j)",
       "topFavorites": "Favoris les plus ajoutés",
       "topPaths": "Pages les plus vues"
-    }
+    },
+    "recentActivity": "Activité récente",
+    "recentEmpty": "Aucune activité récente.",
+    "refreshing": "Mise à jour…"
   },
   "CommandPalette": {
     "open": "Ouvrir la recherche",
@@ -633,5 +638,16 @@
     "loading": "Recherche…",
     "empty": "Aucun résultat.",
     "footer": "Échap pour fermer · Entrée pour ouvrir"
+  },
+  "Compare": {
+    "title": "Comparer un arrondissement",
+    "show": "Afficher",
+    "hide": "Masquer",
+    "district": "Arrondissement à comparer",
+    "pick": "Choisir…",
+    "current": "Vue actuelle",
+    "compare": "Comparaison",
+    "bikes": "Vélos",
+    "bboxHint": "La comparaison par arrondissement n’est pas disponible sur les cartes bbox."
   }
 }

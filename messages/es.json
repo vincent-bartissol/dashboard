@@ -244,7 +244,9 @@
       "title": "Eventos",
       "body": "Agenda participativa Que faire à Paris: eventos cuya fecha de fin no ha pasado. Los puntos sin coordenadas válidas no aparecen en el mapa.",
       "events": "Eventos",
-      "shown": "Mostrados"
+      "shown": "Mostrados",
+      "loadMore": "Cargar más",
+      "loadingMore": "Cargando…"
     },
     "traffic": {
       "title": "Vías",
@@ -623,7 +625,10 @@
       "signupsWeek": "{count} altas (7 d)",
       "topFavorites": "Favoritos más añadidos",
       "topPaths": "Páginas más vistas"
-    }
+    },
+    "recentActivity": "Actividad reciente",
+    "recentEmpty": "Sin actividad reciente.",
+    "refreshing": "Actualizando…"
   },
   "CommandPalette": {
     "open": "Abrir búsqueda",
@@ -633,5 +638,16 @@
     "loading": "Buscando…",
     "empty": "Sin resultados.",
     "footer": "Esc para cerrar · Enter para abrir"
+  },
+  "Compare": {
+    "title": "Comparar un distrito",
+    "show": "Mostrar",
+    "hide": "Ocultar",
+    "district": "Distrito a comparar",
+    "pick": "Elegir…",
+    "current": "Vista actual",
+    "compare": "Comparación",
+    "bikes": "Bicis",
+    "bboxHint": "La comparación por distrito no está disponible en los mapas bbox."
   }
 }
