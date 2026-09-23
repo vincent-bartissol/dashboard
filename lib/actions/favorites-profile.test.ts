@@ -116,7 +116,7 @@ describe("toggleFavorite and updateProfile", () => {
         lastName: "Lovelace",
         arrondissement: "11",
       }),
-    ).resolves.toEqual({ ok: true });
+    ).resolves.toEqual({ ok: true, arrondissement: "11" });
 
     await expect(getProfile(USER_ID)).resolves.toMatchObject({
       firstName: "Ada",
