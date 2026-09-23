@@ -84,6 +84,10 @@ describe("fetchBboxRecords", () => {
         east: 2.45,
       }),
     ).resolves.toEqual(page);
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining("/api/opendata/records?"),
+      expect.objectContaining({ signal: undefined }),
+    );
   });
 
   it("throws rate_limited on 429", async () => {
@@ -142,6 +146,10 @@ describe("BboxExplorerClient", () => {
     await waitFor(() => {
       expect(screen.getByTestId("total-count")).toHaveTextContent("42");
     });
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining("dataset=les-arbres"),
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
+    );
   });
 
   it("shows the rate-limit message when the API returns 429", async () => {
