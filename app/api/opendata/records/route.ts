@@ -6,6 +6,7 @@ import { arrondissementWhere } from "@/lib/opendata/arrondissement";
 import { recordsQueryFromSearch } from "@/lib/opendata/bbox";
 import { bboxWhere, fetchRecordsSafe, joinWhere, type DatasetConfig } from "@/lib/opendata/client";
 import { DATASETS, PARIS_BBOX } from "@/lib/opendata/datasets";
+import { BBOX_PAGE_MAX, BBOX_PAGE_SIZE } from "@/lib/opendata/bbox-constants";
 import { opendataRecordsLimit } from "@/lib/rate-limit";
 
 const ALLOWED = new Map(
@@ -13,6 +14,20 @@ const ALLOWED = new Map(
     .filter((dataset) => dataset.bbox)
     .map((dataset) => [dataset.id, dataset]),
 );
+
+export { BBOX_PAGE_MAX, BBOX_PAGE_SIZE } from "@/lib/opendata/bbox-constants";
+
+function clampLimit(raw: string | null) {
+  const value = Number(raw ?? BBOX_PAGE_SIZE);
+  if (!Number.isFinite(value)) return BBOX_PAGE_SIZE;
+  return Math.min(BBOX_PAGE_MAX, Math.max(1, Math.floor(value)));
+}
+
+function clampOffset(raw: string | null) {
+  const value = Number(raw ?? 0);
+  if (!Number.isFinite(value) || value < 0) return 0;
+  return Math.floor(value);
+}
 
 export async function GET(request: NextRequest) {
   const session = await getSession();
@@ -38,12 +53,16 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: false, error: "unknown_dataset" }, { status: 400 });
   }
 
+  const limit = clampLimit(request.nextUrl.searchParams.get("limit"));
+  const offset = clampOffset(request.nextUrl.searchParams.get("offset"));
+
   const profile = await getProfile(session.user.id);
   const district = arrondissementWhere(config, profile.arrondissement);
   const result = await fetchRecordsSafe(
     config.id,
     {
-      limit: 100,
+      limit,
+      offset,
       where: joinWhere(district, bboxWhere(config.geoField, query.bbox)),
       host: config.host,
     },
@@ -56,5 +75,11 @@ export async function GET(request: NextRequest) {
       { status: 502 },
     );
   }
-  return NextResponse.json({ ok: true, page: result.page });
+  const nextOffset = offset + result.page.results.length;
+  return NextResponse.json({
+    ok: true,
+    page: result.page,
+    nextOffset,
+    hasMore: nextOffset < result.page.total_count,
+  });
 }

@@ -157,7 +157,45 @@ describe("GET /api/opendata/records", () => {
   it("returns the page when Open Data succeeds", async () => {
     const { status, body } = await jsonOf(await GET(treesUrl()));
     expect(status).toBe(200);
-    expect(body).toEqual({ ok: true, page: PAGE });
+    expect(body).toEqual({
+      ok: true,
+      page: PAGE,
+      nextOffset: 2,
+      hasMore: false,
+    });
+    expect(fetchRecordsSafeMock).toHaveBeenCalledWith(
+      "les-arbres",
+      expect.objectContaining({ limit: 50, offset: 0 }),
+      86_400,
+    );
+  });
+
+  it("forwards limit and offset and reports hasMore", async () => {
+    fetchRecordsSafeMock.mockResolvedValue({
+      ok: true,
+      page: {
+        total_count: 120,
+        results: Array.from({ length: 50 }, (_, i) => ({ idbase: String(i) })),
+      },
+    });
+    const { status, body } = await jsonOf(
+      await GET(treesUrl({ limit: "50", offset: "50" })),
+    );
+    expect(status).toBe(200);
+    expect(body).toMatchObject({
+      ok: true,
+      nextOffset: 100,
+      hasMore: true,
+    });
+    expect(fetchRecordsSafeMock).toHaveBeenCalledWith(
+      "les-arbres",
+      expect.objectContaining({ limit: 50, offset: 50 }),
+      86_400,
+    );
+  });
+
+  it("clamps limit to max 100", async () => {
+    await GET(treesUrl({ limit: "500" }));
     expect(fetchRecordsSafeMock).toHaveBeenCalledWith(
       "les-arbres",
       expect.objectContaining({ limit: 100 }),

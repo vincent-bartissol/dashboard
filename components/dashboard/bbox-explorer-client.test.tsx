@@ -73,7 +73,7 @@ describe("fetchBboxRecords", () => {
       vi.fn().mockResolvedValue({
         ok: true,
         status: 200,
-        json: async () => ({ ok: true, page }),
+        json: async () => ({ ok: true, page, nextOffset: 2, hasMore: false }),
       }),
     );
     await expect(
@@ -83,7 +83,7 @@ describe("fetchBboxRecords", () => {
         north: 48.9,
         east: 2.45,
       }),
-    ).resolves.toEqual(page);
+    ).resolves.toEqual({ page, nextOffset: 2, hasMore: false });
     expect(fetch).toHaveBeenCalledWith(
       expect.stringContaining("/api/opendata/records?"),
       expect.objectContaining({ signal: undefined }),
@@ -131,6 +131,8 @@ describe("BboxExplorerClient", () => {
         json: async () => ({
           ok: true,
           page: { total_count: 42, results: [{ idbase: "9" }] },
+          nextOffset: 1,
+          hasMore: false,
         }),
       }),
     );
