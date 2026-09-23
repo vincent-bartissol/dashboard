@@ -10,7 +10,7 @@ test("velib table filter hides unmatched rows", async ({ page, context }) => {
   const down = page.getByRole("status").filter({
     hasText: "Les données Open Data sont indisponibles",
   });
-  const filter = page.getByLabel("Filtrer le tableau et la carte…");
+  const filter = page.getByLabel("Filtrer les lignes chargées…");
   await expect(down.or(filter)).toBeVisible({ timeout: 30_000 });
   if (await down.isVisible()) {
     test.skip(true, "Open Data unavailable");
