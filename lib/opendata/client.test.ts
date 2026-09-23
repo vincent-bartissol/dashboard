@@ -121,4 +121,18 @@ describe("fetchAllRecords", () => {
     expect(result.page.results).toHaveLength(100);
     expect(result.page.total_count).toBe(150);
   });
+
+  it("forwards select on every page request", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ total_count: 2, results: [{ id: 1 }, { id: 2 }] }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    await fetchAllRecords("marches-decouverts", 60, {
+      max: 100,
+      select: "id_marche,geo_point_2d",
+    });
+    const url = String(fetchMock.mock.calls[0]?.[0]);
+    expect(url).toContain("select=id_marche%2Cgeo_point_2d");
+  });
 });

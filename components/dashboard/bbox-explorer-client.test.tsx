@@ -10,6 +10,7 @@ import { toExplorerDataset } from "@/lib/opendata/client";
 import { DATASETS } from "@/lib/opendata/datasets";
 import {
   BboxExplorerClient,
+  fetchBboxMarkers,
   fetchBboxRecords,
   type Bbox,
 } from "./bbox-explorer-client";
@@ -41,6 +42,13 @@ const initial = {
   total_count: 10,
   results: [{ idbase: "1", libellefrancais: "Platane" }],
 };
+const initialMap = {
+  total_count: 10,
+  results: [
+    { idbase: "1", libellefrancais: "Platane" },
+    { idbase: "2", libellefrancais: "Marronnier" },
+  ],
+};
 
 function renderExplorer() {
   const client = new QueryClient({
@@ -54,6 +62,7 @@ function renderExplorer() {
         <BboxExplorerClient
           dataset={dataset}
           initial={initial}
+          mapRecords={initialMap.results}
           favoriteIds={[]}
         />
       </NextIntlClientProvider>
@@ -73,7 +82,7 @@ describe("fetchBboxRecords", () => {
       vi.fn().mockResolvedValue({
         ok: true,
         status: 200,
-        json: async () => ({ ok: true, page }),
+        json: async () => ({ ok: true, page, nextOffset: 2, hasMore: false }),
       }),
     );
     await expect(
@@ -83,11 +92,7 @@ describe("fetchBboxRecords", () => {
         north: 48.9,
         east: 2.45,
       }),
-    ).resolves.toEqual(page);
-    expect(fetch).toHaveBeenCalledWith(
-      expect.stringContaining("/api/opendata/records?"),
-      expect.objectContaining({ signal: undefined }),
-    );
+    ).resolves.toEqual({ page, nextOffset: 2, hasMore: false });
   });
 
   it("throws rate_limited on 429", async () => {
@@ -110,6 +115,36 @@ describe("fetchBboxRecords", () => {
   });
 });
 
+describe("fetchBboxMarkers", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("requests mode=markers", async () => {
+    const page = { total_count: 3, results: [{ idbase: "1" }] };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => ({ ok: true, page }),
+      }),
+    );
+    await expect(
+      fetchBboxMarkers("les-arbres", {
+        south: 48.82,
+        west: 2.23,
+        north: 48.9,
+        east: 2.45,
+      }),
+    ).resolves.toEqual(page);
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining("mode=markers"),
+      expect.anything(),
+    );
+  });
+});
+
 describe("BboxExplorerClient", () => {
   beforeEach(() => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -121,17 +156,28 @@ describe("BboxExplorerClient", () => {
     vi.unstubAllGlobals();
   });
 
-  it("refetches records after a debounced map pan", async () => {
+  it("refetches markers after a debounced map pan", async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        json: async () => ({
+      vi.fn().mockImplementation((url: string) => {
+        const markers = String(url).includes("mode=markers");
+        return Promise.resolve({
           ok: true,
-          page: { total_count: 42, results: [{ idbase: "9" }] },
-        }),
+          status: 200,
+          json: async () =>
+            markers
+              ? {
+                  ok: true,
+                  page: { total_count: 42, results: [{ idbase: "9" }] },
+                }
+              : {
+                  ok: true,
+                  page: { total_count: 42, results: [{ idbase: "9" }] },
+                  nextOffset: 1,
+                  hasMore: false,
+                },
+        });
       }),
     );
 
@@ -146,10 +192,8 @@ describe("BboxExplorerClient", () => {
     await waitFor(() => {
       expect(screen.getByTestId("total-count")).toHaveTextContent("42");
     });
-    expect(fetch).toHaveBeenCalledWith(
-      expect.stringContaining("dataset=les-arbres"),
-      expect.objectContaining({ signal: expect.any(AbortSignal) }),
-    );
+    const urls = vi.mocked(fetch).mock.calls.map((call) => String(call[0]));
+    expect(urls.some((url) => url.includes("mode=markers"))).toBe(true);
   });
 
   it("shows the rate-limit message when the API returns 429", async () => {

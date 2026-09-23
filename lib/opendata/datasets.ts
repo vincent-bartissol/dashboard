@@ -336,6 +336,14 @@ export const DATASETS = {
 
 export type DatasetKey = keyof typeof DATASETS;
 
+/** Resolve a catalog key from an Open Data dataset id (client-safe). */
+export function datasetKeyById(datasetId: string): DatasetKey | undefined {
+  for (const [key, dataset] of Object.entries(DATASETS) as [DatasetKey, DatasetConfig][]) {
+    if (dataset.id === datasetId) return key;
+  }
+  return undefined;
+}
+
 export const NAV_ITEMS = [
   { href: "/dashboard", id: "overview" },
   { href: "/dashboard/montreuil", id: "montreuil" },
@@ -347,5 +355,6 @@ export const NAV_ITEMS = [
   { href: "/dashboard/traffic", id: "traffic" },
   { href: "/dashboard/markets", id: "markets" },
   { href: "/dashboard/favorites", id: "favorites" },
+  { href: "/dashboard/alerts", id: "alerts" },
   { href: "/dashboard/profile", id: "profile" },
 ] as const;

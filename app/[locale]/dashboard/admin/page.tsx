@@ -1,5 +1,6 @@
 import { getFormatter, getTranslations } from "next-intl/server";
 import { AdminUserTable } from "@/components/admin/user-table";
+import { AdminRecentActivity } from "@/components/admin/recent-activity";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { PageIntro } from "@/components/dashboard/page-intro";
 import { Card } from "@/components/ui/card";
@@ -8,6 +9,7 @@ import {
   adminRoleLabel,
   adminUserStatus,
   getAdminStats,
+  listRecentActivity,
   listUsersForAdmin,
 } from "@/lib/db/queries";
 import { requireAdmin } from "@/lib/session";
@@ -16,7 +18,11 @@ export default async function AdminPage() {
   await requireAdmin();
   const t = await getTranslations("Admin");
   const format = await getFormatter();
-  const [users, stats] = await Promise.all([listUsersForAdmin(), getAdminStats()]);
+  const [users, stats, recent] = await Promise.all([
+    listUsersForAdmin(),
+    getAdminStats(),
+    listRecentActivity(40),
+  ]);
 
   const userRows = users.map((row) => {
     const status = adminUserStatus(row);
@@ -92,6 +98,16 @@ export default async function AdminPage() {
           </ul>
         </Card>
       </div>
+      <AdminRecentActivity
+        initial={recent.map((row) => ({
+          id: row.id,
+          action: row.action,
+          metadata: row.metadata,
+          createdAt: row.createdAt,
+          userName: row.userName,
+          userEmail: row.userEmail,
+        }))}
+      />
       <AdminUserTable users={userRows} />
     </div>
   );

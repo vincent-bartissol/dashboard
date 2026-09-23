@@ -1,9 +1,9 @@
 import { BikeCountChart } from "@/components/dashboard/bike-count-chart";
 import { DatasetNotice } from "@/components/dashboard/dataset-notice";
 import { DatasetTabs } from "@/components/dashboard/dataset-tabs";
+import { InfiniteThemeExplorer } from "@/components/dashboard/infinite-theme-explorer";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { PageIntro } from "@/components/dashboard/page-intro";
-import { ThemeExplorer } from "@/components/dashboard/theme-explorer";
 import { fetchAggregate, fetchAllRecords, fetchCount, formatCount } from "@/lib/opendata/client";
 import { isoDateDaysAgo } from "@/lib/opendata/dates";
 import {
@@ -11,7 +11,8 @@ import {
   MONTREUIL_LANDMARKS,
   ROBESPIERRE_CENTER,
 } from "@/lib/opendata/datasets";
-import { loadTheme } from "@/lib/opendata/load";
+import { loadThemeExplorer } from "@/lib/opendata/load";
+import { localizeExplorerDataset } from "@/lib/opendata/localize";
 import { requireSession } from "@/lib/session";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { SectionTitle } from "@/components/ui/heading";
@@ -118,11 +119,13 @@ export default async function MontreuilPage({
       />
 
       {active === "velib" && tabData.velib ? (
-        <ThemeExplorer
-          dataset={DATASETS.velib}
-          records={tabData.velib.page.results}
-          totalCount={tabData.velib.page.total_count}
+        <InfiniteThemeExplorer
+          dataset={await localizeExplorerDataset(DATASETS.velib)}
+          initial={tabData.velib.table}
+          mapRecords={tabData.velib.markers.results}
           favoriteIds={tabData.velib.favoriteIds}
+          initialError={tabData.velib.ok ? null : tabData.velib.error}
+          district="montreuil"
           colorScheme="velib"
           descriptionKeys={["numbikesavailable", "numdocksavailable"]}
           {...mapProps}
@@ -130,21 +133,23 @@ export default async function MontreuilPage({
       ) : null}
 
       {active === "trees" && tabData.trees ? (
-        <ThemeExplorer
-          dataset={DATASETS.montreuilTrees}
-          records={tabData.trees.page.results}
-          totalCount={tabData.trees.page.total_count}
+        <InfiniteThemeExplorer
+          dataset={await localizeExplorerDataset(DATASETS.montreuilTrees)}
+          initial={tabData.trees.table}
+          mapRecords={tabData.trees.markers.results}
           favoriteIds={tabData.trees.favoriteIds}
+          initialError={tabData.trees.ok ? null : tabData.trees.error}
           {...mapProps}
         />
       ) : null}
 
       {active === "gardens" && tabData.gardens ? (
-        <ThemeExplorer
-          dataset={DATASETS.montreuilGardens}
-          records={tabData.gardens.page.results}
-          totalCount={tabData.gardens.page.total_count}
+        <InfiniteThemeExplorer
+          dataset={await localizeExplorerDataset(DATASETS.montreuilGardens)}
+          initial={tabData.gardens.table}
+          mapRecords={tabData.gardens.markers.results}
           favoriteIds={tabData.gardens.favoriteIds}
+          initialError={tabData.gardens.ok ? null : tabData.gardens.error}
           {...mapProps}
         />
       ) : null}
@@ -153,22 +158,24 @@ export default async function MontreuilPage({
         <div className="space-y-6">
           <div className="space-y-4">
             <SectionTitle>{datasets("montreuilFountains.title")}</SectionTitle>
-            <ThemeExplorer
-              dataset={DATASETS.montreuilFountains}
-              records={tabData.fountains.page.results}
-              totalCount={tabData.fountains.page.total_count}
+            <InfiniteThemeExplorer
+              dataset={await localizeExplorerDataset(DATASETS.montreuilFountains)}
+              initial={tabData.fountains.table}
+              mapRecords={tabData.fountains.markers.results}
               favoriteIds={tabData.fountains.favoriteIds}
+              initialError={tabData.fountains.ok ? null : tabData.fountains.error}
               colorScheme="status"
               {...mapProps}
             />
           </div>
           <div className="space-y-4">
             <SectionTitle>{datasets("montreuilMist.title")}</SectionTitle>
-            <ThemeExplorer
-              dataset={DATASETS.montreuilMist}
-              records={tabData.mist.page.results}
-              totalCount={tabData.mist.page.total_count}
+            <InfiniteThemeExplorer
+              dataset={await localizeExplorerDataset(DATASETS.montreuilMist)}
+              initial={tabData.mist.table}
+              mapRecords={tabData.mist.markers.results}
               favoriteIds={tabData.mist.favoriteIds}
+              initialError={tabData.mist.ok ? null : tabData.mist.error}
               {...mapProps}
             />
           </div>
@@ -205,23 +212,24 @@ async function loadMontreuilTab(
   since: string,
 ) {
   if (active === "velib") {
-    const velib = await loadTheme(DATASETS.velib, userId, MONTREUIL_VELIB, {
+    const velib = await loadThemeExplorer(DATASETS.velib, userId, {
+      district: "montreuil",
       ignoreProfile: true,
     });
     return { velib, error: velib.error };
   }
   if (active === "trees") {
-    const trees = await loadTheme(DATASETS.montreuilTrees, userId);
+    const trees = await loadThemeExplorer(DATASETS.montreuilTrees, userId);
     return { trees, error: trees.error };
   }
   if (active === "gardens") {
-    const gardens = await loadTheme(DATASETS.montreuilGardens, userId);
+    const gardens = await loadThemeExplorer(DATASETS.montreuilGardens, userId);
     return { gardens, error: gardens.error };
   }
   if (active === "water") {
     const [fountains, mist] = await Promise.all([
-      loadTheme(DATASETS.montreuilFountains, userId),
-      loadTheme(DATASETS.montreuilMist, userId),
+      loadThemeExplorer(DATASETS.montreuilFountains, userId),
+      loadThemeExplorer(DATASETS.montreuilMist, userId),
     ]);
     return { fountains, mist, error: fountains.error || mist.error };
   }

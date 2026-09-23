@@ -44,7 +44,8 @@
     "logoutShort": "Salir",
     "privateSpace": "Espacio privado",
     "login": "Iniciar sesión",
-    "signup": "Crear una cuenta"
+    "signup": "Crear una cuenta",
+    "alerts": "Alertas"
   },
   "Footer": {
     "license": "Datos públicos de la Ville de Paris, licencia ODbL."
@@ -146,6 +147,8 @@
   },
   "Explorer": {
     "filterPlaceholder": "Filtrar la tabla y el mapa…",
+    "filterLoadedPlaceholder": "Filtrar las filas cargadas…",
+    "filterLoadedHint": "El filtro se aplica a las filas ya cargadas. Desplácese por la tabla para cargar más.",
     "filtered": "{filtered} filtrados / {total} en total",
     "page": "Página {current} / {count}",
     "previous": "Anterior",
@@ -160,7 +163,14 @@
     "mapLabel": "Mapa de registros",
     "mapHint": "El mapa no se puede usar con el teclado. Use la tabla siguiente.",
     "sortAsc": "Ordenar {column} ascendente",
-    "sortDesc": "Ordenar {column} descendente"
+    "sortDesc": "Ordenar {column} descendente",
+    "addAlert": "Crear alerta (< {n} bicis)",
+    "alertCreated": "Alerta guardada.",
+    "alertLimit": "Ya tiene el número máximo de alertas.",
+    "alertRateLimited": "Demasiadas solicitudes de alerta. Inténtelo de nuevo en un momento.",
+    "alertError": "No se ha podido crear esta alerta.",
+    "loadingMore": "Cargando…",
+    "loadMoreHint": "Desplácese para cargar más."
   },
   "Overview": {
     "title": "Vista general",
@@ -241,7 +251,9 @@
       "title": "Eventos",
       "body": "Agenda participativa Que faire à Paris: eventos cuya fecha de fin no ha pasado. Los puntos sin coordenadas válidas no aparecen en el mapa.",
       "events": "Eventos",
-      "shown": "Mostrados"
+      "shown": "Mostrados",
+      "loadMore": "Cargar más",
+      "loadingMore": "Cargando…"
     },
     "traffic": {
       "title": "Vías",
@@ -280,6 +292,18 @@
       "kpiEvents": "Agenda 93100",
       "bikeSource": "Contador fijo en la rue Étienne Marcel (sentido París / Croix de Chavaux). Fuente: <link>Montreuil Data</link>.",
       "body": "Barrio oeste: metro Robespierre, place de la République y rue Étienne Marcel. Datos de la Ville de Montreuil, Vélib’ Métropole, Que faire à Paris e Île-de-France Mobilités."
+    },
+    "alerts": {
+      "title": "Alertas",
+      "body": "Recibe un correo cuando una estación Vélib’ baje de tu umbral.",
+      "empty": "Todavía no hay alertas.",
+      "threshold": "Umbral",
+      "enabled": "Activa",
+      "disabled": "Pausa",
+      "delete": "Eliminar",
+      "station": "Estación",
+      "lastTriggered": "Último disparo",
+      "never": "Nunca"
     }
   },
   "Profile": {
@@ -352,7 +376,12 @@
     "resetPreview": "Elija una nueva contraseña.",
     "resetBody": "Haga clic para elegir una nueva contraseña.",
     "resetButton": "Elegir una contraseña",
-    "resetText": "Haga clic para elegir una nueva contraseña: {url}"
+    "resetText": "Haga clic para elegir una nueva contraseña: {url}",
+    "alertSubject": "Alerta Vélib’ · {station}",
+    "alertPreview": "Quedan {bikes} bici(s) (umbral {threshold}).",
+    "alertBody": "La estación « {station} » solo tiene {bikes} bici(s) (umbral {threshold}).",
+    "alertButton": "Ver mis alertas",
+    "alertText": "Estación {station}: {bikes} bici(s) (umbral {threshold}). {url}"
   },
   "Datasets": {
     "velib": {
@@ -603,6 +632,29 @@
       "signupsWeek": "{count} altas (7 d)",
       "topFavorites": "Favoritos más añadidos",
       "topPaths": "Páginas más vistas"
-    }
+    },
+    "recentActivity": "Actividad reciente",
+    "recentEmpty": "Sin actividad reciente.",
+    "refreshing": "Actualizando…"
+  },
+  "CommandPalette": {
+    "open": "Abrir búsqueda",
+    "trigger": "Buscar en los datos…",
+    "placeholder": "Estación, evento, mercado…",
+    "hint": "Escribe al menos 2 caracteres.",
+    "loading": "Buscando…",
+    "empty": "Sin resultados.",
+    "footer": "Esc para cerrar · Enter para abrir"
+  },
+  "Compare": {
+    "title": "Comparar un distrito",
+    "show": "Mostrar",
+    "hide": "Ocultar",
+    "district": "Distrito a comparar",
+    "pick": "Elegir…",
+    "current": "Vista actual",
+    "compare": "Comparación",
+    "bikes": "Bicis",
+    "bboxHint": "La comparación por distrito no está disponible en los mapas bbox."
   }
 }

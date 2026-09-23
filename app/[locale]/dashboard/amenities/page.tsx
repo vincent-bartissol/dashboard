@@ -1,12 +1,13 @@
 import { getFormatter, getTranslations } from "next-intl/server";
 import { DatasetNotice } from "@/components/dashboard/dataset-notice";
 import { DatasetTabs } from "@/components/dashboard/dataset-tabs";
+import { InfiniteThemeExplorer } from "@/components/dashboard/infinite-theme-explorer";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { PageIntro } from "@/components/dashboard/page-intro";
-import { ThemeExplorer } from "@/components/dashboard/theme-explorer";
 import { fetchCount, formatCount } from "@/lib/opendata/client";
+import { localizeExplorerDataset } from "@/lib/opendata/localize";
 import { DATASETS } from "@/lib/opendata/datasets";
-import { loadTheme } from "@/lib/opendata/load";
+import { loadThemeExplorer } from "@/lib/opendata/load";
 import { requireSession } from "@/lib/session";
 
 export default async function AmenitiesPage({
@@ -21,7 +22,7 @@ export default async function AmenitiesPage({
   const active = tab === "toilets" ? "toilets" : "fountains";
   const dataset = DATASETS[active];
   const [loaded, fountainCount, toiletCount] = await Promise.all([
-    loadTheme(dataset, session.user.id),
+    loadThemeExplorer(dataset, session.user.id),
     fetchCount(DATASETS.fountains.id, DATASETS.fountains.revalidate),
     fetchCount(DATASETS.toilets.id, DATASETS.toilets.revalidate),
   ]);
@@ -47,11 +48,12 @@ export default async function AmenitiesPage({
           { href: "/dashboard/amenities?tab=toilets", label: t("toilets") },
         ]}
       />
-      <ThemeExplorer
-        dataset={dataset}
-        records={loaded.page.results}
-        totalCount={loaded.page.total_count}
+      <InfiniteThemeExplorer
+        dataset={await localizeExplorerDataset(dataset)}
+        initial={loaded.table}
+        mapRecords={loaded.markers.results}
         favoriteIds={loaded.favoriteIds}
+        initialError={loaded.ok ? null : loaded.error}
         colorScheme="status"
       />
     </div>

@@ -44,7 +44,8 @@
     "logoutShort": "Leave",
     "privateSpace": "Private area",
     "login": "Sign in",
-    "signup": "Create an account"
+    "signup": "Create an account",
+    "alerts": "Alerts"
   },
   "Footer": {
     "license": "Public data from the City of Paris, ODbL licence."
@@ -146,6 +147,8 @@
   },
   "Explorer": {
     "filterPlaceholder": "Filter the table and map…",
+    "filterLoadedPlaceholder": "Filter loaded rows…",
+    "filterLoadedHint": "Filter applies to rows already loaded. Scroll the table to load more.",
     "filtered": "{filtered} filtered / {total} total",
     "page": "Page {current} / {count}",
     "previous": "Previous",
@@ -160,7 +163,14 @@
     "mapLabel": "Map of records",
     "mapHint": "The map is not keyboard-accessible. Use the table below.",
     "sortAsc": "Sort {column} ascending",
-    "sortDesc": "Sort {column} descending"
+    "sortDesc": "Sort {column} descending",
+    "addAlert": "Create alert (< {n} bikes)",
+    "alertCreated": "Alert saved.",
+    "alertLimit": "You already have the maximum number of alerts.",
+    "alertRateLimited": "Too many alert requests. Try again shortly.",
+    "alertError": "Could not create this alert.",
+    "loadingMore": "Loading…",
+    "loadMoreHint": "Scroll to load more."
   },
   "Overview": {
     "title": "Overview",
@@ -241,7 +251,9 @@
       "title": "Events",
       "body": "Que faire à Paris participatory calendar: events whose end date has not passed. Points without valid coordinates do not appear on the map.",
       "events": "Events",
-      "shown": "Shown"
+      "shown": "Shown",
+      "loadMore": "Load more",
+      "loadingMore": "Loading…"
     },
     "traffic": {
       "title": "Streets",
@@ -280,6 +292,18 @@
       "kpiEvents": "Agenda 93100",
       "bikeSource": "Fixed counter on rue Étienne Marcel (towards Paris / Croix de Chavaux). Source: <link>Montreuil Data</link>.",
       "body": "West neighbourhood: Robespierre metro, place de la République and rue Étienne Marcel. Data from the City of Montreuil, Vélib’ Métropole, Que faire à Paris and Île-de-France Mobilités."
+    },
+    "alerts": {
+      "title": "Alerts",
+      "body": "Get an email when a Vélib’ station drops below your threshold.",
+      "empty": "No alerts yet.",
+      "threshold": "Threshold",
+      "enabled": "On",
+      "disabled": "Paused",
+      "delete": "Delete",
+      "station": "Station",
+      "lastTriggered": "Last triggered",
+      "never": "Never"
     }
   },
   "Profile": {
@@ -352,7 +376,12 @@
     "resetPreview": "Choose a new password.",
     "resetBody": "Click to choose a new password.",
     "resetButton": "Choose a password",
-    "resetText": "Click to choose a new password: {url}"
+    "resetText": "Click to choose a new password: {url}",
+    "alertSubject": "Vélib’ alert · {station}",
+    "alertPreview": "{bikes} bike(s) left (threshold {threshold}).",
+    "alertBody": "Station “{station}” has only {bikes} bike(s) left (threshold {threshold}).",
+    "alertButton": "View my alerts",
+    "alertText": "Station {station}: {bikes} bike(s) (threshold {threshold}). {url}"
   },
   "Datasets": {
     "velib": {
@@ -603,6 +632,29 @@
       "signupsWeek": "{count} signups (7d)",
       "topFavorites": "Most favorited",
       "topPaths": "Most viewed pages"
-    }
+    },
+    "recentActivity": "Recent activity",
+    "recentEmpty": "No recent activity.",
+    "refreshing": "Refreshing…"
+  },
+  "CommandPalette": {
+    "open": "Open search",
+    "trigger": "Search open data…",
+    "placeholder": "Station, event, market…",
+    "hint": "Type at least 2 characters.",
+    "loading": "Searching…",
+    "empty": "No results.",
+    "footer": "Esc to close · Enter to open"
+  },
+  "Compare": {
+    "title": "Compare an arrondissement",
+    "show": "Show",
+    "hide": "Hide",
+    "district": "Arrondissement to compare",
+    "pick": "Choose…",
+    "current": "Current view",
+    "compare": "Comparison",
+    "bikes": "Bikes",
+    "bboxHint": "Arrondissement comparison is not available on bbox maps."
   }
 }

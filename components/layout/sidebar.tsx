@@ -1,12 +1,23 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, Link } from "@/i18n/navigation";
 import { NAV_ITEMS } from "@/lib/opendata/datasets";
 import { authClient } from "@/lib/auth-client";
+import { CommandPalette } from "@/components/dashboard/command-palette";
 import { Wordmark } from "@/components/layout/wordmark";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { useFavoritesQuery } from "@/lib/favorites-query";
+import type { FavoriteDto } from "@/lib/favorites";
+import { NAV_PREFETCH_DATASETS } from "@/lib/opendata/nav-prefetch";
+import {
+  fetchThemeMarkers,
+  fetchThemeTablePage,
+  themeMarkersQueryKey,
+  themeTableQueryKey,
+} from "@/lib/opendata/theme-query";
 import type { ColorScheme } from "@/lib/theme";
 
 const linkClass = (active: boolean) =>
@@ -25,14 +36,38 @@ export function Sidebar({
   userName,
   theme,
   isAdmin = false,
+  initialFavorites = [],
 }: {
   userName: string;
   theme: ColorScheme;
   isAdmin?: boolean;
+  initialFavorites?: FavoriteDto[];
 }) {
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations("Nav");
+  const favorites = useFavoritesQuery(initialFavorites);
+  const favoriteCount = favorites.data?.length ?? 0;
+  const queryClient = useQueryClient();
+
+  function prefetchNav(href: string) {
+    const datasets = NAV_PREFETCH_DATASETS[href];
+    if (!datasets?.length) return;
+    for (const datasetId of datasets) {
+      void queryClient.prefetchQuery({
+        queryKey: themeMarkersQueryKey(datasetId),
+        queryFn: ({ signal }) => fetchThemeMarkers(datasetId, { signal }),
+      });
+      void queryClient.prefetchInfiniteQuery({
+        queryKey: themeTableQueryKey(datasetId),
+        queryFn: ({ pageParam, signal }) =>
+          fetchThemeTablePage(datasetId, { offset: pageParam, signal }),
+        initialPageParam: 0,
+        getNextPageParam: (last: { hasMore: boolean; nextOffset: number }) =>
+          last.hasMore ? last.nextOffset : undefined,
+      });
+    }
+  }
 
   async function logout() {
     await authClient.signOut();
@@ -45,6 +80,9 @@ export function Sidebar({
       <div className="border-b border-white/10 px-5 py-5">
         <Wordmark invert />
         <p className="mt-3 truncate text-sm text-white/70">{userName}</p>
+        <div className="mt-3">
+          <CommandPalette />
+        </div>
       </div>
       <nav className="flex flex-1 flex-col gap-0.5 p-3">
         {NAV_ITEMS.map((item) => {
@@ -52,14 +90,21 @@ export function Sidebar({
             item.href === "/dashboard"
               ? pathname === "/dashboard"
               : pathname.startsWith(item.href);
+          const showBadge = item.id === "favorites" && favoriteCount > 0;
           return (
             <Link
               key={item.href}
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={linkClass(active)}
+              onPointerEnter={() => prefetchNav(item.href)}
             >
-              {t(item.id)}
+              <span className="flex items-center justify-between gap-2">
+                <span>{t(item.id)}</span>
+                {showBadge ? (
+                  <span className="tabular-nums text-xs text-white/70">{favoriteCount}</span>
+                ) : null}
+              </span>
             </Link>
           );
         })}
@@ -92,14 +137,18 @@ export function MobileNav({
   userName,
   theme,
   isAdmin = false,
+  initialFavorites = [],
 }: {
   userName: string;
   theme: ColorScheme;
   isAdmin?: boolean;
+  initialFavorites?: FavoriteDto[];
 }) {
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations("Nav");
+  const favorites = useFavoritesQuery(initialFavorites);
+  const favoriteCount = favorites.data?.length ?? 0;
 
   async function logout() {
     await authClient.signOut();
@@ -112,6 +161,7 @@ export function MobileNav({
       <div className="flex items-center justify-between gap-3 px-4 py-3">
         <Wordmark invert />
         <div className="flex items-center gap-2">
+          <CommandPalette />
           <LocaleSwitcher invert />
           <ThemeToggle invert initial={theme} />
           <button type="button" onClick={logout} className="text-sm text-white/80 focus-field">
@@ -125,6 +175,7 @@ export function MobileNav({
             item.href === "/dashboard"
               ? pathname === "/dashboard"
               : pathname.startsWith(item.href);
+          const showBadge = item.id === "favorites" && favoriteCount > 0;
           return (
             <Link
               key={item.href}
@@ -133,6 +184,7 @@ export function MobileNav({
               className={mobileLinkClass(active)}
             >
               {t(item.id)}
+              {showBadge ? ` (${favoriteCount})` : ""}
             </Link>
           );
         })}

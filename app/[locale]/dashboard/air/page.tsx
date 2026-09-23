@@ -1,26 +1,34 @@
 import { getTranslations } from "next-intl/server";
 import { AirCharts } from "@/components/dashboard/air-charts";
 import { DatasetNotice } from "@/components/dashboard/dataset-notice";
+import { InfiniteThemeExplorer } from "@/components/dashboard/infinite-theme-explorer";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { PageIntro } from "@/components/dashboard/page-intro";
-import { ThemeExplorer } from "@/components/dashboard/theme-explorer";
+import { fetchAllRecords } from "@/lib/opendata/client";
+import { localizeExplorerDataset } from "@/lib/opendata/localize";
 import { DATASETS } from "@/lib/opendata/datasets";
-import { loadTheme } from "@/lib/opendata/load";
+import { loadThemeExplorer } from "@/lib/opendata/load";
 import { requireSession } from "@/lib/session";
 
 export default async function AirPage() {
   const session = await requireSession();
   const t = await getTranslations("Pages.air");
-  const { page, favoriteIds, error, ok } = await loadTheme(DATASETS.air, session.user.id);
-  const latest = [...page.results].sort((a, b) => String(b.annee).localeCompare(String(a.annee)))[0];
-  const dash = !ok || !latest;
+  const [loaded, charts] = await Promise.all([
+    loadThemeExplorer(DATASETS.air, session.user.id),
+    fetchAllRecords(DATASETS.air.id, DATASETS.air.revalidate, { max: 200 }),
+  ]);
+  const chartRecords = charts.ok ? charts.page.results : loaded.table.results;
+  const latest = [...chartRecords].sort((a, b) =>
+    String(b.annee).localeCompare(String(a.annee)),
+  )[0];
+  const dash = !loaded.ok || !latest;
 
   return (
     <div className="space-y-6">
       <PageIntro title={t("title")} dataset={DATASETS.air}>
         {t("body")}
       </PageIntro>
-      <DatasetNotice error={error} />
+      <DatasetNotice error={loaded.error || charts.error} />
       <KpiStrip
         items={[
           { label: t("latestYear"), value: dash ? "—" : String(latest?.annee) },
@@ -29,12 +37,13 @@ export default async function AirPage() {
           { label: t("badDays"), value: dash ? "—" : Number(latest?.ind_jour_qa_mauvaise ?? 0) },
         ]}
       />
-      <AirCharts records={page.results} />
-      <ThemeExplorer
-        dataset={DATASETS.air}
-        records={page.results}
-        totalCount={page.total_count}
-        favoriteIds={favoriteIds}
+      <AirCharts records={chartRecords} />
+      <InfiniteThemeExplorer
+        dataset={await localizeExplorerDataset(DATASETS.air)}
+        initial={loaded.table}
+        mapRecords={loaded.markers.results}
+        favoriteIds={loaded.favoriteIds}
+        initialError={loaded.ok ? null : loaded.error}
       />
     </div>
   );

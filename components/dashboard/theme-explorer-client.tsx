@@ -1,15 +1,18 @@
 "use client";
 
-import { useId, useMemo, useState, useTransition } from "react";
+import { useId, useMemo, useState, type ReactNode, type RefObject } from "react";
 import { useFormatter, useTranslations } from "next-intl";
-import { ChevronDown, ChevronUp, Heart } from "lucide-react";
-import { toggleFavorite } from "@/lib/actions/favorites";
+import { ChevronDown, ChevronUp, Bell, Heart } from "lucide-react";
 import { extractGeo, recordId, recordLabel, type OpenDataRecord } from "@/lib/opendata/client";
 import type { ExplorerDataset } from "@/lib/opendata/client";
 import { DynamicParisMap } from "@/components/map/dynamic-map";
 import { recordsToMarkers } from "@/lib/opendata/markers";
 import { recordMatchesQuery } from "@/lib/opendata/search";
 import { compareCellValues, type SortDir } from "@/lib/opendata/sort";
+import { useFavoritesQuery, useToggleFavoriteMutation } from "@/lib/favorites-query";
+import type { FavoriteDto } from "@/lib/favorites";
+import { DATASETS } from "@/lib/opendata/datasets";
+import { CompareDistrictPanel } from "@/components/dashboard/compare-district-panel";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -30,6 +33,18 @@ type Props = {
   mapCenter?: { lat: number; lon: number };
   mapZoom?: number;
   extraMarkers?: MapMarker[];
+  /** Full geo set for the map; defaults to `records` when omitted. */
+  mapRecords?: OpenDataRecord[];
+  /** Map markers are a viewport/sample subset — prefer table row count in the filter label. */
+  mapSample?: boolean;
+  /** When false, show every loaded row (for server-side infinite scroll). Default true. */
+  paginate?: boolean;
+  /** Cap table body height and scroll inside the card. */
+  tableMaxHeight?: string;
+  /** Content after rows, inside the scroll container (e.g. load-more sentinel). */
+  tableEnd?: ReactNode;
+  /** Optional ref to the table scroll container (for IntersectionObserver root). */
+  tableScrollRef?: RefObject<HTMLDivElement | null>;
 };
 
 function colorFor(scheme: ColorScheme | undefined, record: OpenDataRecord) {
@@ -55,6 +70,16 @@ function describe(record: OpenDataRecord, keys?: string[]) {
     .join(" · ");
 }
 
+function seedFavorites(datasetId: string, favoriteIds: string[]): FavoriteDto[] {
+  return favoriteIds.map((id) => ({
+    id: `seed-${id}`,
+    datasetId,
+    recordId: id,
+    label: id,
+    geo: null,
+  }));
+}
+
 export function ThemeExplorerClient({
   dataset,
   records,
@@ -66,6 +91,12 @@ export function ThemeExplorerClient({
   mapCenter,
   mapZoom,
   extraMarkers = [],
+  mapRecords,
+  mapSample = false,
+  paginate = true,
+  tableMaxHeight,
+  tableEnd,
+  tableScrollRef,
 }: Props) {
   const t = useTranslations("Explorer");
   const format = useFormatter();
@@ -74,13 +105,33 @@ export function ThemeExplorerClient({
   const [pageIndex, setPageIndex] = useState(0);
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
-  const [favorites, setFavorites] = useState(new Set(favoriteIds));
   const [favoriteError, setFavoriteError] = useState<string | null>(null);
-  const [, startTransition] = useTransition();
+  const [alertMessage, setAlertMessage] = useState<
+    "alertCreated" | "alertLimit" | "alertRateLimited" | "alertError" | null
+  >(null);
+
+  const favoritesQuery = useFavoritesQuery(seedFavorites(dataset.id, favoriteIds));
+  const toggleFavorite = useToggleFavoriteMutation();
+  const canAlert = dataset.id === DATASETS.velib.id;
+
+  const favorites = useMemo(() => {
+    const rows = favoritesQuery.data ?? [];
+    return new Set(
+      rows.filter((row) => row.datasetId === dataset.id).map((row) => row.recordId),
+    );
+  }, [dataset.id, favoritesQuery.data]);
 
   const filtered = useMemo(
     () => records.filter((record) => recordMatchesQuery(record, dataset.columns, query)),
     [dataset.columns, query, records],
+  );
+
+  const filteredMap = useMemo(
+    () =>
+      mapRecords
+        ? mapRecords.filter((record) => recordMatchesQuery(record, dataset.columns, query))
+        : filtered,
+    [dataset.columns, filtered, mapRecords, query],
   );
 
   const sorted = useMemo(() => {
@@ -90,14 +141,16 @@ export function ThemeExplorerClient({
     );
   }, [filtered, sortDir, sortKey]);
 
-  const pageCount = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
-  const currentPage = Math.min(pageIndex, pageCount - 1);
-  const pageRows = sorted.slice(currentPage * PAGE_SIZE, currentPage * PAGE_SIZE + PAGE_SIZE);
+  const pageCount = paginate ? Math.max(1, Math.ceil(sorted.length / PAGE_SIZE)) : 1;
+  const currentPage = paginate ? Math.min(pageIndex, pageCount - 1) : 0;
+  const pageRows = paginate
+    ? sorted.slice(currentPage * PAGE_SIZE, currentPage * PAGE_SIZE + PAGE_SIZE)
+    : sorted;
 
   const markers = useMemo(
     () =>
       dataset.geoField
-        ? recordsToMarkers(filtered, {
+        ? recordsToMarkers(filteredMap, {
             idField: dataset.idField,
             titleField: dataset.titleField,
             geoField: dataset.geoField,
@@ -105,8 +158,12 @@ export function ThemeExplorerClient({
             description: (record) => describe(record, descriptionKeys) ?? "",
           })
         : [],
-    [colorScheme, dataset, descriptionKeys, filtered],
+    [colorScheme, dataset, descriptionKeys, filteredMap],
   );
+
+  const filteredCount =
+    mapRecords != null && !mapSample ? filteredMap.length : filtered.length;
+
 
   function onSort(columnKey: string) {
     if (sortKey === columnKey) {
@@ -121,31 +178,60 @@ export function ThemeExplorerClient({
   function onToggle(record: OpenDataRecord) {
     const id = recordId(record, dataset.idField);
     if (!id) return;
-    const previous = new Set(favorites);
-    const next = new Set(favorites);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
-    setFavorites(next);
     const geo = dataset.geoField ? extractGeo(record, dataset.geoField) : null;
-    startTransition(() => {
-      void toggleFavorite({
+    toggleFavorite.mutate(
+      {
         datasetId: dataset.id,
         recordId: id,
         label: recordLabel(record, dataset.titleField, t("untitled")),
         geo: geo ? JSON.stringify(geo) : null,
-      }).then((result) => {
-        if (!result.ok) {
-          setFavorites(previous);
-          setFavoriteError(result.error === "favoriteLimit" ? "favoriteLimit" : "favorite");
-          return;
-        }
-        setFavoriteError(null);
-      });
+      },
+      {
+        onError: (error) => {
+          setFavoriteError(
+            error instanceof Error && error.message === "favoriteLimit"
+              ? "favoriteLimit"
+              : "favorite",
+          );
+        },
+        onSuccess: () => setFavoriteError(null),
+      },
+    );
+  }
+
+  async function onAlert(record: OpenDataRecord) {
+    const id = recordId(record, dataset.idField);
+    if (!id) return;
+    const res = await fetch("/api/alerts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        datasetId: dataset.id,
+        recordId: id,
+        label: recordLabel(record, dataset.titleField, t("untitled")),
+        threshold: 3,
+      }),
     });
+    if (!res.ok) {
+      let error: "alertLimit" | "alertRateLimited" | "alertError" = "alertError";
+      try {
+        const data = (await res.json()) as { error?: string };
+        if (data.error === "limit") error = "alertLimit";
+        else if (res.status === 429 || data.error === "rate_limited") error = "alertRateLimited";
+      } catch {
+        // keep generic alertError
+      }
+      setAlertMessage(error);
+      return;
+    }
+    setAlertMessage("alertCreated");
   }
 
   return (
     <div className="space-y-4">
+      {!dataset.bbox ? (
+        <CompareDistrictPanel datasetId={dataset.id} primaryCount={totalCount} />
+      ) : null}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Input
           id={filterId}
@@ -154,20 +240,33 @@ export function ThemeExplorerClient({
             setQuery(event.target.value);
             setPageIndex(0);
           }}
-          placeholder={t("filterPlaceholder")}
-          aria-label={t("filterPlaceholder")}
+          placeholder={paginate ? t("filterPlaceholder") : t("filterLoadedPlaceholder")}
+          aria-label={paginate ? t("filterPlaceholder") : t("filterLoadedPlaceholder")}
           className="max-w-md"
         />
         <p className="text-sm text-muted">
           {t("filtered", {
-            filtered: format.number(filtered.length),
+            filtered: format.number(filteredCount),
             total: format.number(totalCount),
           })}
         </p>
       </div>
+      {!paginate && query.trim() ? (
+        <p className="text-xs text-muted">{t("filterLoadedHint")}</p>
+      ) : null}
       {favoriteError ? (
         <p role="alert" className="text-sm text-danger">
           {favoriteError === "favoriteLimit" ? t("favoriteLimit") : t("favoriteError")}
+        </p>
+      ) : null}
+      {alertMessage ? (
+        <p
+          role="status"
+          className={
+            alertMessage === "alertCreated" ? "text-sm text-muted" : "text-sm text-danger"
+          }
+        >
+          {t(alertMessage)}
         </p>
       ) : null}
       {dataset.geoField ? (
@@ -178,109 +277,135 @@ export function ThemeExplorerClient({
           zoom={mapZoom}
         />
       ) : null}
-      <Card className="overflow-x-auto p-0">
-        <table className="min-w-full text-left text-sm">
-          <thead className="text-label border-b border-line bg-ground">
-            <tr>
-              <th className="w-12 px-3 py-2">
-                <span className="sr-only">{t("favoriteColumn")}</span>
-              </th>
-              {dataset.columns.map((column) => {
-                const active = sortKey === column.key;
-                const nextDir: SortDir = active && sortDir === "asc" ? "desc" : "asc";
-                return (
-                  <th
-                    key={column.key}
-                    className="px-3 py-2"
-                    aria-sort={
-                      active ? (sortDir === "asc" ? "ascending" : "descending") : "none"
-                    }
-                  >
-                    <button
-                      type="button"
-                      onClick={() => onSort(column.key)}
-                      className="inline-flex items-center gap-1 focus-field hover:text-heading"
-                      aria-label={
-                        nextDir === "asc"
-                          ? t("sortAsc", { column: column.label })
-                          : t("sortDesc", { column: column.label })
+      <Card className="p-0">
+        <div
+          ref={tableScrollRef}
+          className={tableMaxHeight ? "overflow-auto" : "overflow-x-auto"}
+          style={tableMaxHeight ? { maxHeight: tableMaxHeight } : undefined}
+        >
+          <table className="min-w-full text-left text-sm">
+            <thead
+              className={`text-label border-b border-line bg-ground ${
+                tableMaxHeight ? "sticky top-0 z-10" : ""
+              }`}
+            >
+              <tr>
+                <th className="w-12 px-3 py-2">
+                  <span className="sr-only">{t("favoriteColumn")}</span>
+                </th>
+                {canAlert ? <th className="w-12 px-3 py-2" /> : null}
+                {dataset.columns.map((column) => {
+                  const active = sortKey === column.key;
+                  const nextDir: SortDir = active && sortDir === "asc" ? "desc" : "asc";
+                  return (
+                    <th
+                      key={column.key}
+                      className="px-3 py-2"
+                      aria-sort={
+                        active ? (sortDir === "asc" ? "ascending" : "descending") : "none"
                       }
                     >
-                      {column.label}
-                      {active ? (
-                        sortDir === "asc" ? (
-                          <ChevronUp className="h-3.5 w-3.5" aria-hidden />
-                        ) : (
-                          <ChevronDown className="h-3.5 w-3.5" aria-hidden />
-                        )
-                      ) : null}
-                    </button>
-                  </th>
+                      <button
+                        type="button"
+                        onClick={() => onSort(column.key)}
+                        className="inline-flex items-center gap-1 focus-field hover:text-heading"
+                        aria-label={
+                          nextDir === "asc"
+                            ? t("sortAsc", { column: column.label })
+                            : t("sortDesc", { column: column.label })
+                        }
+                      >
+                        {column.label}
+                        {active ? (
+                          sortDir === "asc" ? (
+                            <ChevronUp className="h-3.5 w-3.5" aria-hidden />
+                          ) : (
+                            <ChevronDown className="h-3.5 w-3.5" aria-hidden />
+                          )
+                        ) : null}
+                      </button>
+                    </th>
+                  );
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {pageRows.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={dataset.columns.length + 1 + (canAlert ? 1 : 0)}
+                    className="px-3 py-6 text-center text-muted"
+                  >
+                    {t("noMatches")}
+                  </td>
+                </tr>
+              ) : null}
+              {pageRows.map((record, index) => {
+                const id = recordId(record, dataset.idField) || String(index);
+                const saved = favorites.has(id);
+                return (
+                  <tr key={`${id}::${index}`} className="border-b border-line/80 last:border-0">
+                    <td className="px-2 py-1.5">
+                      <button
+                        type="button"
+                        onClick={() => onToggle(record)}
+                        className="focus-field rounded-none p-1 text-muted hover:text-accent"
+                        aria-label={saved ? t("removeFavorite") : t("addFavorite")}
+                      >
+                        <Heart className={`h-4 w-4 ${saved ? "fill-accent text-accent" : ""}`} />
+                      </button>
+                    </td>
+                    {canAlert ? (
+                      <td className="px-2 py-1.5">
+                        <button
+                          type="button"
+                          onClick={() => void onAlert(record)}
+                          className="focus-field rounded-none p-1 text-muted hover:text-heading"
+                          aria-label={t("addAlert", { n: 3 })}
+                        >
+                          <Bell className="h-4 w-4" aria-hidden />
+                        </button>
+                      </td>
+                    ) : null}
+                    {dataset.columns.map((column) => (
+                      <td key={column.key} className="max-w-xs truncate px-3 py-1.5">
+                        {formatCell(record[column.key])}
+                      </td>
+                    ))}
+                  </tr>
                 );
               })}
-            </tr>
-          </thead>
-          <tbody>
-            {pageRows.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={dataset.columns.length + 1}
-                  className="px-3 py-6 text-center text-muted"
-                >
-                  {t("noMatches")}
-                </td>
-              </tr>
-            ) : null}
-            {pageRows.map((record, index) => {
-              const id = recordId(record, dataset.idField) || String(index);
-              const saved = favorites.has(id);
-              return (
-                <tr key={`${id}::${index}`} className="border-b border-line/80 last:border-0">
-                  <td className="px-2 py-1.5">
-                    <button
-                      type="button"
-                      onClick={() => onToggle(record)}
-                      className="focus-field rounded-none p-1 text-muted hover:text-accent"
-                      aria-label={saved ? t("removeFavorite") : t("addFavorite")}
-                    >
-                      <Heart className={`h-4 w-4 ${saved ? "fill-accent text-accent" : ""}`} />
-                    </button>
-                  </td>
-                  {dataset.columns.map((column) => (
-                    <td key={column.key} className="max-w-xs truncate px-3 py-1.5">
-                      {formatCell(record[column.key])}
-                    </td>
-                  ))}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        <div className="flex items-center justify-between gap-3 border-t border-line px-4 py-3">
-          <p className="text-sm text-muted">
-            {t("page", { current: currentPage + 1, count: pageCount })}
-          </p>
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="ghost"
-              className="h-9 px-3"
-              disabled={currentPage === 0}
-              onClick={() => setPageIndex(currentPage - 1)}
-            >
-              {t("previous")}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              className="h-9 px-3"
-              disabled={currentPage >= pageCount - 1}
-              onClick={() => setPageIndex(currentPage + 1)}
-            >
-              {t("next")}
-            </Button>
-          </div>
+            </tbody>
+          </table>
+          {tableEnd}
         </div>
+        {paginate ? (
+          <div className="flex items-center justify-between gap-3 border-t border-line px-4 py-3">
+            <p className="text-sm text-muted">
+              {t("page", { current: currentPage + 1, count: pageCount })}
+            </p>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-9 px-3"
+                disabled={currentPage === 0}
+                onClick={() => setPageIndex(currentPage - 1)}
+              >
+                {t("previous")}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-9 px-3"
+                disabled={currentPage >= pageCount - 1}
+                onClick={() => setPageIndex(currentPage + 1)}
+              >
+                {t("next")}
+              </Button>
+            </div>
+          </div>
+        ) : null}
       </Card>
     </div>
   );

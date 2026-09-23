@@ -9,6 +9,7 @@ export async function BboxExplorer({
 }: {
   dataset: DatasetConfig;
   initial: OpenDataPage;
+  mapRecords?: OpenDataPage["results"];
   favoriteIds: string[];
   colorScheme?: "velib" | "status";
   descriptionKeys?: string[];

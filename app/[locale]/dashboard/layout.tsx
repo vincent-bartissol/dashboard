@@ -5,6 +5,8 @@ import { MobileNav, Sidebar } from "@/components/layout/sidebar";
 import { SkipLink } from "@/components/layout/skip-link";
 import { QueryProvider } from "@/components/query-provider";
 import { isAdminUser } from "@/lib/admin";
+import { listFavorites } from "@/lib/db/queries";
+import { toFavoriteDtos } from "@/lib/favorites";
 import { parseTheme } from "@/lib/theme";
 import { requireSession } from "@/lib/session";
 
@@ -12,6 +14,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   const session = await requireSession();
   const theme = parseTheme((await cookies()).get("theme")?.value);
   const isAdmin = isAdminUser(session.user);
+  const initialFavorites = toFavoriteDtos(await listFavorites(session.user.id));
 
   return (
     <QueryProvider>
@@ -23,12 +26,14 @@ export default async function DashboardLayout({ children }: { children: ReactNod
             userName={session.user.name || session.user.email}
             theme={theme}
             isAdmin={isAdmin}
+            initialFavorites={initialFavorites}
           />
         </div>
         <MobileNav
           userName={session.user.name || session.user.email}
           theme={theme}
           isAdmin={isAdmin}
+          initialFavorites={initialFavorites}
         />
         <div className="min-w-0 flex-1">
           <main id="main" className="mx-auto max-w-6xl px-6 py-8">

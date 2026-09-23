@@ -1,17 +1,9 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
-import { db } from "@/lib/db";
-import { favorite } from "@/lib/db/schema";
-import { recordActivity } from "@/lib/activity";
-import { isAtFavoriteLimit, parseFavoriteInput } from "@/lib/favorite-input";
-import { routing } from "@/i18n/routing";
-import { listFavorites } from "@/lib/db/queries";
-import { NAV_ITEMS } from "@/lib/opendata/datasets";
+import { toggleFavoriteForUser, type ToggleFavoriteResult } from "@/lib/favorites";
 import { requireSession } from "@/lib/session";
 
-export type ToggleFavoriteResult = { ok: true } | { ok: false; error: string };
+export type { ToggleFavoriteResult };
 
 export async function toggleFavorite(input: {
   datasetId: string;
@@ -20,58 +12,5 @@ export async function toggleFavorite(input: {
   geo?: string | null;
 }): Promise<ToggleFavoriteResult> {
   const session = await requireSession();
-  const parsed = parseFavoriteInput(input);
-  if (!parsed.ok) {
-    return { ok: false, error: "favorite" };
-  }
-  try {
-    const existing = await db
-      .select()
-      .from(favorite)
-      .where(
-        and(
-          eq(favorite.userId, session.user.id),
-          eq(favorite.datasetId, parsed.datasetId),
-          eq(favorite.recordId, parsed.recordId),
-        ),
-      )
-      .limit(1);
-
-    if (existing[0]) {
-      await db.delete(favorite).where(eq(favorite.id, existing[0].id));
-      await recordActivity(session.user.id, "favorite.remove", {
-        datasetId: parsed.datasetId,
-        recordId: parsed.recordId,
-        label: parsed.label,
-      });
-    } else {
-      const current = await listFavorites(session.user.id);
-      if (isAtFavoriteLimit(current.length)) {
-        return { ok: false, error: "favoriteLimit" };
-      }
-      await db.insert(favorite).values({
-        id: crypto.randomUUID(),
-        userId: session.user.id,
-        datasetId: parsed.datasetId,
-        recordId: parsed.recordId,
-        label: parsed.label,
-        geo: parsed.geo,
-        createdAt: new Date(),
-      });
-      await recordActivity(session.user.id, "favorite.add", {
-        datasetId: parsed.datasetId,
-        recordId: parsed.recordId,
-        label: parsed.label,
-      });
-    }
-
-    for (const locale of routing.locales) {
-      for (const item of NAV_ITEMS) {
-        revalidatePath(`/${locale}${item.href}`);
-      }
-    }
-    return { ok: true };
-  } catch {
-    return { ok: false, error: "favorite" };
-  }
+  return toggleFavoriteForUser(session.user.id, input);
 }

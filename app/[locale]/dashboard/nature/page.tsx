@@ -2,12 +2,13 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import { BboxExplorer } from "@/components/dashboard/bbox-explorer";
 import { DatasetNotice } from "@/components/dashboard/dataset-notice";
 import { DatasetTabs } from "@/components/dashboard/dataset-tabs";
+import { InfiniteThemeExplorer } from "@/components/dashboard/infinite-theme-explorer";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { PageIntro } from "@/components/dashboard/page-intro";
-import { ThemeExplorer } from "@/components/dashboard/theme-explorer";
 import { fetchCount, formatCount } from "@/lib/opendata/client";
+import { localizeExplorerDataset } from "@/lib/opendata/localize";
 import { DATASETS } from "@/lib/opendata/datasets";
-import { loadTheme } from "@/lib/opendata/load";
+import { loadBboxExplorer, loadThemeExplorer } from "@/lib/opendata/load";
 import { requireSession } from "@/lib/session";
 
 export default async function NaturePage({
@@ -22,7 +23,15 @@ export default async function NaturePage({
   const active = tab === "parks" ? "parks" : "trees";
   const dataset = DATASETS[active];
   const [loaded, treeCount, parkCount] = await Promise.all([
-    loadTheme(dataset, session.user.id),
+    dataset.bbox
+      ? loadBboxExplorer(dataset, session.user.id).then((result) => ({
+          kind: "bbox" as const,
+          ...result,
+        }))
+      : loadThemeExplorer(dataset, session.user.id).then((result) => ({
+          kind: "infinite" as const,
+          ...result,
+        })),
     fetchCount(DATASETS.trees.id, DATASETS.trees.revalidate),
     fetchCount(DATASETS.parks.id, DATASETS.parks.revalidate),
   ]);
@@ -46,18 +55,20 @@ export default async function NaturePage({
           { href: "/dashboard/nature?tab=parks", label: t("parks") },
         ]}
       />
-      {dataset.bbox ? (
+      {loaded.kind === "bbox" ? (
         <BboxExplorer
           dataset={dataset}
-          initial={loaded.page}
+          initial={loaded.table}
+          mapRecords={loaded.markers.results}
           favoriteIds={loaded.favoriteIds}
         />
       ) : (
-        <ThemeExplorer
-          dataset={dataset}
-          records={loaded.page.results}
-          totalCount={loaded.page.total_count}
+        <InfiniteThemeExplorer
+          dataset={await localizeExplorerDataset(dataset)}
+          initial={loaded.table}
+          mapRecords={loaded.markers.results}
           favoriteIds={loaded.favoriteIds}
+          initialError={loaded.ok ? null : loaded.error}
         />
       )}
     </div>

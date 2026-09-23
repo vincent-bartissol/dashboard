@@ -1,22 +1,23 @@
 import { getFormatter, getTranslations } from "next-intl/server";
 import { DatasetNotice } from "@/components/dashboard/dataset-notice";
+import { InfiniteThemeExplorer } from "@/components/dashboard/infinite-theme-explorer";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { PageIntro } from "@/components/dashboard/page-intro";
-import { ThemeExplorer } from "@/components/dashboard/theme-explorer";
 import { fetchCount, formatCount, joinWhere } from "@/lib/opendata/client";
+import { localizeExplorerDataset } from "@/lib/opendata/localize";
 import { DATASETS } from "@/lib/opendata/datasets";
-import { loadTheme } from "@/lib/opendata/load";
+import { loadThemeExplorer } from "@/lib/opendata/load";
 import { requireSession } from "@/lib/session";
 
 export default async function MarketsPage() {
   const session = await requireSession();
   const t = await getTranslations("Pages.markets");
   const format = await getFormatter();
-  const { page, favoriteIds, error, ok, where } = await loadTheme(DATASETS.markets, session.user.id);
+  const loaded = await loadThemeExplorer(DATASETS.markets, session.user.id);
   const foodCount = await fetchCount(
     DATASETS.markets.id,
     DATASETS.markets.revalidate,
-    joinWhere(where, "produit like '*Aliment*'"),
+    joinWhere(loaded.where, "produit like '*Aliment*'"),
   );
 
   return (
@@ -24,18 +25,22 @@ export default async function MarketsPage() {
       <PageIntro title={t("title")} dataset={DATASETS.markets}>
         {t("body")}
       </PageIntro>
-      <DatasetNotice error={error || foodCount.error} />
+      <DatasetNotice error={loaded.error || foodCount.error} />
       <KpiStrip
         items={[
-          { label: t("markets"), value: ok ? format.number(page.total_count) : "—" },
+          {
+            label: t("markets"),
+            value: loaded.ok ? format.number(loaded.table.total_count) : "—",
+          },
           { label: t("food"), value: formatCount(foodCount, (value) => format.number(value)) },
         ]}
       />
-      <ThemeExplorer
-        dataset={DATASETS.markets}
-        records={page.results}
-        totalCount={page.total_count}
-        favoriteIds={favoriteIds}
+      <InfiniteThemeExplorer
+        dataset={await localizeExplorerDataset(DATASETS.markets)}
+        initial={loaded.table}
+        mapRecords={loaded.markers.results}
+        favoriteIds={loaded.favoriteIds}
+        initialError={loaded.ok ? null : loaded.error}
         descriptionKeys={["jours_tenue", "produit"]}
       />
     </div>

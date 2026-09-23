@@ -22,6 +22,13 @@
       "when": 1789714653175,
       "tag": "0002_omniscient_naoko",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1790000000000,
+      "tag": "0003_alert_rule",
+      "breakpoints": true
     }
   ]
 }

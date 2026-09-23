@@ -209,7 +209,13 @@ async function mapPool<T, R>(items: T[], concurrency: number, mapper: (item: T) 
 export async function fetchAllRecords<T = OpenDataRecord>(
   datasetId: string,
   revalidate: number,
-  options?: { where?: string; orderBy?: string; max?: number; host?: OpenDataHost },
+  options?: {
+    where?: string;
+    orderBy?: string;
+    max?: number;
+    host?: OpenDataHost;
+    select?: string;
+  },
 ): Promise<FetchResult<T>> {
   const max = options?.max ?? 2500;
   const first = await fetchRecordsSafe<T>(
@@ -220,6 +226,7 @@ export async function fetchAllRecords<T = OpenDataRecord>(
       where: options?.where,
       orderBy: options?.orderBy,
       host: options?.host,
+      select: options?.select,
     },
     revalidate,
   );
@@ -238,6 +245,7 @@ export async function fetchAllRecords<T = OpenDataRecord>(
           where: options?.where,
           orderBy: options?.orderBy,
           host: options?.host,
+          select: options?.select,
         },
         revalidate,
       ),
