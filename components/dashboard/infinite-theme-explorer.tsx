@@ -13,6 +13,11 @@ import {
   themeTableQueryKey,
 } from "@/lib/opendata/theme-query";
 
+export type InfiniteThemeSlot = {
+  mapRecords: OpenDataRecord[];
+  totalCount: number;
+};
+
 export function InfiniteThemeExplorer({
   dataset,
   initial,
@@ -41,7 +46,7 @@ export function InfiniteThemeExplorer({
   mapZoom?: number;
   extraMarkers?: MapMarker[];
   refetchInterval?: number;
-  children?: ReactNode;
+  children?: ReactNode | ((slot: InfiniteThemeSlot) => ReactNode);
 }) {
   const t = useTranslations("Explorer");
   const tCommon = useTranslations("Common");
@@ -82,7 +87,19 @@ export function InfiniteThemeExplorer({
       skipTableReset.current = false;
       return;
     }
-    void queryClient.resetQueries({ queryKey: themeTableQueryKey(dataset.id, district) });
+    // Refresh only page 0 in place — drop deeper pages so live data stays coherent
+    // without refetching every scrolled page.
+    void (async () => {
+      try {
+        const page0 = await fetchThemeTablePage(dataset.id, { district, offset: 0 });
+        queryClient.setQueryData(themeTableQueryKey(dataset.id, district), {
+          pages: [page0],
+          pageParams: [0],
+        });
+      } catch {
+        // Live poll failures are surfaced via markersQuery / next user scroll.
+      }
+    })();
   }, [dataset.id, district, markersQuery.dataUpdatedAt, queryClient, refetchInterval]);
 
   const records =
@@ -121,6 +138,9 @@ export function InfiniteThemeExplorer({
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage, records.length]);
 
+  const slot: InfiniteThemeSlot = { mapRecords, totalCount };
+  const childNode = typeof children === "function" ? children(slot) : children;
+
   return (
     <div className="space-y-6">
       {liveError ? (
@@ -132,7 +152,7 @@ export function InfiniteThemeExplorer({
           {tCommon("opendataDown")}
         </p>
       ) : null}
-      {children}
+      {childNode}
       <ThemeExplorerClient
         dataset={dataset}
         records={records}

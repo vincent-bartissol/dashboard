@@ -35,6 +35,8 @@ type Props = {
   extraMarkers?: MapMarker[];
   /** Full geo set for the map; defaults to `records` when omitted. */
   mapRecords?: OpenDataRecord[];
+  /** Map markers are a viewport/sample subset — prefer table row count in the filter label. */
+  mapSample?: boolean;
   /** When false, show every loaded row (for server-side infinite scroll). Default true. */
   paginate?: boolean;
   /** Cap table body height and scroll inside the card. */
@@ -90,6 +92,7 @@ export function ThemeExplorerClient({
   mapZoom,
   extraMarkers = [],
   mapRecords,
+  mapSample = false,
   paginate = true,
   tableMaxHeight,
   tableEnd,
@@ -156,7 +159,9 @@ export function ThemeExplorerClient({
     [colorScheme, dataset, descriptionKeys, filteredMap],
   );
 
-  const filteredCount = mapRecords ? filteredMap.length : filtered.length;
+  const filteredCount =
+    mapRecords && !mapSample ? filteredMap.length : filtered.length;
+
 
   function onSort(columnKey: string) {
     if (sortKey === columnKey) {

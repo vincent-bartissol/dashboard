@@ -12,7 +12,12 @@ import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { useFavoritesQuery } from "@/lib/favorites-query";
 import type { FavoriteDto } from "@/lib/favorites";
 import { NAV_PREFETCH_DATASETS } from "@/lib/opendata/nav-prefetch";
-import { fetchThemePage, themeQueryKey } from "@/lib/opendata/theme-query";
+import {
+  fetchThemeMarkers,
+  fetchThemeTablePage,
+  themeMarkersQueryKey,
+  themeTableQueryKey,
+} from "@/lib/opendata/theme-query";
 import type { ColorScheme } from "@/lib/theme";
 
 const linkClass = (active: boolean) =>
@@ -50,8 +55,16 @@ export function Sidebar({
     if (!datasets?.length) return;
     for (const datasetId of datasets) {
       void queryClient.prefetchQuery({
-        queryKey: themeQueryKey(datasetId),
-        queryFn: ({ signal }) => fetchThemePage(datasetId, { signal }),
+        queryKey: themeMarkersQueryKey(datasetId),
+        queryFn: ({ signal }) => fetchThemeMarkers(datasetId, { signal }),
+      });
+      void queryClient.prefetchInfiniteQuery({
+        queryKey: themeTableQueryKey(datasetId),
+        queryFn: ({ pageParam, signal }) =>
+          fetchThemeTablePage(datasetId, { offset: pageParam, signal }),
+        initialPageParam: 0,
+        getNextPageParam: (last: { hasMore: boolean; nextOffset: number }) =>
+          last.hasMore ? last.nextOffset : undefined,
       });
     }
   }

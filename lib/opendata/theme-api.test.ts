@@ -20,6 +20,12 @@ describe("markerSelect", () => {
     expect(select).toContain("numdocksavailable");
     expect(select).toContain("ebike");
   });
+
+  it("adds event and market description fields", () => {
+    expect(markerSelect(DATASETS.events)).toContain("lead_text");
+    expect(markerSelect(DATASETS.events)).toContain("address_name");
+    expect(markerSelect(DATASETS.markets)).toContain("jours_tenue");
+  });
 });
 
 describe("loadThemePage", () => {

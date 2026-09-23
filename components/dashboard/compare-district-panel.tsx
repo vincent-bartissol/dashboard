@@ -8,6 +8,12 @@ import { fetchThemePage, themeQueryKey } from "@/lib/opendata/theme-query";
 import { DATASETS } from "@/lib/opendata/datasets";
 import { Card } from "@/components/ui/card";
 
+function datasetHasGeo(datasetId: string) {
+  return Object.values(DATASETS).some(
+    (dataset) => dataset.id === datasetId && Boolean(dataset.geoField),
+  );
+}
+
 export function CompareDistrictPanel({
   datasetId,
   primaryCount,
@@ -20,11 +26,16 @@ export function CompareDistrictPanel({
   const format = useFormatter();
   const [district, setDistrict] = useState("");
   const [open, setOpen] = useState(false);
+  const useMarkers = datasetHasGeo(datasetId);
 
   const query = useQuery({
     queryKey: themeQueryKey(datasetId, district || null),
     queryFn: ({ signal }) =>
-      fetchThemePage(datasetId, { district, signal, mode: "markers" }),
+      fetchThemePage(datasetId, {
+        district,
+        signal,
+        mode: useMarkers ? "markers" : undefined,
+      }),
     enabled: open && district.length > 0,
   });
 

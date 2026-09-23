@@ -30,6 +30,8 @@ export type ThemeLoadOptions = {
   limit?: number;
   offset?: number;
   extraWhere?: string;
+  /** When set, skip profile/district resolution and use this where clause as-is. */
+  whereOverride?: string;
 };
 
 async function resolveDistrictWhere(
@@ -37,6 +39,9 @@ async function resolveDistrictWhere(
   userId: string,
   options?: ThemeLoadOptions,
 ): Promise<{ ok: true; where?: string } | { ok: false; error: "bad_district" }> {
+  if (options?.whereOverride !== undefined) {
+    return { ok: true, where: options.whereOverride };
+  }
   let districtCode: string | null | undefined = options?.district;
   if (districtCode === undefined && !options?.ignoreProfile) {
     const profile = await getProfile(userId);
@@ -130,6 +135,14 @@ export function markerSelect(config: DatasetConfig): string {
     fields.add("numbikesavailable");
     fields.add("numdocksavailable");
     fields.add("ebike");
+  }
+  if (config.id === DATASETS.events.id) {
+    fields.add("lead_text");
+    fields.add("address_name");
+  }
+  if (config.id === DATASETS.markets.id) {
+    fields.add("jours_tenue");
+    fields.add("produit");
   }
   for (const key of ["dispo", "statut"] as const) {
     if (config.columns.some((column) => column.key === key)) fields.add(key);
