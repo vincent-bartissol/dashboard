@@ -4,9 +4,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { keepPreviousData, useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { ThemeExplorerClient } from "@/components/dashboard/theme-explorer-client";
-import type { ExplorerDataset, FetchResult, OpenDataPage } from "@/lib/opendata/client";
+import type { ExplorerDataset, FetchResult, OpenDataPage, OpenDataRecord } from "@/lib/opendata/client";
+import { PARIS_BBOX } from "@/lib/opendata/datasets";
 import type { MapMarker } from "@/lib/opendata/markers";
-import { BBOX_PAGE_MAX, BBOX_PAGE_SIZE } from "@/lib/opendata/bbox-constants";
+import { BBOX_PAGE_SIZE } from "@/lib/opendata/bbox-constants";
 
 export type Bbox = { south: number; west: number; north: number; east: number };
 
@@ -16,7 +17,9 @@ export type BboxRecordsPage = {
   hasMore: boolean;
 };
 
-const BBOX_MAP_LIMIT = BBOX_PAGE_MAX;
+function bboxKey(bbox: Bbox) {
+  return `${bbox.south},${bbox.west},${bbox.north},${bbox.east}`;
+}
 
 export async function fetchBboxRecords(
   datasetId: string,
@@ -49,9 +52,33 @@ export async function fetchBboxRecords(
   };
 }
 
+export async function fetchBboxMarkers(
+  datasetId: string,
+  bbox: Bbox,
+  signal?: AbortSignal,
+): Promise<OpenDataPage> {
+  const params = new URLSearchParams({
+    dataset: datasetId,
+    south: String(bbox.south),
+    west: String(bbox.west),
+    north: String(bbox.north),
+    east: String(bbox.east),
+    mode: "markers",
+  });
+  const res = await fetch(`/api/opendata/records?${params}`, { signal });
+  const data = (await res.json()) as FetchResult;
+  if (!res.ok || !data.ok || !Array.isArray(data.page?.results)) {
+    throw new Error(
+      res.status === 429 || data.error === "rate_limited" ? "rate_limited" : "opendata",
+    );
+  }
+  return data.page;
+}
+
 export function BboxExplorerClient({
   dataset,
   initial,
+  mapRecords: initialMapRecords,
   favoriteIds,
   colorScheme,
   descriptionKeys,
@@ -61,6 +88,7 @@ export function BboxExplorerClient({
 }: {
   dataset: ExplorerDataset;
   initial: OpenDataPage;
+  mapRecords?: OpenDataRecord[];
   favoriteIds: string[];
   colorScheme?: "velib" | "status";
   descriptionKeys?: string[];
@@ -75,6 +103,12 @@ export function BboxExplorerClient({
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const sentinel = useRef<HTMLDivElement | null>(null);
 
+  const seedMap = initialMapRecords ?? initial.results;
+  const activeBbox = bbox ?? PARIS_BBOX;
+  const activeKey = bboxKey(activeBbox);
+  const markersQueryKey = ["opendata-records-markers", dataset.id, activeKey] as const;
+  const tableQueryKey = ["opendata-records-table", dataset.id, activeKey] as const;
+
   const onBbox = useMemo(
     () => (next: Bbox) => {
       if (timer.current) window.clearTimeout(timer.current);
@@ -85,36 +119,53 @@ export function BboxExplorerClient({
     [],
   );
 
+  useEffect(() => {
+    return () => {
+      if (timer.current) window.clearTimeout(timer.current);
+    };
+  }, []);
+
   const markersQuery = useQuery({
-    queryKey: ["opendata-records-markers", dataset.id, bbox],
-    queryFn: ({ signal }) =>
-      fetchBboxRecords(dataset.id, bbox!, { limit: BBOX_MAP_LIMIT, offset: 0, signal }),
-    enabled: bbox != null,
+    queryKey: markersQueryKey,
+    queryFn: ({ signal }) => fetchBboxMarkers(dataset.id, activeBbox, signal),
+    initialData: bbox == null ? { total_count: initial.total_count, results: seedMap } : undefined,
     placeholderData: keepPreviousData,
+    staleTime: bbox == null ? Infinity : 0,
   });
 
   const tableQuery = useInfiniteQuery({
-    queryKey: ["opendata-records-table", dataset.id, bbox],
+    queryKey: tableQueryKey,
     queryFn: ({ pageParam, signal }) =>
-      fetchBboxRecords(dataset.id, bbox!, {
+      fetchBboxRecords(dataset.id, activeBbox, {
         limit: BBOX_PAGE_SIZE,
         offset: pageParam,
         signal,
       }),
     initialPageParam: 0,
     getNextPageParam: (last) => (last.hasMore ? last.nextOffset : undefined),
-    enabled: bbox != null,
+    initialData:
+      bbox == null
+        ? {
+            pages: [
+              {
+                page: initial,
+                nextOffset: initial.results.length,
+                hasMore: initial.results.length < initial.total_count,
+              },
+            ],
+            pageParams: [0],
+          }
+        : undefined,
     placeholderData: keepPreviousData,
+    staleTime: bbox == null ? Infinity : 0,
   });
 
-  const mapPage = markersQuery.data?.page ?? initial;
-  const tablePages = tableQuery.data?.pages;
+  const mapRecords = markersQuery.data?.results ?? seedMap;
   const tableRecords =
-    tablePages?.flatMap((entry) => entry.page.results) ??
-    (bbox == null ? initial.results : mapPage.results.slice(0, BBOX_PAGE_SIZE));
+    tableQuery.data?.pages.flatMap((entry) => entry.page.results) ?? initial.results;
   const totalCount =
-    markersQuery.data?.page.total_count ??
-    tablePages?.[0]?.page.total_count ??
+    markersQuery.data?.total_count ??
+    tableQuery.data?.pages[0]?.page.total_count ??
     initial.total_count;
 
   const error =
@@ -128,12 +179,11 @@ export function BboxExplorerClient({
       : null;
 
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = tableQuery;
-  const canLoadMore = bbox != null && Boolean(hasNextPage);
 
   useEffect(() => {
     const root = scrollRef.current;
     const node = sentinel.current;
-    if (!root || !node || !canLoadMore) return;
+    if (!root || !node || !hasNextPage) return;
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting) && !isFetchingNextPage) {
@@ -144,7 +194,7 @@ export function BboxExplorerClient({
     );
     observer.observe(node);
     return () => observer.disconnect();
-  }, [canLoadMore, isFetchingNextPage, fetchNextPage, tableRecords.length]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, tableRecords.length]);
 
   return (
     <div className="space-y-4">
@@ -156,7 +206,8 @@ export function BboxExplorerClient({
       <ThemeExplorerClient
         dataset={dataset}
         records={tableRecords}
-        mapRecords={mapPage.results}
+        mapRecords={mapRecords}
+        mapSample
         totalCount={totalCount}
         favoriteIds={favoriteIds}
         colorScheme={colorScheme}
@@ -176,7 +227,7 @@ export function BboxExplorerClient({
           >
             {isFetchingNextPage
               ? t("loadingMore")
-              : canLoadMore
+              : hasNextPage
                 ? t("loadMoreHint")
                 : null}
           </div>

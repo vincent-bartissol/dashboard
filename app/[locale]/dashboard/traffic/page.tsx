@@ -6,7 +6,7 @@ import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { PageIntro } from "@/components/dashboard/page-intro";
 import { fetchCount, formatCount } from "@/lib/opendata/client";
 import { DATASETS } from "@/lib/opendata/datasets";
-import { loadTheme } from "@/lib/opendata/load";
+import { loadBboxExplorer } from "@/lib/opendata/load";
 import { requireSession } from "@/lib/session";
 
 export default async function TrafficPage({
@@ -21,7 +21,7 @@ export default async function TrafficPage({
   const active = tab === "street" ? "street" : "works";
   const dataset = DATASETS[active];
   const [loaded, worksCount, streetCount] = await Promise.all([
-    loadTheme(dataset, session.user.id),
+    loadBboxExplorer(dataset, session.user.id),
     fetchCount(DATASETS.works.id, DATASETS.works.revalidate),
     fetchCount(DATASETS.street.id, DATASETS.street.revalidate),
   ]);
@@ -47,7 +47,8 @@ export default async function TrafficPage({
       />
       <BboxExplorer
         dataset={dataset}
-        initial={loaded.page}
+        initial={loaded.table}
+        mapRecords={loaded.markers.results}
         favoriteIds={loaded.favoriteIds}
       />
     </div>

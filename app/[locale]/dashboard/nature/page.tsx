@@ -8,7 +8,7 @@ import { PageIntro } from "@/components/dashboard/page-intro";
 import { fetchCount, formatCount } from "@/lib/opendata/client";
 import { localizeExplorerDataset } from "@/lib/opendata/localize";
 import { DATASETS } from "@/lib/opendata/datasets";
-import { loadTheme, loadThemeExplorer } from "@/lib/opendata/load";
+import { loadBboxExplorer, loadThemeExplorer } from "@/lib/opendata/load";
 import { requireSession } from "@/lib/session";
 
 export default async function NaturePage({
@@ -24,7 +24,7 @@ export default async function NaturePage({
   const dataset = DATASETS[active];
   const [loaded, treeCount, parkCount] = await Promise.all([
     dataset.bbox
-      ? loadTheme(dataset, session.user.id).then((result) => ({
+      ? loadBboxExplorer(dataset, session.user.id).then((result) => ({
           kind: "bbox" as const,
           ...result,
         }))
@@ -58,7 +58,8 @@ export default async function NaturePage({
       {loaded.kind === "bbox" ? (
         <BboxExplorer
           dataset={dataset}
-          initial={loaded.page}
+          initial={loaded.table}
+          mapRecords={loaded.markers.results}
           favoriteIds={loaded.favoriteIds}
         />
       ) : (

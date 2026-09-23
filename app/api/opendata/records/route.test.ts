@@ -22,11 +22,12 @@ vi.mock("@/lib/opendata/client", async (importOriginal) => {
   return {
     ...actual,
     fetchRecordsSafe: vi.fn(),
+    fetchAllRecords: vi.fn(),
   };
 });
 
 import { getProfile } from "@/lib/db/queries";
-import { fetchRecordsSafe } from "@/lib/opendata/client";
+import { fetchAllRecords, fetchRecordsSafe } from "@/lib/opendata/client";
 import { opendataRecordsLimit } from "@/lib/rate-limit";
 import { getSession } from "@/lib/session";
 import { GET } from "./route";
@@ -35,6 +36,7 @@ const getSessionMock = vi.mocked(getSession);
 const getProfileMock = vi.mocked(getProfile);
 const rateLimitMock = vi.mocked(opendataRecordsLimit.check);
 const fetchRecordsSafeMock = vi.mocked(fetchRecordsSafe);
+const fetchAllRecordsMock = vi.mocked(fetchAllRecords);
 
 const USER = { id: "user-1", role: "user", banned: false as boolean | null, banExpires: null };
 const PAGE = { total_count: 2, results: [{ idbase: "1" }, { idbase: "2" }] };
@@ -71,6 +73,7 @@ describe("GET /api/opendata/records", () => {
     });
     rateLimitMock.mockReturnValue({ ok: true });
     fetchRecordsSafeMock.mockResolvedValue({ ok: true, page: PAGE });
+    fetchAllRecordsMock.mockResolvedValue({ ok: true, page: PAGE });
   });
 
   it("returns 401 when there is no session", async () => {
@@ -165,7 +168,7 @@ describe("GET /api/opendata/records", () => {
     });
     expect(fetchRecordsSafeMock).toHaveBeenCalledWith(
       "les-arbres",
-      expect.objectContaining({ limit: 50, offset: 0 }),
+      expect.objectContaining({ limit: 50, offset: 0, orderBy: "idbase" }),
       86_400,
     );
   });
@@ -189,7 +192,7 @@ describe("GET /api/opendata/records", () => {
     });
     expect(fetchRecordsSafeMock).toHaveBeenCalledWith(
       "les-arbres",
-      expect.objectContaining({ limit: 50, offset: 50 }),
+      expect.objectContaining({ limit: 50, offset: 50, orderBy: "idbase" }),
       86_400,
     );
   });
@@ -201,5 +204,30 @@ describe("GET /api/opendata/records", () => {
       expect.objectContaining({ limit: 100 }),
       86_400,
     );
+  });
+
+  it("loads slim unordered markers in mode=markers", async () => {
+    fetchAllRecordsMock.mockResolvedValue({
+      ok: true,
+      page: {
+        total_count: 900,
+        results: Array.from({ length: 500 }, (_, i) => ({ idbase: String(i) })),
+      },
+    });
+    const { status, body } = await jsonOf(await GET(treesUrl({ mode: "markers" })));
+    expect(status).toBe(200);
+    expect(body).toMatchObject({ ok: true });
+    expect((body.page as { results: unknown[] }).results).toHaveLength(500);
+    expect(fetchAllRecordsMock).toHaveBeenCalledWith(
+      "les-arbres",
+      86_400,
+      expect.objectContaining({
+        max: 500,
+        select: expect.stringContaining("geo_point_2d"),
+      }),
+    );
+    const opts = fetchAllRecordsMock.mock.calls[0]?.[2];
+    expect(opts).not.toHaveProperty("orderBy");
+    expect(fetchRecordsSafeMock).not.toHaveBeenCalled();
   });
 });

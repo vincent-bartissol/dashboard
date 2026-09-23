@@ -4,9 +4,17 @@ import { isBannedUser } from "@/lib/admin";
 import { getSession } from "@/lib/session";
 import { arrondissementWhere } from "@/lib/opendata/arrondissement";
 import { recordsQueryFromSearch } from "@/lib/opendata/bbox";
-import { bboxWhere, fetchRecordsSafe, joinWhere, type DatasetConfig } from "@/lib/opendata/client";
+import {
+  bboxWhere,
+  fetchAllRecords,
+  fetchRecordsSafe,
+  joinWhere,
+  type DatasetConfig,
+} from "@/lib/opendata/client";
 import { DATASETS, PARIS_BBOX } from "@/lib/opendata/datasets";
-import { BBOX_PAGE_MAX, BBOX_PAGE_SIZE } from "@/lib/opendata/bbox-constants";
+import { BBOX_MAP_MAX, BBOX_PAGE_MAX, BBOX_PAGE_SIZE } from "@/lib/opendata/bbox-constants";
+import { themeOrderBy } from "@/lib/opendata/order-by";
+import { markerSelect } from "@/lib/opendata/theme-api";
 import { opendataRecordsLimit } from "@/lib/rate-limit";
 
 const ALLOWED = new Map(
@@ -14,8 +22,6 @@ const ALLOWED = new Map(
     .filter((dataset) => dataset.bbox)
     .map((dataset) => [dataset.id, dataset]),
 );
-
-export { BBOX_PAGE_MAX, BBOX_PAGE_SIZE } from "@/lib/opendata/bbox-constants";
 
 function clampLimit(raw: string | null) {
   const value = Number(raw ?? BBOX_PAGE_SIZE);
@@ -53,17 +59,38 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: false, error: "unknown_dataset" }, { status: 400 });
   }
 
+  const profile = await getProfile(session.user.id);
+  const district = arrondissementWhere(config, profile.arrondissement);
+  const where = joinWhere(district, bboxWhere(config.geoField, query.bbox));
+
+  if (request.nextUrl.searchParams.get("mode") === "markers") {
+    const result = await fetchAllRecords(config.id, config.revalidate, {
+      where,
+      host: config.host,
+      max: BBOX_MAP_MAX,
+      select: markerSelect(config),
+      // No orderBy: better spatial spread for map samples than id-sorted clusters.
+    });
+    if (!result.ok) {
+      console.error(result.error);
+      return NextResponse.json(
+        { ok: false, error: "opendata", page: result.page },
+        { status: 502 },
+      );
+    }
+    return NextResponse.json({ ok: true, page: result.page });
+  }
+
   const limit = clampLimit(request.nextUrl.searchParams.get("limit"));
   const offset = clampOffset(request.nextUrl.searchParams.get("offset"));
 
-  const profile = await getProfile(session.user.id);
-  const district = arrondissementWhere(config, profile.arrondissement);
   const result = await fetchRecordsSafe(
     config.id,
     {
       limit,
       offset,
-      where: joinWhere(district, bboxWhere(config.geoField, query.bbox)),
+      where,
+      orderBy: themeOrderBy(config),
       host: config.host,
     },
     config.revalidate,
