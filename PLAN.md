@@ -52,6 +52,7 @@ Each theme page follows the same layout: KPI strip, map and/or chart, searchable
 - **i18n:** next-intl App Router, locales `fr` | `en` | `es`, `localePrefix: "always"`. Messages in `messages/*.json`. APIs stay at `/api/*`.
 - **Maps:** Leaflet + OSM (no API key). Trees/chantiers fetched by **bounding box**, never all 200k trees at once
 - **Charts:** Recharts
+- **Client data:** TanStack Query for bbox map refetches via `/api/opendata/records` (dashboard layout provider)
 - **UI:** Tailwind 4 + small shared primitives (button, input, card, table)
 
 Read Next.js 16 guides under `node_modules/next/dist/docs/` before implementing caching, `proxy.ts`, and server functions.
