@@ -1,46 +1,40 @@
-import { getTranslations } from "next-intl/server";
-import { EventsInfiniteExplorer } from "@/components/dashboard/events-infinite-explorer";
+import { getFormatter, getTranslations } from "next-intl/server";
+import { InfiniteThemeExplorer } from "@/components/dashboard/infinite-theme-explorer";
+import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { PageIntro } from "@/components/dashboard/page-intro";
-import { listFavorites, getProfile } from "@/lib/db/queries";
-import { arrondissementWhere } from "@/lib/opendata/arrondissement";
-import { fetchRecordsSafe, joinWhere, type DatasetConfig } from "@/lib/opendata/client";
 import { localizeExplorerDataset } from "@/lib/opendata/localize";
 import { DATASETS } from "@/lib/opendata/datasets";
-import { themeOrderBy } from "@/lib/opendata/order-by";
+import { loadThemeExplorer } from "@/lib/opendata/load";
 import { requireSession } from "@/lib/session";
 
 export default async function EventsPage() {
   const session = await requireSession();
   const t = await getTranslations("Pages.events");
-  const config: DatasetConfig = DATASETS.events;
-  const profile = await getProfile(session.user.id);
-  const district = arrondissementWhere(config, profile.arrondissement);
-  const [result, favorites] = await Promise.all([
-    fetchRecordsSafe(
-      config.id,
-      {
-        limit: 50,
-        offset: 0,
-        where: joinWhere(district, config.defaultWhere),
-        orderBy: themeOrderBy(config),
-        host: config.host,
-      },
-      config.revalidate,
-    ),
-    listFavorites(session.user.id, config.id),
-  ]);
+  const format = await getFormatter();
+  const loaded = await loadThemeExplorer(DATASETS.events, session.user.id);
 
   return (
     <div className="space-y-6">
-      <PageIntro title={t("title")} dataset={config}>
+      <PageIntro title={t("title")} dataset={DATASETS.events}>
         {t("body")}
       </PageIntro>
-      <EventsInfiniteExplorer
-        dataset={await localizeExplorerDataset(config)}
-        initial={result.page}
-        favoriteIds={favorites.map((item) => item.recordId)}
-        initialError={result.ok ? null : result.error}
-      />
+      <InfiniteThemeExplorer
+        dataset={await localizeExplorerDataset(DATASETS.events)}
+        initial={loaded.table}
+        mapRecords={loaded.markers.results}
+        favoriteIds={loaded.favoriteIds}
+        initialError={loaded.ok ? null : loaded.error}
+        descriptionKeys={["lead_text", "address_name"]}
+      >
+        <KpiStrip
+          items={[
+            {
+              label: t("events"),
+              value: loaded.ok ? format.number(loaded.table.total_count) : "—",
+            },
+          ]}
+        />
+      </InfiniteThemeExplorer>
     </div>
   );
 }

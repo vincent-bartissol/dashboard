@@ -97,6 +97,8 @@ export function BboxExplorerClient({
         mapCenter={mapCenter}
         mapZoom={mapZoom}
         extraMarkers={extraMarkers}
+        paginate={false}
+        tableMaxHeight="28rem"
       />
     </div>
   );

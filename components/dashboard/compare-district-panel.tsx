@@ -23,7 +23,8 @@ export function CompareDistrictPanel({
 
   const query = useQuery({
     queryKey: themeQueryKey(datasetId, district || null),
-    queryFn: ({ signal }) => fetchThemePage(datasetId, { district, signal }),
+    queryFn: ({ signal }) =>
+      fetchThemePage(datasetId, { district, signal, mode: "markers" }),
     enabled: open && district.length > 0,
   });
 

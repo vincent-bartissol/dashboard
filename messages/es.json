@@ -163,7 +163,9 @@
     "sortAsc": "Ordenar {column} ascendente",
     "sortDesc": "Ordenar {column} descendente",
     "addAlert": "Crear alerta (< {n} bicis)",
-    "alertCreated": "Alerta guardada."
+    "alertCreated": "Alerta guardada.",
+    "loadingMore": "Cargando…",
+    "loadMoreHint": "Desplácese para cargar más."
   },
   "Overview": {
     "title": "Vista general",

@@ -163,7 +163,9 @@
     "sortAsc": "Trier {column} croissant",
     "sortDesc": "Trier {column} décroissant",
     "addAlert": "Créer une alerte (< {n} vélos)",
-    "alertCreated": "Alerte enregistrée."
+    "alertCreated": "Alerte enregistrée.",
+    "loadingMore": "Chargement…",
+    "loadMoreHint": "Faites défiler pour charger la suite."
   },
   "Overview": {
     "title": "Vue d’ensemble",

@@ -163,7 +163,9 @@
     "sortAsc": "Sort {column} ascending",
     "sortDesc": "Sort {column} descending",
     "addAlert": "Create alert (< {n} bikes)",
-    "alertCreated": "Alert saved."
+    "alertCreated": "Alert saved.",
+    "loadingMore": "Loading…",
+    "loadMoreHint": "Scroll to load more."
   },
   "Overview": {
     "title": "Overview",

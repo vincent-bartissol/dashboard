@@ -33,6 +33,8 @@ type Props = {
   mapCenter?: { lat: number; lon: number };
   mapZoom?: number;
   extraMarkers?: MapMarker[];
+  /** Full geo set for the map; defaults to `records` when omitted. */
+  mapRecords?: OpenDataRecord[];
   /** When false, show every loaded row (for server-side infinite scroll). Default true. */
   paginate?: boolean;
   /** Cap table body height and scroll inside the card. */
@@ -87,6 +89,7 @@ export function ThemeExplorerClient({
   mapCenter,
   mapZoom,
   extraMarkers = [],
+  mapRecords,
   paginate = true,
   tableMaxHeight,
   tableEnd,
@@ -118,6 +121,14 @@ export function ThemeExplorerClient({
     [dataset.columns, query, records],
   );
 
+  const filteredMap = useMemo(
+    () =>
+      mapRecords
+        ? mapRecords.filter((record) => recordMatchesQuery(record, dataset.columns, query))
+        : filtered,
+    [dataset.columns, filtered, mapRecords, query],
+  );
+
   const sorted = useMemo(() => {
     if (!sortKey) return filtered;
     return [...filtered].sort((a, b) =>
@@ -134,7 +145,7 @@ export function ThemeExplorerClient({
   const markers = useMemo(
     () =>
       dataset.geoField
-        ? recordsToMarkers(filtered, {
+        ? recordsToMarkers(filteredMap, {
             idField: dataset.idField,
             titleField: dataset.titleField,
             geoField: dataset.geoField,
@@ -142,8 +153,10 @@ export function ThemeExplorerClient({
             description: (record) => describe(record, descriptionKeys) ?? "",
           })
         : [],
-    [colorScheme, dataset, descriptionKeys, filtered],
+    [colorScheme, dataset, descriptionKeys, filteredMap],
   );
+
+  const filteredCount = mapRecords ? filteredMap.length : filtered.length;
 
   function onSort(columnKey: string) {
     if (sortKey === columnKey) {
@@ -218,7 +231,7 @@ export function ThemeExplorerClient({
         />
         <p className="text-sm text-muted">
           {t("filtered", {
-            filtered: format.number(filtered.length),
+            filtered: format.number(filteredCount),
             total: format.number(totalCount),
           })}
         </p>
