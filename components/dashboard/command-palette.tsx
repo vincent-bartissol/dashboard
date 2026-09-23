@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { SearchHit } from "@/lib/opendata/global-search";
+import { datasetKeyById } from "@/lib/opendata/datasets";
 import { Input } from "@/components/ui/input";
 
 async function fetchSearch(q: string, signal?: AbortSignal): Promise<SearchHit[]> {
@@ -19,11 +20,18 @@ async function fetchSearch(q: string, signal?: AbortSignal): Promise<SearchHit[]
 
 export function CommandPalette() {
   const t = useTranslations("CommandPalette");
+  const tDatasets = useTranslations("Datasets");
   const tCommon = useTranslations("Common");
   const inputId = useId();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
   const [query, setQuery] = useState("");
+
+  function datasetTitle(hit: SearchHit) {
+    const key = datasetKeyById(hit.datasetId);
+    if (!key) return hit.datasetTitle;
+    return tDatasets(`${key}.title` as Parameters<typeof tDatasets>[0]);
+  }
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -110,7 +118,7 @@ export function CommandPalette() {
                     className="block px-2 py-2 text-sm hover:bg-ground focus-field"
                   >
                     <span className="font-medium text-heading">{hit.label}</span>
-                    <span className="mt-0.5 block text-xs text-muted">{hit.datasetTitle}</span>
+                    <span className="mt-0.5 block text-xs text-muted">{datasetTitle(hit)}</span>
                   </Link>
                 </li>
               ))}

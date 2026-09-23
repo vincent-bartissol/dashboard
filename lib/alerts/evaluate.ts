@@ -62,23 +62,32 @@ export async function evaluateVelibAlerts(now = Date.now()): Promise<EvaluateAle
     const bikes = bikesFor(byStation.get(rule.recordId));
     if (bikes == null || bikes >= rule.threshold) continue;
 
-    triggered += 1;
-    await markAlertTriggered(rule.id, new Date(now));
-    const sent = await sendAlertEmail(rule, bikes);
-    if (sent) emailed += 1;
+    try {
+      const outcome = await sendAlertEmail(rule, bikes);
+      // Only cool down after a successful send or an intentional skip (no/unverified email).
+      // Delivery failures leave lastTriggeredAt untouched so the next cron can retry.
+      await markAlertTriggered(rule.id, new Date(now));
+      triggered += 1;
+      if (outcome === "sent") emailed += 1;
+    } catch {
+      // leave cooldown unset
+    }
   }
 
   return { checked: rules.length, triggered, emailed };
 }
 
-async function sendAlertEmail(rule: AlertRuleRow, bikes: number) {
+async function sendAlertEmail(
+  rule: AlertRuleRow,
+  bikes: number,
+): Promise<"sent" | "skipped"> {
   const rows = await db
     .select({ email: user.email, emailVerified: user.emailVerified })
     .from(user)
     .where(eq(user.id, rule.userId))
     .limit(1);
   const owner = rows[0];
-  if (!owner?.email || !owner.emailVerified) return false;
+  if (!owner?.email || !owner.emailVerified) return "skipped";
 
   const locale: AppLocale = "fr";
   const base = process.env.BETTER_AUTH_URL?.replace(/\/$/, "") || "http://localhost:3000";
@@ -92,5 +101,5 @@ async function sendAlertEmail(rule: AlertRuleRow, bikes: number) {
     locale,
   );
   await sendEmail({ to: owner.email, ...mail });
-  return true;
+  return "sent";
 }

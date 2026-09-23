@@ -156,13 +156,14 @@ export function BboxExplorerClient({
             pageParams: [0],
           }
         : undefined,
-    placeholderData: keepPreviousData,
+    // Do not keep previous pages across bbox changes — offsets belong to the old viewport.
     staleTime: bbox == null ? Infinity : 0,
   });
 
   const mapRecords = markersQuery.data?.results ?? seedMap;
   const tableRecords =
-    tableQuery.data?.pages.flatMap((entry) => entry.page.results) ?? initial.results;
+    tableQuery.data?.pages.flatMap((entry) => entry.page.results) ??
+    (bbox == null ? initial.results : []);
   const totalCount =
     markersQuery.data?.total_count ??
     tableQuery.data?.pages[0]?.page.total_count ??
@@ -178,12 +179,13 @@ export function BboxExplorerClient({
         : "opendata"
       : null;
 
-  const { hasNextPage, isFetchingNextPage, fetchNextPage } = tableQuery;
+  const { hasNextPage, isFetchingNextPage, fetchNextPage, isFetching } = tableQuery;
 
   useEffect(() => {
     const root = scrollRef.current;
     const node = sentinel.current;
-    if (!root || !node || !hasNextPage) return;
+    // Wait until the current bbox has real data — never page with a stale offset.
+    if (!root || !node || !hasNextPage || !tableQuery.data || isFetching) return;
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting) && !isFetchingNextPage) {
@@ -194,7 +196,14 @@ export function BboxExplorerClient({
     );
     observer.observe(node);
     return () => observer.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage, tableRecords.length]);
+  }, [
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+    tableRecords.length,
+    tableQuery.data,
+    isFetching,
+  ]);
 
   return (
     <div className="space-y-4">
@@ -225,9 +234,9 @@ export function BboxExplorerClient({
             className="border-t border-line px-4 py-3 text-center text-sm text-muted"
             aria-live="polite"
           >
-            {isFetchingNextPage
+            {isFetchingNextPage || (bbox != null && isFetching && !tableQuery.data)
               ? t("loadingMore")
-              : hasNextPage
+              : hasNextPage && tableQuery.data
                 ? t("loadMoreHint")
                 : null}
           </div>

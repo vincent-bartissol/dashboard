@@ -104,10 +104,13 @@ export function InfiniteThemeExplorer({
 
   const records =
     tableQuery.data?.pages.flatMap((entry) => entry.page.results) ?? initial.results;
-  const totalCount =
-    markersQuery.data?.total_count ??
-    tableQuery.data?.pages[0]?.page.total_count ??
-    initial.total_count;
+  const tableTotal =
+    tableQuery.data?.pages[0]?.page.total_count ?? initial.total_count;
+  // No-geo datasets (e.g. air) intentionally return empty markers with total_count 0 —
+  // always prefer the table total in that case.
+  const totalCount = dataset.geoField
+    ? (markersQuery.data?.total_count ?? tableTotal)
+    : tableTotal;
   const mapRecords = markersQuery.data?.results ?? initialMapRecords;
 
   const liveError =
@@ -156,7 +159,7 @@ export function InfiniteThemeExplorer({
       <ThemeExplorerClient
         dataset={dataset}
         records={records}
-        mapRecords={mapRecords}
+        mapRecords={dataset.geoField ? mapRecords : undefined}
         totalCount={totalCount}
         favoriteIds={favoriteIds}
         colorScheme={colorScheme}

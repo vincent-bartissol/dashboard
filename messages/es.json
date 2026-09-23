@@ -147,6 +147,8 @@
   },
   "Explorer": {
     "filterPlaceholder": "Filtrar la tabla y el mapa…",
+    "filterLoadedPlaceholder": "Filtrar las filas cargadas…",
+    "filterLoadedHint": "El filtro se aplica a las filas ya cargadas. Desplácese por la tabla para cargar más.",
     "filtered": "{filtered} filtrados / {total} en total",
     "page": "Página {current} / {count}",
     "previous": "Anterior",
@@ -164,6 +166,9 @@
     "sortDesc": "Ordenar {column} descendente",
     "addAlert": "Crear alerta (< {n} bicis)",
     "alertCreated": "Alerta guardada.",
+    "alertLimit": "Ya tiene el número máximo de alertas.",
+    "alertRateLimited": "Demasiadas solicitudes de alerta. Inténtelo de nuevo en un momento.",
+    "alertError": "No se ha podido crear esta alerta.",
     "loadingMore": "Cargando…",
     "loadMoreHint": "Desplácese para cargar más."
   },

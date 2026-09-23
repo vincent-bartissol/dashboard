@@ -106,7 +106,9 @@ export function ThemeExplorerClient({
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [favoriteError, setFavoriteError] = useState<string | null>(null);
-  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [alertMessage, setAlertMessage] = useState<
+    "alertCreated" | "alertLimit" | "alertRateLimited" | "alertError" | null
+  >(null);
 
   const favoritesQuery = useFavoritesQuery(seedFavorites(dataset.id, favoriteIds));
   const toggleFavorite = useToggleFavoriteMutation();
@@ -160,7 +162,7 @@ export function ThemeExplorerClient({
   );
 
   const filteredCount =
-    mapRecords && !mapSample ? filteredMap.length : filtered.length;
+    mapRecords != null && !mapSample ? filteredMap.length : filtered.length;
 
 
   function onSort(columnKey: string) {
@@ -211,10 +213,18 @@ export function ThemeExplorerClient({
       }),
     });
     if (!res.ok) {
-      setAlertMessage(null);
+      let error: "alertLimit" | "alertRateLimited" | "alertError" = "alertError";
+      try {
+        const data = (await res.json()) as { error?: string };
+        if (data.error === "limit") error = "alertLimit";
+        else if (res.status === 429 || data.error === "rate_limited") error = "alertRateLimited";
+      } catch {
+        // keep generic alertError
+      }
+      setAlertMessage(error);
       return;
     }
-    setAlertMessage(t("alertCreated"));
+    setAlertMessage("alertCreated");
   }
 
   return (
@@ -230,8 +240,8 @@ export function ThemeExplorerClient({
             setQuery(event.target.value);
             setPageIndex(0);
           }}
-          placeholder={t("filterPlaceholder")}
-          aria-label={t("filterPlaceholder")}
+          placeholder={paginate ? t("filterPlaceholder") : t("filterLoadedPlaceholder")}
+          aria-label={paginate ? t("filterPlaceholder") : t("filterLoadedPlaceholder")}
           className="max-w-md"
         />
         <p className="text-sm text-muted">
@@ -241,14 +251,22 @@ export function ThemeExplorerClient({
           })}
         </p>
       </div>
+      {!paginate && query.trim() ? (
+        <p className="text-xs text-muted">{t("filterLoadedHint")}</p>
+      ) : null}
       {favoriteError ? (
         <p role="alert" className="text-sm text-danger">
           {favoriteError === "favoriteLimit" ? t("favoriteLimit") : t("favoriteError")}
         </p>
       ) : null}
       {alertMessage ? (
-        <p role="status" className="text-sm text-muted">
-          {alertMessage}
+        <p
+          role="status"
+          className={
+            alertMessage === "alertCreated" ? "text-sm text-muted" : "text-sm text-danger"
+          }
+        >
+          {t(alertMessage)}
         </p>
       ) : null}
       {dataset.geoField ? (

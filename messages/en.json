@@ -147,6 +147,8 @@
   },
   "Explorer": {
     "filterPlaceholder": "Filter the table and map…",
+    "filterLoadedPlaceholder": "Filter loaded rows…",
+    "filterLoadedHint": "Filter applies to rows already loaded. Scroll the table to load more.",
     "filtered": "{filtered} filtered / {total} total",
     "page": "Page {current} / {count}",
     "previous": "Previous",
@@ -164,6 +166,9 @@
     "sortDesc": "Sort {column} descending",
     "addAlert": "Create alert (< {n} bikes)",
     "alertCreated": "Alert saved.",
+    "alertLimit": "You already have the maximum number of alerts.",
+    "alertRateLimited": "Too many alert requests. Try again shortly.",
+    "alertError": "Could not create this alert.",
     "loadingMore": "Loading…",
     "loadMoreHint": "Scroll to load more."
   },

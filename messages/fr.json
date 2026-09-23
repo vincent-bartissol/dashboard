@@ -147,6 +147,8 @@
   },
   "Explorer": {
     "filterPlaceholder": "Filtrer le tableau et la carte…",
+    "filterLoadedPlaceholder": "Filtrer les lignes chargées…",
+    "filterLoadedHint": "Le filtre s’applique aux lignes déjà chargées. Faites défiler le tableau pour en charger davantage.",
     "filtered": "{filtered} filtrés / {total} au total",
     "page": "Page {current} / {count}",
     "previous": "Précédent",
@@ -164,6 +166,9 @@
     "sortDesc": "Trier {column} décroissant",
     "addAlert": "Créer une alerte (< {n} vélos)",
     "alertCreated": "Alerte enregistrée.",
+    "alertLimit": "Vous avez déjà le nombre maximum d’alertes.",
+    "alertRateLimited": "Trop de requêtes d’alerte. Réessayez dans un instant.",
+    "alertError": "Impossible de créer cette alerte.",
     "loadingMore": "Chargement…",
     "loadMoreHint": "Faites défiler pour charger la suite."
   },
