@@ -76,7 +76,7 @@ export function Sidebar({
   }
 
   return (
-    <aside className="flex min-h-screen w-64 shrink-0 flex-col border-r border-white/10 bg-navy text-white">
+    <aside className="sticky top-0 flex h-dvh w-64 shrink-0 flex-col self-start border-r border-white/10 bg-navy text-white">
       <div className="border-b border-white/10 px-5 py-5">
         <Wordmark invert />
         <p className="mt-3 truncate text-sm text-white/70">{userName}</p>
@@ -84,7 +84,7 @@ export function Sidebar({
           <CommandPalette />
         </div>
       </div>
-      <nav className="flex flex-1 flex-col gap-0.5 p-3">
+      <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto p-3">
         {NAV_ITEMS.map((item) => {
           const active =
             item.href === "/dashboard"
