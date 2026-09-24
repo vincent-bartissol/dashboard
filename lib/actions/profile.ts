@@ -11,7 +11,9 @@ import { parsePreferredDistrict } from "@/lib/opendata/arrondissement";
 import { recordActivity } from "@/lib/activity";
 import { requireSession } from "@/lib/session";
 
-export type ProfileUpdateResult = { ok: true } | { ok: false; error: string };
+export type ProfileUpdateResult =
+  | { ok: true; arrondissement: string | null }
+  | { ok: false; error: string };
 
 export async function updateProfile(input: {
   firstName: string;
@@ -63,6 +65,7 @@ export async function updateProfile(input: {
 
   for (const locale of routing.locales) {
     revalidatePath(`/${locale}/dashboard`, "layout");
+    revalidatePath(`/${locale}/dashboard/profile`);
   }
-  return { ok: true };
+  return { ok: true, arrondissement: district.value };
 }

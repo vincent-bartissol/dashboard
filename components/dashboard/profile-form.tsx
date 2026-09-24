@@ -1,7 +1,8 @@
 "use client";
 
-import { FormEvent, useState, useTransition } from "react";
+import { FormEvent, useEffect, useRef, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { withLocale } from "@/i18n/path";
 import { updateProfile } from "@/lib/actions/profile";
 import { authClient } from "@/lib/auth-client";
@@ -25,12 +26,27 @@ export function ProfileForm({
 }) {
   const t = useTranslations("Profile");
   const locale = useLocale();
+  const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [district, setDistrict] = useState(arrondissement ?? "");
+  /** After save, ignore stale RSC props until the server catches up. */
+  const expectedDistrict = useRef<string | null>(null);
   const [emailPending, setEmailPending] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [emailSent, setEmailSent] = useState(false);
+
+  useEffect(() => {
+    const server = arrondissement ?? "";
+    if (expectedDistrict.current !== null) {
+      if (server === expectedDistrict.current) {
+        expectedDistrict.current = null;
+      }
+      return;
+    }
+    setDistrict(server);
+  }, [arrondissement]);
 
   async function onChangeEmail(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -55,28 +71,33 @@ export function ProfileForm({
     setEmailSent(true);
   }
 
+  function onSave(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const nextDistrict = district;
+    setError(null);
+    setSaved(false);
+    startTransition(async () => {
+      const result = await updateProfile({
+        firstName: String(form.get("firstName") ?? ""),
+        lastName: String(form.get("lastName") ?? ""),
+        arrondissement: nextDistrict || null,
+      });
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      const savedDistrict = result.arrondissement ?? "";
+      expectedDistrict.current = savedDistrict;
+      setDistrict(savedDistrict);
+      setSaved(true);
+      router.refresh();
+    });
+  }
+
   return (
     <div className="space-y-8">
-      <form
-        action={(formData) => {
-          const value = String(formData.get("arrondissement") ?? "");
-          setError(null);
-          setSaved(false);
-          startTransition(async () => {
-            const result = await updateProfile({
-              firstName: String(formData.get("firstName") ?? ""),
-              lastName: String(formData.get("lastName") ?? ""),
-              arrondissement: value || null,
-            });
-            if (result.ok) {
-              setSaved(true);
-              return;
-            }
-            setError(result.error);
-          });
-        }}
-        className="space-y-4"
-      >
+      <form onSubmit={onSave} className="space-y-4">
         <div>
           <Label htmlFor="firstName">{t("firstName")}</Label>
           <Input
@@ -101,7 +122,12 @@ export function ProfileForm({
         </div>
         <div>
           <Label htmlFor="arrondissement">{t("district")}</Label>
-          <Select id="arrondissement" name="arrondissement" defaultValue={arrondissement ?? ""}>
+          <Select
+            id="arrondissement"
+            name="arrondissement"
+            value={district}
+            onChange={(event) => setDistrict(event.target.value)}
+          >
             <option value="">{t("allParis")}</option>
             <option value="montreuil">{t("montreuil")}</option>
             {ARRONDISSEMENTS.map((item) => (
