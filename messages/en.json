@@ -48,7 +48,27 @@
     "alerts": "Alerts"
   },
   "Footer": {
-    "license": "Public data from the City of Paris, ODbL licence."
+    "license": "Public data from the City of Paris, ODbL licence.",
+    "contact": "Contact"
+  },
+  "Contact": {
+    "title": "Contact",
+    "body": "A question, a report, or an idea for Paris Ouverte? Write to us.",
+    "name": "Name",
+    "email": "Email",
+    "message": "Message",
+    "submit": "Send",
+    "pending": "Sending…",
+    "success": "Thank you. Your message has been received.",
+    "genericError": "Something went wrong. Please try again shortly.",
+    "rateLimited": "Too many messages. Try again in a few minutes.",
+    "nameRequired": "Please enter your name.",
+    "nameTooLong": "The name is too long.",
+    "emailRequired": "Please enter your email.",
+    "emailInvalid": "This email is not valid.",
+    "emailTooLong": "The email is too long.",
+    "messageRequired": "Please write a message.",
+    "messageTooLong": "The message is too long."
   },
   "NotFound": {
     "title": "Page not found",
@@ -381,7 +401,10 @@
     "alertPreview": "{bikes} bike(s) left (threshold {threshold}).",
     "alertBody": "Station “{station}” has only {bikes} bike(s) left (threshold {threshold}).",
     "alertButton": "View my alerts",
-    "alertText": "Station {station}: {bikes} bike(s) (threshold {threshold}). {url}"
+    "alertText": "Station {station}: {bikes} bike(s) (threshold {threshold}). {url}",
+    "contactSubject": "Paris Ouverte contact · {name}",
+    "contactPreview": "Message from {name}.",
+    "contactBody": "{name} ({email}) wrote via the contact form (locale {locale}):"
   },
   "Datasets": {
     "velib": {
@@ -635,7 +658,22 @@
     },
     "recentActivity": "Recent activity",
     "recentEmpty": "No recent activity.",
-    "refreshing": "Refreshing…"
+    "refreshing": "Refreshing…",
+    "messagesLink": "Contact messages",
+    "messages": {
+      "title": "Contact messages",
+      "body": "Messages sent through the public form.",
+      "empty": "No messages.",
+      "name": "Name",
+      "email": "Email",
+      "locale": "Locale",
+      "created": "Received",
+      "emailSent": "Email",
+      "emailSentYes": "Sent",
+      "emailSentNo": "Not sent",
+      "message": "Message",
+      "back": "Back to administration"
+    }
   },
   "CommandPalette": {
     "open": "Open search",

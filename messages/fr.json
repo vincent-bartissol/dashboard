@@ -48,7 +48,27 @@
     "alerts": "Alertes"
   },
   "Footer": {
-    "license": "Données publiques de la Ville de Paris, licence ODbL."
+    "license": "Données publiques de la Ville de Paris, licence ODbL.",
+    "contact": "Contact"
+  },
+  "Contact": {
+    "title": "Contact",
+    "body": "Une question, un signalement ou une idée pour Paris Ouverte ? Écrivez-nous.",
+    "name": "Nom",
+    "email": "E-mail",
+    "message": "Message",
+    "submit": "Envoyer",
+    "pending": "Envoi…",
+    "success": "Merci. Votre message a bien été reçu.",
+    "genericError": "Une erreur est survenue. Réessayez dans un instant.",
+    "rateLimited": "Trop de messages. Réessayez dans quelques minutes.",
+    "nameRequired": "Indiquez votre nom.",
+    "nameTooLong": "Le nom est trop long.",
+    "emailRequired": "Indiquez votre e-mail.",
+    "emailInvalid": "Cet e-mail n’est pas valide.",
+    "emailTooLong": "L’e-mail est trop long.",
+    "messageRequired": "Écrivez un message.",
+    "messageTooLong": "Le message est trop long."
   },
   "NotFound": {
     "title": "Page introuvable",
@@ -381,7 +401,10 @@
     "alertPreview": "Il reste {bikes} vélo(s) (seuil {threshold}).",
     "alertBody": "La station « {station} » n’a plus que {bikes} vélo(s) disponible(s) (seuil {threshold}).",
     "alertButton": "Voir mes alertes",
-    "alertText": "Station {station} : {bikes} vélo(s) (seuil {threshold}). {url}"
+    "alertText": "Station {station} : {bikes} vélo(s) (seuil {threshold}). {url}",
+    "contactSubject": "Contact Paris Ouverte · {name}",
+    "contactPreview": "Message de {name}.",
+    "contactBody": "{name} ({email}) a écrit via le formulaire de contact (locale {locale}) :"
   },
   "Datasets": {
     "velib": {
@@ -635,7 +658,22 @@
     },
     "recentActivity": "Activité récente",
     "recentEmpty": "Aucune activité récente.",
-    "refreshing": "Mise à jour…"
+    "refreshing": "Mise à jour…",
+    "messagesLink": "Messages de contact",
+    "messages": {
+      "title": "Messages de contact",
+      "body": "Messages envoyés via le formulaire public.",
+      "empty": "Aucun message.",
+      "name": "Nom",
+      "email": "E-mail",
+      "locale": "Locale",
+      "created": "Reçu",
+      "emailSent": "E-mail",
+      "emailSentYes": "Envoyé",
+      "emailSentNo": "Non envoyé",
+      "message": "Message",
+      "back": "Retour à l’administration"
+    }
   },
   "CommandPalette": {
     "open": "Ouvrir la recherche",
