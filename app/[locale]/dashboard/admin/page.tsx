@@ -1,4 +1,5 @@
 import { getFormatter, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { AdminUserTable } from "@/components/admin/user-table";
 import { AdminRecentActivity } from "@/components/admin/recent-activity";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
@@ -43,7 +44,17 @@ export default async function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <PageIntro title={t("title")}>{t("body")}</PageIntro>
+      <div>
+        <PageIntro title={t("title")}>{t("body")}</PageIntro>
+        <p className="-mt-4">
+          <Link
+            href="/dashboard/admin/messages"
+            className="text-sm font-medium text-heading hover:underline"
+          >
+            {t("messagesLink")}
+          </Link>
+        </p>
+      </div>
       <KpiStrip
         items={[
           { label: t("stats.users"), value: format.number(stats.users) },
