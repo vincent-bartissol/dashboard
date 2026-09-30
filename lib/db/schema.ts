@@ -154,3 +154,17 @@ export const alertRule = sqliteTable(
     index("alert_rule_enabled_idx").on(table.enabled),
   ],
 );
+
+export const contactMessage = sqliteTable(
+  "contact_message",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    message: text("message").notNull(),
+    locale: text("locale").notNull(),
+    emailSent: integer("email_sent", { mode: "boolean" }).notNull().default(false),
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  },
+  (table) => [index("contact_message_created_idx").on(table.createdAt)],
+);

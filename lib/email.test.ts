@@ -7,6 +7,7 @@ import {
 } from "./email";
 import {
   changeEmailMail,
+  contactMail,
   escapeHtml,
   otpMail,
   resetPasswordMail,
@@ -120,5 +121,19 @@ describe("mail templates", () => {
     expect(mail.text).toContain(url);
     expect(mail.html).toContain("Choisir un mot de passe");
     expect(mail.html).toContain(escapedUrl);
+  });
+
+  it("builds contact mail with escaped message", () => {
+    const mail = contactMail({
+      name: "Ada <Lovelace>",
+      email: "ada@example.com",
+      message: "Hello\n<script>x</script>",
+      locale: "fr",
+    });
+    expect(mail.subject).toContain("Ada <Lovelace>");
+    expect(mail.text).toContain("Hello\n<script>x</script>");
+    expect(mail.html).toContain("Ada &lt;Lovelace&gt;");
+    expect(mail.html).toContain("Hello<br />&lt;script&gt;x&lt;/script&gt;");
+    expect(mail.html).not.toContain("<script>x</script>");
   });
 });

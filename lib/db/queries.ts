@@ -1,6 +1,6 @@
 import { and, count, desc, eq, gt, isNull, like, or, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { activity, favorite, profile, session, user } from "@/lib/db/schema";
+import { activity, contactMessage, favorite, profile, session, user } from "@/lib/db/schema";
 import { isAdminUser, isBannedUser } from "@/lib/admin";
 
 export async function listFavorites(userId: string, datasetId?: string) {
@@ -218,4 +218,12 @@ export function adminRoleLabel(row: { id: string; role: string }): "admin" | "ad
   if (row.role === "admin") return "admin";
   if (isAdminUser({ id: row.id, role: row.role })) return "adminBreakGlass";
   return "user";
+}
+
+export async function listContactMessages(limit = 100) {
+  return db
+    .select()
+    .from(contactMessage)
+    .orderBy(desc(contactMessage.createdAt))
+    .limit(limit);
 }

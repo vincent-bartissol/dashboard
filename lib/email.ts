@@ -8,6 +8,7 @@ export type SendEmailInput = {
   subject: string;
   text: string;
   html: string;
+  replyTo?: string;
 };
 
 export function resolveMailerProvider(
@@ -82,6 +83,7 @@ async function sendWithMailpit(input: SendEmailInput) {
     subject: input.subject,
     text: input.text,
     html: input.html,
+    replyTo: input.replyTo,
   });
 }
 
@@ -93,6 +95,7 @@ async function sendWithResend(input: SendEmailInput) {
     subject: input.subject,
     text: input.text,
     html: input.html,
+    replyTo: input.replyTo,
   });
   if (error) {
     throw new Error(error.message);

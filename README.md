@@ -69,6 +69,7 @@ The image entrypoint `chown`s `$DATA_DIR` (Railway volumes are often root-owned)
    | `MAILER_PROVIDER` | `resend` |
    | `RESEND_API_KEY` | from Resend |
    | `EMAIL_FROM` | a sender Resend accepts, e.g. `Paris Ouverte <noreply@vvbb.fr>` |
+   | `CONTACT_TO` | inbox for public contact form notifications |
    | `ADMIN_USER_IDS` | optional comma-separated break-glass admin user ids |
    | `CRON_SECRET` | shared secret for `/api/cron/alerts` (also set as GitHub Actions secret) |
 
