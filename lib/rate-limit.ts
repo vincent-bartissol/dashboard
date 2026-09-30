@@ -39,3 +39,4 @@ export const opendataSearchLimit = createRateLimiter({ max: 40, windowMs: 60_000
 export const favoritesApiLimit = createRateLimiter({ max: 60, windowMs: 60_000 });
 export const alertsApiLimit = createRateLimiter({ max: 30, windowMs: 60_000 });
 export const adminActivityLimit = createRateLimiter({ max: 60, windowMs: 60_000 });
+export const contactFormLimit = createRateLimiter({ max: 5, windowMs: 10 * 60_000 });

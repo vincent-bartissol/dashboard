@@ -156,3 +156,26 @@ export function alertMail(
     bodyText: interpolate(copy.alertText, values),
   });
 }
+
+export function contactMail(
+  values: { name: string; email: string; message: string; locale: string },
+  locale: AppLocale = "fr",
+): MailContent {
+  const copy = mailCopy(locale);
+  const subject = interpolate(copy.contactSubject, { name: values.name });
+  const preview = interpolate(copy.contactPreview, { name: values.name });
+  const intro = interpolate(copy.contactBody, {
+    name: values.name,
+    email: values.email,
+    locale: values.locale,
+  });
+  const safeMessage = escapeHtml(values.message).replaceAll("\n", "<br />");
+  return layout({
+    locale,
+    subject,
+    preview,
+    bodyHtml: `<p style="margin:0 0 16px;">${escapeHtml(intro)}</p>
+<p style="margin:0;padding:16px;background:${CREAM};border:1px solid #e4dcd0;white-space:pre-wrap;">${safeMessage}</p>`,
+    bodyText: `${intro}\n\n${values.message}`,
+  });
+}
