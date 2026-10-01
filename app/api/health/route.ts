@@ -3,7 +3,7 @@ import { checkDatabase } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export function GET() {
   try {
     checkDatabase();
     return NextResponse.json({ ok: true });
