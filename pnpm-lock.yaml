@@ -33,8 +33,8 @@ importers:
         specifier: ^4.14.5
         version: 4.14.5(@swc/helpers@0.5.23)(next@16.3.4(@babel/core@7.29.7)(@playwright/test@1.63.0)(@types/node@20.19.43)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)
       nodemailer:
-        specifier: ^10.0.9
-        version: 10.0.9
+        specifier: ^10.0.11
+        version: 10.0.11
       react:
         specifier: 19.2.8
         version: 19.2.8
@@ -3297,8 +3297,8 @@ packages:
     resolution: {integrity: sha512-YHs7BmmcsdAI5Ozuf8JZo6PT0mv2GIWC9vMfvUC3dp65M8hn7Ux8CPL+2oBI7juNuj9d0ndhTcznq2ODBps9cQ==}
     engines: {node: '>=18'}
 
-  nodemailer@10.0.9:
-    resolution: {integrity: sha512-BF0qcyplCwp+jMk6HCjFykBz/YhhZSsxrARhOldLwFWH+8kGjQsd2WIMIZhqEuyXRoGFi0ONbDeWDMDoL8MhLw==}
+  nodemailer@10.0.11:
+    resolution: {integrity: sha512-/c4P7U7aGpiNu2Rl08q525q2zECkUpSaf2zQPgIStCcAjHAkkQQKwD4sTyi3l91mGcLQrKzL1syXPHymo+Ogtw==}
     engines: {node: '>=20.0.0'}
 
   object-assign@4.1.1:
@@ -6832,7 +6832,7 @@ snapshots:
 
   node-releases@2.0.54: {}
 
-  nodemailer@10.0.9: {}
+  nodemailer@10.0.11: {}
 
   object-assign@4.1.1: {}
 
