@@ -33,6 +33,6 @@ export const config = {
   matcher: [
     "/",
     "/(fr|en|es)/:path*",
-    String.raw`/((?!api|monitoring|_next|_vercel|dev|favicon.ico|.*\..*).*)`,
+    "/((?!api|monitoring|_next|_vercel|dev|favicon.ico|.*\\..*).*)",
   ],
 };
