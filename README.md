@@ -75,8 +75,8 @@ The image entrypoint `chown`s `$DATA_DIR` (Railway volumes are often root-owned)
    | `SENTRY_DSN` | optional; enables Sentry on the server when set (empty = off) |
    | `NEXT_PUBLIC_SENTRY_DSN` | optional; same DSN for the browser SDK (required for client errors) |
    | `SENTRY_AUTH_TOKEN` | optional build variable; uploads source maps when set with `SENTRY_ORG` / `SENTRY_PROJECT` |
-   | `SENTRY_ORG` | optional; Sentry org slug for source maps |
-   | `SENTRY_PROJECT` | optional; Sentry project slug for source maps |
+   | `SENTRY_ORG` | optional; defaults to `self-bnv` for source maps |
+   | `SENTRY_PROJECT` | optional; defaults to `paris-ouverte` for source maps |
    | `NEW_RELIC_LICENSE_KEY` | optional; enables New Relic APM when set (empty = off) |
    | `HEALTHCHECKS_PING_URL` | optional; healthchecks.io ping URL for the alerts cron |
 

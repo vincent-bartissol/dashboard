@@ -52,11 +52,12 @@ const nextConfig: NextConfig = {
 const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN?.trim();
 
 export default withSentryConfig(withNextIntl(nextConfig), {
-  org: process.env.SENTRY_ORG,
-  project: process.env.SENTRY_PROJECT,
+  org: process.env.SENTRY_ORG?.trim() || "self-bnv",
+  project: process.env.SENTRY_PROJECT?.trim() || "paris-ouverte",
   authToken: sentryAuthToken,
   silent: !process.env.CI,
   tunnelRoute: "/monitoring",
+  widenClientFileUpload: true,
   sourcemaps: {
     disable: !sentryAuthToken,
   },

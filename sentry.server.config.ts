@@ -4,6 +4,7 @@ const dsn = process.env.SENTRY_DSN?.trim();
 if (dsn) {
   Sentry.init({
     dsn,
-    tracesSampleRate: 0.1,
+    tracesSampleRate: process.env.NODE_ENV === "development" ? 1.0 : 0.1,
+    includeLocalVariables: true,
   });
 }
