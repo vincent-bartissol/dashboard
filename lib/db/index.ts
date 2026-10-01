@@ -29,6 +29,11 @@ function tableExists(name: string) {
 
 export const db = drizzle(sqlite, { schema });
 
+/** Lightweight liveness probe for `/api/health`. Throws if SQLite is unreachable. */
+export function checkDatabase() {
+  sqlite.prepare("SELECT 1").get();
+}
+
 // `next build` collects page data in parallel workers; migrating a shared file races.
 // Runtime (and tests) still apply migrations on boot.
 if (!isProductionBuild) {

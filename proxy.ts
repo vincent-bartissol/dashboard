@@ -18,7 +18,11 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(login);
   }
 
-  if (pathname.startsWith("/dev") || pathname.startsWith("/api")) {
+  if (
+    pathname.startsWith("/dev") ||
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/monitoring")
+  ) {
     return NextResponse.next();
   }
 
@@ -26,5 +30,9 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/(fr|en|es)/:path*", "/((?!api|_next|_vercel|dev|favicon.ico|.*\\..*).*)"],
+  matcher: [
+    "/",
+    "/(fr|en|es)/:path*",
+    "/((?!api|monitoring|_next|_vercel|dev|favicon.ico|.*\\..*).*)",
+  ],
 };

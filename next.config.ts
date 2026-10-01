@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs/config";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
@@ -29,9 +30,13 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  serverExternalPackages: ["better-sqlite3"],
+  serverExternalPackages: ["better-sqlite3", "newrelic"],
   outputFileTracingIncludes: {
-    "/*": ["./node_modules/better-sqlite3/**/*", "./lib/db/migrations/**/*"],
+    "/*": [
+      "./node_modules/better-sqlite3/**/*",
+      "./node_modules/newrelic/**/*",
+      "./lib/db/migrations/**/*",
+    ],
   },
   images: {
     remotePatterns: [
@@ -44,4 +49,15 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN?.trim();
+
+export default withSentryConfig(withNextIntl(nextConfig), {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: sentryAuthToken,
+  silent: !process.env.CI,
+  tunnelRoute: "/monitoring",
+  sourcemaps: {
+    disable: !sentryAuthToken,
+  },
+});

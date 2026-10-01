@@ -72,9 +72,22 @@ The image entrypoint `chown`s `$DATA_DIR` (Railway volumes are often root-owned)
    | `CONTACT_TO` | inbox for public contact form notifications |
    | `ADMIN_USER_IDS` | optional comma-separated break-glass admin user ids |
    | `CRON_SECRET` | shared secret for `/api/cron/alerts` (also set as GitHub Actions secret) |
+   | `SENTRY_DSN` | optional; enables Sentry on the server when set (empty = off) |
+   | `NEXT_PUBLIC_SENTRY_DSN` | optional; same DSN for the browser SDK (required for client errors) |
+   | `SENTRY_AUTH_TOKEN` | optional build variable; uploads source maps when set with `SENTRY_ORG` / `SENTRY_PROJECT` |
+   | `SENTRY_ORG` | optional; Sentry org slug for source maps |
+   | `SENTRY_PROJECT` | optional; Sentry project slug for source maps |
+   | `NEW_RELIC_LICENSE_KEY` | optional; enables New Relic APM when set (empty = off) |
+   | `HEALTHCHECKS_PING_URL` | optional; healthchecks.io ping URL for the alerts cron |
+
+   Empty observability variables leave each tool disabled. The app builds and runs without them.
 
 4. Generate a Railway domain, then add custom domain `dashboard.vvbb.fr`.
 5. At OVH (DNS zone `vvbb.fr`): `CNAME` name `dashboard` → the hostname Railway shows. Wait for SSL.
 6. Add the same `CRON_SECRET` as a GitHub Actions repository secret so `.github/workflows/alerts-cron.yml` can POST every 10 minutes.
+7. Optional monitoring:
+   - **UptimeRobot:** HTTP(s) monitor on `https://dashboard.vvbb.fr/api/health` every 5 minutes (email on failure). No app secret.
+   - **healthchecks.io:** create a check (period 10 minutes), set `HEALTHCHECKS_PING_URL` on Railway to the check’s ping URL.
+   - **SonarQube Cloud:** set GitHub secrets `SONAR_TOKEN` and `SONAR_ORGANIZATION`; the Sonar workflow skips until both exist.
 
 Signup and 2FA emails need a verified Resend domain. Vélib’ alert e-mails use the same mailer.
