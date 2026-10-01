@@ -18,18 +18,23 @@ export function ContactForm() {
     const form = new FormData(event.currentTarget);
     setError(null);
     setPending(true);
-    const result = await submitContact({
-      name: String(form.get("name") ?? ""),
-      email: String(form.get("email") ?? ""),
-      message: String(form.get("message") ?? ""),
-      website: String(form.get("website") ?? ""),
-    });
-    setPending(false);
-    if (!result.ok) {
-      setError(result.error);
-      return;
+    try {
+      const result = await submitContact({
+        name: String(form.get("name") ?? ""),
+        email: String(form.get("email") ?? ""),
+        message: String(form.get("message") ?? ""),
+        website: String(form.get("website") ?? ""),
+      });
+      if (!result.ok) {
+        setError(result.error);
+        return;
+      }
+      setSent(true);
+    } catch {
+      setError(t("genericError"));
+    } finally {
+      setPending(false);
     }
-    setSent(true);
   }
 
   if (sent) {
