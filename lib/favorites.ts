@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { favorite } from "@/lib/db/schema";
@@ -47,19 +47,31 @@ export async function toggleFavoriteForUser(
         label: parsed.label,
       });
     } else {
-      const current = await listFavorites(userId);
-      if (isAtFavoriteLimit(current.length)) {
+      const inserted = db.transaction((tx) => {
+        const total = tx
+          .select({ n: count() })
+          .from(favorite)
+          .where(eq(favorite.userId, userId))
+          .all();
+        if (isAtFavoriteLimit(total[0]?.n ?? 0)) {
+          return { ok: false as const, error: "favoriteLimit" as const };
+        }
+        tx.insert(favorite)
+          .values({
+            id: crypto.randomUUID(),
+            userId,
+            datasetId: parsed.datasetId,
+            recordId: parsed.recordId,
+            label: parsed.label,
+            geo: parsed.geo,
+            createdAt: new Date(),
+          })
+          .run();
+        return { ok: true as const };
+      });
+      if (!inserted.ok) {
         return { ok: false, error: "favoriteLimit" };
       }
-      await db.insert(favorite).values({
-        id: crypto.randomUUID(),
-        userId,
-        datasetId: parsed.datasetId,
-        recordId: parsed.recordId,
-        label: parsed.label,
-        geo: parsed.geo,
-        createdAt: new Date(),
-      });
       await recordActivity(userId, "favorite.add", {
         datasetId: parsed.datasetId,
         recordId: parsed.recordId,

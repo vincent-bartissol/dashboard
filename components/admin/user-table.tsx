@@ -28,28 +28,33 @@ const COLUMNS: { key: SortKey; labelKey: "name" | "email" | "role" | "status" | 
   { key: "createdLabel", labelKey: "created" },
 ];
 
-export function AdminUserTable({ users }: { users: AdminUserRow[] }) {
+function adminHref(search: string, page: number) {
+  const params = new URLSearchParams();
+  if (search) params.set("q", search);
+  if (page > 1) params.set("page", String(page));
+  const query = params.toString();
+  return query ? `/dashboard/admin?${query}` : "/dashboard/admin";
+}
+
+export function AdminUserTable({
+  users,
+  search = "",
+  page = 1,
+  totalPages = 1,
+}: {
+  users: AdminUserRow[];
+  search?: string;
+  page?: number;
+  totalPages?: number;
+}) {
   const t = useTranslations("Admin");
-  const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return users;
-    return users.filter(
-      (user) =>
-        user.email.toLowerCase().includes(q) ||
-        user.name.toLowerCase().includes(q) ||
-        user.roleLabel.toLowerCase().includes(q) ||
-        user.statusLabel.toLowerCase().includes(q),
-    );
-  }, [users, query]);
-
   const sorted = useMemo(() => {
-    if (!sortKey) return filtered;
-    return [...filtered].sort((a, b) => compareCellValues(a[sortKey], b[sortKey], sortDir));
-  }, [filtered, sortDir, sortKey]);
+    if (!sortKey) return users;
+    return [...users].sort((a, b) => compareCellValues(a[sortKey], b[sortKey], sortDir));
+  }, [users, sortDir, sortKey]);
 
   function onSort(key: SortKey) {
     if (sortKey === key) {
@@ -63,13 +68,15 @@ export function AdminUserTable({ users }: { users: AdminUserRow[] }) {
   return (
     <Card className="overflow-x-auto p-0">
       <div className="border-b border-line p-3">
-        <Input
-          type="search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder={t("searchUsers")}
-          aria-label={t("searchUsers")}
-        />
+        <form method="get">
+          <Input
+            type="search"
+            name="q"
+            defaultValue={search}
+            placeholder={t("searchUsers")}
+            aria-label={t("searchUsers")}
+          />
+        </form>
       </div>
       <table className="min-w-full text-left text-sm">
         <thead className="text-label border-b border-line bg-ground">
@@ -136,6 +143,35 @@ export function AdminUserTable({ users }: { users: AdminUserRow[] }) {
           ))}
         </tbody>
       </table>
+      {totalPages > 1 ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-3 py-3 text-sm">
+          <p className="text-muted">
+            {t("pageIndicator", { current: page, total: totalPages })}
+          </p>
+          <div className="flex gap-3">
+            {page > 1 ? (
+              <Link
+                href={adminHref(search, page - 1)}
+                className="font-medium text-heading hover:underline"
+              >
+                {t("previousPage")}
+              </Link>
+            ) : (
+              <span className="text-muted">{t("previousPage")}</span>
+            )}
+            {page < totalPages ? (
+              <Link
+                href={adminHref(search, page + 1)}
+                className="font-medium text-heading hover:underline"
+              >
+                {t("nextPage")}
+              </Link>
+            ) : (
+              <span className="text-muted">{t("nextPage")}</span>
+            )}
+          </div>
+        </div>
+      ) : null}
     </Card>
   );
 }

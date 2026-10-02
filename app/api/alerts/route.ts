@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isBannedUser } from "@/lib/admin";
 import {
-  ALERT_MAX_PER_USER,
   createAlertRule,
   deleteAlertRule,
   listAlertRules,
@@ -70,17 +69,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: "bad_request" }, { status: 400 });
   }
 
-  const existing = await listAlertRules(session.user.id);
-  if (existing.length >= ALERT_MAX_PER_USER) {
-    return NextResponse.json({ ok: false, error: "limit" }, { status: 403 });
-  }
-
-  await createAlertRule({
+  const created = await createAlertRule({
     userId: session.user.id,
     datasetId: input.datasetId,
     recordId: input.recordId.trim(),
     label: input.label.trim().slice(0, 200),
     threshold: Math.floor(threshold),
   });
+  if (!created.ok) {
+    return NextResponse.json({ ok: false, error: "limit" }, { status: 403 });
+  }
   return NextResponse.json({ ok: true, rules: await listAlertRules(session.user.id) });
 }

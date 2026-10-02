@@ -18,40 +18,44 @@ export async function getProfile(userId: string) {
   return rows[0] ?? { userId, firstName: null, lastName: null, arrondissement: null };
 }
 
-export async function listUsersForAdmin(search?: string) {
-  const q = search?.trim();
-  if (q) {
-    const pattern = `%${q}%`;
-    return db
-      .select({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        emailVerified: user.emailVerified,
-        role: user.role,
-        banned: user.banned,
-        banReason: user.banReason,
-        banExpires: user.banExpires,
-        createdAt: user.createdAt,
-      })
-      .from(user)
-      .where(or(like(user.email, pattern), like(user.name, pattern)))
-      .orderBy(desc(user.createdAt));
-  }
-  return db
-    .select({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      emailVerified: user.emailVerified,
-      role: user.role,
-      banned: user.banned,
-      banReason: user.banReason,
-      banExpires: user.banExpires,
-      createdAt: user.createdAt,
-    })
-    .from(user)
-    .orderBy(desc(user.createdAt));
+export const ADMIN_USERS_PAGE_SIZE = 50;
+
+export async function listUsersForAdmin(options?: {
+  search?: string;
+  limit?: number;
+  offset?: number;
+}) {
+  const q = options?.search?.trim();
+  const limit = options?.limit ?? ADMIN_USERS_PAGE_SIZE;
+  const offset = options?.offset ?? 0;
+  const pattern = q ? `%${q}%` : null;
+  const where = pattern
+    ? or(like(user.email, pattern), like(user.name, pattern))
+    : undefined;
+
+  const selectFields = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    emailVerified: user.emailVerified,
+    role: user.role,
+    banned: user.banned,
+    banReason: user.banReason,
+    banExpires: user.banExpires,
+    createdAt: user.createdAt,
+  };
+
+  const rowsQuery = db.select(selectFields).from(user);
+  const countQuery = db.select({ value: count() }).from(user);
+  const [rows, totals] = await Promise.all([
+    (where ? rowsQuery.where(where) : rowsQuery)
+      .orderBy(desc(user.createdAt))
+      .limit(limit)
+      .offset(offset),
+    (where ? countQuery.where(where) : countQuery),
+  ]);
+
+  return { rows, total: totals[0]?.value ?? 0 };
 }
 
 export async function getUserForAdmin(userId: string) {

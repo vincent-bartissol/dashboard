@@ -1,11 +1,10 @@
-import { eq } from "drizzle-orm";
+import { inArray } from "drizzle-orm";
 import { sendEmail } from "@/lib/email";
 import { alertMail } from "@/lib/email/templates";
 import { db } from "@/lib/db";
 import { user } from "@/lib/db/schema";
-import { fetchAllRecords, type DatasetConfig } from "@/lib/opendata/client";
+import { fetchRecordsSafe, type DatasetConfig } from "@/lib/opendata/client";
 import { DATASETS } from "@/lib/opendata/datasets";
-import { themeOrderBy } from "@/lib/opendata/order-by";
 import {
   ALERT_COOLDOWN_MS,
   listEnabledAlertRules,
@@ -21,10 +20,56 @@ export type EvaluateAlertsResult = {
   emailed: number;
 };
 
+const STATION_CHUNK = 50;
+
 function bikesFor(record: Record<string, unknown> | undefined) {
   if (!record) return null;
   const value = Number(record.numbikesavailable);
   return Number.isFinite(value) ? value : null;
+}
+
+function escapeStationCode(value: string) {
+  return value.replaceAll("\\", "\\\\").replaceAll('"', '\\"');
+}
+
+export function stationCodesWhere(codes: string[]) {
+  const escaped = codes.map((code) => `"${escapeStationCode(code)}"`);
+  return `stationcode in (${escaped.join(",")})`;
+}
+
+function chunkCodes(codes: string[], size: number) {
+  const chunks: string[][] = [];
+  for (let i = 0; i < codes.length; i += size) {
+    chunks.push(codes.slice(i, i + size));
+  }
+  return chunks;
+}
+
+async function loadStationsByCode(
+  velib: DatasetConfig,
+  codes: string[],
+): Promise<Map<string, Record<string, unknown>>> {
+  const byStation = new Map<string, Record<string, unknown>>();
+  for (const chunk of chunkCodes(codes, STATION_CHUNK)) {
+    const result = await fetchRecordsSafe(
+      velib.id,
+      {
+        limit: 100,
+        where: stationCodesWhere(chunk),
+        host: velib.host,
+        select: "stationcode,numbikesavailable",
+      },
+      velib.revalidate,
+    );
+    if (!result.ok) {
+      throw new Error(result.error ?? "opendata");
+    }
+    for (const row of result.page.results) {
+      const code = String(row.stationcode ?? "");
+      if (code) byStation.set(code, row);
+    }
+  }
+  return byStation;
 }
 
 export async function evaluateVelibAlerts(now = Date.now()): Promise<EvaluateAlertsResult> {
@@ -35,21 +80,16 @@ export async function evaluateVelibAlerts(now = Date.now()): Promise<EvaluateAle
     return { checked: 0, triggered: 0, emailed: 0 };
   }
 
+  const stationCodes = [...new Set(rules.map((rule) => rule.recordId).filter(Boolean))];
   const velib: DatasetConfig = DATASETS.velib;
-  const page = await fetchAllRecords(velib.id, velib.revalidate, {
-    max: 1600,
-    orderBy: themeOrderBy(velib),
-    host: velib.host,
-  });
-  if (!page.ok) {
-    throw new Error(page.error ?? "opendata");
-  }
+  const byStation = await loadStationsByCode(velib, stationCodes);
 
-  const byStation = new Map<string, Record<string, unknown>>();
-  for (const row of page.page.results) {
-    const code = String(row.stationcode ?? "");
-    if (code) byStation.set(code, row);
-  }
+  const userIds = [...new Set(rules.map((rule) => rule.userId))];
+  const owners = await db
+    .select({ id: user.id, email: user.email, emailVerified: user.emailVerified })
+    .from(user)
+    .where(inArray(user.id, userIds));
+  const ownersById = new Map(owners.map((row) => [row.id, row]));
 
   let triggered = 0;
   let emailed = 0;
@@ -63,7 +103,7 @@ export async function evaluateVelibAlerts(now = Date.now()): Promise<EvaluateAle
     if (bikes == null || bikes >= rule.threshold) continue;
 
     try {
-      const outcome = await sendAlertEmail(rule, bikes);
+      const outcome = await sendAlertEmail(rule, bikes, ownersById);
       // Only cool down after a successful send or an intentional skip (no/unverified email).
       // Delivery failures leave lastTriggeredAt untouched so the next cron can retry.
       await markAlertTriggered(rule.id, new Date(now));
@@ -80,13 +120,9 @@ export async function evaluateVelibAlerts(now = Date.now()): Promise<EvaluateAle
 async function sendAlertEmail(
   rule: AlertRuleRow,
   bikes: number,
+  ownersById: Map<string, { email: string; emailVerified: boolean }>,
 ): Promise<"sent" | "skipped"> {
-  const rows = await db
-    .select({ email: user.email, emailVerified: user.emailVerified })
-    .from(user)
-    .where(eq(user.id, rule.userId))
-    .limit(1);
-  const owner = rows[0];
+  const owner = ownersById.get(rule.userId);
   if (!owner?.email || !owner.emailVerified) return "skipped";
 
   const locale: AppLocale = "fr";
