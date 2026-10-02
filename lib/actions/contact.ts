@@ -9,7 +9,7 @@ import { contactMessage } from "@/lib/db/schema";
 import { sendEmail } from "@/lib/email";
 import { contactMail } from "@/lib/email/templates";
 import { isAppLocale, routing } from "@/i18n/routing";
-import { contactFormLimit } from "@/lib/rate-limit";
+import { contactFormLimit, contactGlobalLimit } from "@/lib/rate-limit";
 
 export type ContactSubmitResult = { ok: true } | { ok: false; error: string };
 
@@ -22,6 +22,10 @@ export async function submitContact(input: {
   const t = await getTranslations("Contact");
   const headerStore = await headers();
   const ip = clientIpFromHeaders(headerStore);
+  const globalLimited = contactGlobalLimit.check("contact");
+  if (!globalLimited.ok) {
+    return { ok: false, error: t("rateLimited") };
+  }
   const limited = contactFormLimit.check(ip);
   if (!limited.ok) {
     return { ok: false, error: t("rateLimited") };
@@ -52,7 +56,7 @@ export async function submitContact(input: {
 
   const to = contactTo();
   if (!to) {
-    return { ok: true };
+    return { ok: false, error: t("sendFailed") };
   }
 
   try {
@@ -77,7 +81,8 @@ export async function submitContact(input: {
       .set({ emailSent: true })
       .where(eq(contactMessage.id, id));
   } catch {
-    // Keep the row; visitor still gets a success response.
+    // Keep the row; surface the delivery failure to the visitor.
+    return { ok: false, error: t("sendFailed") };
   }
 
   return { ok: true };

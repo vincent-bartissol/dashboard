@@ -7,25 +7,50 @@ import { PageIntro } from "@/components/dashboard/page-intro";
 import { Card } from "@/components/ui/card";
 import { SectionTitle } from "@/components/ui/heading";
 import {
+  ADMIN_USERS_PAGE_SIZE,
   adminRoleLabel,
   adminUserStatus,
   getAdminStats,
   listRecentActivity,
   listUsersForAdmin,
 } from "@/lib/db/queries";
+import { firstSearchParam } from "@/lib/safe-next";
 import { requireAdmin } from "@/lib/session";
 
-export default async function AdminPage() {
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string | string[]; page?: string | string[] }>;
+}) {
   await requireAdmin();
   const t = await getTranslations("Admin");
   const format = await getFormatter();
-  const [users, stats, recent] = await Promise.all([
-    listUsersForAdmin(),
+  const params = await searchParams;
+  const search = firstSearchParam(params.q)?.trim() ?? "";
+  const pageRaw = Number(firstSearchParam(params.page) ?? 1);
+  const page = Number.isFinite(pageRaw) && pageRaw >= 1 ? Math.floor(pageRaw) : 1;
+  const offset = (page - 1) * ADMIN_USERS_PAGE_SIZE;
+
+  const [listed, stats, recent] = await Promise.all([
+    listUsersForAdmin({ search, limit: ADMIN_USERS_PAGE_SIZE, offset }),
     getAdminStats(),
     listRecentActivity(40),
   ]);
 
-  const userRows = users.map((row) => {
+  const totalPages = Math.max(1, Math.ceil(listed.total / ADMIN_USERS_PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageRows =
+    currentPage === page
+      ? listed.rows
+      : (
+          await listUsersForAdmin({
+            search,
+            limit: ADMIN_USERS_PAGE_SIZE,
+            offset: (currentPage - 1) * ADMIN_USERS_PAGE_SIZE,
+          })
+        ).rows;
+
+  const userRows = pageRows.map((row) => {
     const status = adminUserStatus(row);
     const roleKey = adminRoleLabel(row);
     return {
@@ -119,7 +144,12 @@ export default async function AdminPage() {
           userEmail: row.userEmail,
         }))}
       />
-      <AdminUserTable users={userRows} />
+      <AdminUserTable
+        users={userRows}
+        search={search}
+        page={currentPage}
+        totalPages={totalPages}
+      />
     </div>
   );
 }

@@ -71,12 +71,19 @@ describe("parseContactFields", () => {
 });
 
 describe("clientIpFromHeaders", () => {
-  it("prefers the first x-forwarded-for hop", () => {
+  it("prefers the last x-forwarded-for hop", () => {
     const headers = new Headers({
-      "x-forwarded-for": "203.0.113.1, 10.0.0.1",
+      "x-forwarded-for": "203.0.113.1, 198.51.100.7",
       "x-real-ip": "10.0.0.1",
     });
-    expect(clientIpFromHeaders(headers)).toBe("203.0.113.1");
+    expect(clientIpFromHeaders(headers)).toBe("198.51.100.7");
+  });
+
+  it("ignores trailing commas and stray spaces in x-forwarded-for", () => {
+    const headers = new Headers({
+      "x-forwarded-for": "203.0.113.1,  198.51.100.7 , ",
+    });
+    expect(clientIpFromHeaders(headers)).toBe("198.51.100.7");
   });
 
   it("falls back to x-real-ip then unknown", () => {

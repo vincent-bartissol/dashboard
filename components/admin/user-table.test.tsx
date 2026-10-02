@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
 import "@testing-library/jest-dom/vitest";
 import { cleanup, render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -45,10 +44,18 @@ const users: AdminUserRow[] = [
   },
 ];
 
-function renderTable(rows = users) {
+function renderTable(
+  rows = users,
+  options?: { search?: string; page?: number; totalPages?: number },
+) {
   return render(
     <NextIntlClientProvider locale="fr" messages={fr}>
-      <AdminUserTable users={rows} />
+      <AdminUserTable
+        users={rows}
+        search={options?.search}
+        page={options?.page}
+        totalPages={options?.totalPages}
+      />
     </NextIntlClientProvider>,
   );
 }
@@ -58,21 +65,28 @@ describe("AdminUserTable", () => {
     cleanup();
   });
 
-  it("filters rows by name or email", async () => {
-    const user = userEvent.setup();
-    renderTable();
+  it("renders supplied rows and seeds the search field", () => {
+    renderTable(users, { search: "grace" });
     expect(screen.getByText("ada@example.com")).toBeInTheDocument();
     expect(screen.getByText("grace@example.com")).toBeInTheDocument();
-
-    await user.type(screen.getByLabelText("Rechercher un utilisateur…"), "grace");
-    expect(screen.queryByText("ada@example.com")).not.toBeInTheDocument();
-    expect(screen.getByText("grace@example.com")).toBeInTheDocument();
+    expect(screen.getByLabelText("Rechercher un utilisateur…")).toHaveValue("grace");
   });
 
-  it("shows an empty state when nothing matches", async () => {
-    const user = userEvent.setup();
-    renderTable();
-    await user.type(screen.getByLabelText("Rechercher un utilisateur…"), "nobody");
+  it("shows an empty state when there are no users", () => {
+    renderTable([]);
     expect(screen.getByText("Aucun utilisateur.")).toBeInTheDocument();
+  });
+
+  it("renders pagination links when there are multiple pages", () => {
+    renderTable(users, { search: "ada", page: 2, totalPages: 3 });
+    expect(screen.getByText("Page 2 sur 3")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Précédent" })).toHaveAttribute(
+      "href",
+      "/dashboard/admin?q=ada",
+    );
+    expect(screen.getByRole("link", { name: "Suivant" })).toHaveAttribute(
+      "href",
+      "/dashboard/admin?q=ada&page=3",
+    );
   });
 });
