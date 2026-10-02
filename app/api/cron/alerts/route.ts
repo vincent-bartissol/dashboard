@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { evaluateVelibAlerts } from "@/lib/alerts/evaluate";
+import { pingHealthchecks } from "@/lib/healthchecks";
 
 export async function POST(request: NextRequest) {
   const secret = process.env.CRON_SECRET?.trim();
@@ -14,9 +15,11 @@ export async function POST(request: NextRequest) {
 
   try {
     const result = await evaluateVelibAlerts();
+    await pingHealthchecks(true);
     return NextResponse.json({ ok: true, ...result });
   } catch (cause) {
     console.error(cause);
+    await pingHealthchecks(false);
     return NextResponse.json({ ok: false, error: "evaluate_failed" }, { status: 502 });
   }
 }

@@ -9,5 +9,5 @@ jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Check production landing
-        run: curl -sfI --max-time 20 https://dashboard.vvbb.fr/fr
+      - name: Check production health
+        run: curl -sfS --max-time 20 https://dashboard.vvbb.fr/api/health
