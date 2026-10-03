@@ -116,7 +116,7 @@ export default async function AdminUserDetailPage({
           <SectionTitle>{t("user.sessions")}</SectionTitle>
         </div>
         <table className="min-w-full text-left text-sm">
-          <thead className="text-label border-b border-line bg-ground">
+          <thead className="table-head">
             <tr>
               <th className="px-3 py-2">{t("sessions.created")}</th>
               <th className="px-3 py-2">{t("sessions.expires")}</th>
@@ -134,7 +134,7 @@ export default async function AdminUserDetailPage({
               </tr>
             ) : null}
             {sessionRows.map((row) => (
-              <tr key={row.id} className="border-b border-line/80 last:border-0">
+              <tr key={row.id} className="table-row">
                 <td className="px-3 py-2 tabular-nums">{row.createdLabel}</td>
                 <td className="px-3 py-2 tabular-nums">
                   {format.dateTime(new Date(row.expiresAt), {
@@ -160,7 +160,7 @@ export default async function AdminUserDetailPage({
           <SectionTitle>{t("user.favorites")}</SectionTitle>
         </div>
         <table className="min-w-full text-left text-sm">
-          <thead className="text-label border-b border-line bg-ground">
+          <thead className="table-head">
             <tr>
               <th className="px-3 py-2">{t("favorites.label")}</th>
               <th className="px-3 py-2">{t("favorites.dataset")}</th>
@@ -177,7 +177,7 @@ export default async function AdminUserDetailPage({
               </tr>
             ) : null}
             {favorites.map((row) => (
-              <tr key={row.id} className="border-b border-line/80 last:border-0">
+              <tr key={row.id} className="table-row">
                 <td className="px-3 py-2">{row.label}</td>
                 <td className="px-3 py-2">{row.datasetId}</td>
                 <td className="px-3 py-2">{row.recordId}</td>
@@ -198,7 +198,7 @@ export default async function AdminUserDetailPage({
           <SectionTitle>{t("user.activity")}</SectionTitle>
         </div>
         <table className="min-w-full text-left text-sm">
-          <thead className="text-label border-b border-line bg-ground">
+          <thead className="table-head">
             <tr>
               <th className="px-3 py-2">{t("activity.when")}</th>
               <th className="px-3 py-2">{t("activity.action")}</th>
@@ -219,7 +219,7 @@ export default async function AdminUserDetailPage({
                 ? t(`actions.${row.action}`)
                 : row.action;
               return (
-                <tr key={row.id} className="border-b border-line/80 last:border-0">
+                <tr key={row.id} className="table-row">
                   <td className="px-3 py-2 tabular-nums">
                     {format.dateTime(new Date(row.createdAt), {
                       dateStyle: "short",

@@ -12,6 +12,7 @@ export default async function ContactPage() {
       <SiteHeader />
       <main id="main" className="flex flex-1 items-center justify-center px-6 py-16">
         <Card className="relative w-full max-w-md">
+          <span className="mb-4 block h-1 w-10 bg-accent" aria-hidden />
           <PageTitle>{t("title")}</PageTitle>
           <p className="mt-1 mb-6 text-sm text-muted">{t("body")}</p>
           <ContactForm />

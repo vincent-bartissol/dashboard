@@ -2,9 +2,8 @@ import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { PageIntro } from "@/components/dashboard/page-intro";
+import { ThemeCardGrid } from "@/components/dashboard/theme-cards";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
-import { Card } from "@/components/ui/card";
-import { SectionTitle } from "@/components/ui/heading";
 import { DatasetNotice } from "@/components/dashboard/dataset-notice";
 import { getProfile, listFavorites } from "@/lib/db/queries";
 import { fetchAggregate, fetchCount, formatCount } from "@/lib/opendata/client";
@@ -95,16 +94,14 @@ export default async function DashboardPage() {
           { label: t("favorites"), value: favorites.length },
         ]}
       />
-      <div className="mt-8 grid gap-4 md:grid-cols-2">
-        {THEME_IDS.map((id) => (
-          <Link key={id} href={THEME_HREF[id]}>
-            <Card className="h-full transition hover:border-heading/40">
-              <SectionTitle>{t(`themes.${id}.title`)}</SectionTitle>
-              <p className="mt-1 text-sm text-muted">{t(`themes.${id}.body`)}</p>
-            </Card>
-          </Link>
-        ))}
-      </div>
+      <ThemeCardGrid
+        items={THEME_IDS.map((id) => ({
+          id,
+          href: THEME_HREF[id],
+          title: t(`themes.${id}.title`),
+          body: t(`themes.${id}.body`),
+        }))}
+      />
       <p className="mt-6 text-sm text-muted">
         {t.rich("catalog", {
           fountains: formatCount(fountains, (value) => format.number(value)),

@@ -16,7 +16,7 @@ export function PageTitle({
 }) {
   return (
     <h1
-      className={`font-display font-semibold tracking-tight text-heading ${pageSizes[size]} ${className}`}
+      className={`font-display font-semibold leading-tight tracking-tight text-heading ${pageSizes[size]} ${className}`}
     >
       {children}
     </h1>

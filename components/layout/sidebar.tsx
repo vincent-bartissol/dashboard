@@ -16,10 +16,10 @@ import { fetchThemeTablePage, themeTableQueryKey } from "@/lib/opendata/theme-qu
 import type { ColorScheme } from "@/lib/theme";
 
 const linkClass = (active: boolean) =>
-  `border-l-4 px-3 py-2 text-sm transition focus-field ${
+  `border-l-4 px-3 py-2.5 text-sm transition focus-field ${
     active
-      ? "border-accent bg-white/10 font-medium text-white"
-      : "border-transparent text-white/75 hover:bg-white/5 hover:text-white"
+      ? "border-accent bg-accent/20 font-medium text-white"
+      : "border-transparent text-white/70 hover:border-white/25 hover:bg-white/5 hover:text-white"
   }`;
 
 const mobileLinkClass = (active: boolean) =>
@@ -72,7 +72,9 @@ export function Sidebar({
     <aside className="sticky top-0 flex h-dvh w-64 shrink-0 flex-col self-start border-r border-white/10 bg-navy text-white">
       <div className="border-b border-white/10 px-5 py-5">
         <Wordmark invert />
-        <p className="mt-3 truncate text-sm text-white/70">{userName}</p>
+        <p className="mt-4 truncate border-l-4 border-accent pl-3 text-sm font-medium text-white">
+          {userName}
+        </p>
         <div className="mt-3">
           <CommandPalette />
         </div>

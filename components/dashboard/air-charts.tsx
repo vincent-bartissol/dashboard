@@ -1,6 +1,7 @@
 "use client";
 
 import { useId } from "react";
+import { useReducedMotion } from "motion/react";
 import { useTranslations } from "next-intl";
 import {
   Bar,
@@ -15,7 +16,7 @@ import {
 import type { OpenDataRecord } from "@/lib/opendata/client";
 import { Card } from "@/components/ui/card";
 import { SectionTitle } from "@/components/ui/heading";
-import { useChartChrome } from "@/components/theme/use-chart-chrome";
+import { chartMotion, chartTooltipStyle, useChartChrome } from "@/components/theme/use-chart-chrome";
 
 const SERIES = [
   { key: "ind_jour_qa_bonne", color: "#2f9e44" },
@@ -28,6 +29,7 @@ const SERIES = [
 
 export function AirCharts({ records }: { records: OpenDataRecord[] }) {
   const chrome = useChartChrome();
+  const motion = chartMotion(useReducedMotion());
   const t = useTranslations("Datasets.air.columns");
   const title = useTranslations("Pages.air");
   const charts = useTranslations("Charts");
@@ -54,19 +56,22 @@ export function AirCharts({ records }: { records: OpenDataRecord[] }) {
           <div className="h-[360px] w-full" aria-describedby={summaryId}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" stroke={chrome.grid} />
+                <CartesianGrid vertical={false} stroke={chrome.grid} strokeOpacity={0.7} />
                 <XAxis dataKey="annee" stroke={chrome.tick} tick={{ fill: chrome.tick }} />
                 <YAxis stroke={chrome.tick} tick={{ fill: chrome.tick }} />
-                <Tooltip
-                  contentStyle={{
-                    background: chrome.paper,
-                    border: `1px solid ${chrome.grid}`,
-                    color: chrome.ink,
-                  }}
-                />
+                <Tooltip contentStyle={chartTooltipStyle(chrome)} />
                 <Legend wrapperStyle={{ color: chrome.ink }} />
                 {SERIES.map((item) => (
-                  <Bar key={item.key} dataKey={item.key} name={t(item.key)} fill={item.color} stackId="atmo" />
+                  <Bar
+                    key={item.key}
+                    dataKey={item.key}
+                    name={t(item.key)}
+                    fill={item.color}
+                    stackId="atmo"
+                    radius={0}
+                    isAnimationActive={motion.isAnimationActive}
+                    animationDuration={motion.animationDuration}
+                  />
                 ))}
               </BarChart>
             </ResponsiveContainer>

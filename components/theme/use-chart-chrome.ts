@@ -19,3 +19,19 @@ export function useChartChrome() {
     accent: cssVar("--accent", "#c8102e"),
   };
 }
+
+export function chartTooltipStyle(chrome: { paper: string; grid: string; ink: string }) {
+  return {
+    background: chrome.paper,
+    border: `1px solid ${chrome.grid}`,
+    borderRadius: 0,
+    color: chrome.ink,
+  };
+}
+
+export function chartMotion(reduce: boolean | null) {
+  return {
+    isAnimationActive: reduce !== true,
+    animationDuration: 700,
+  };
+}

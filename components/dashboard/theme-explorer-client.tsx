@@ -298,11 +298,7 @@ export function ThemeExplorerClient({
           style={tableMaxHeight ? { maxHeight: tableMaxHeight } : undefined}
         >
           <table className="min-w-full text-left text-sm">
-            <thead
-              className={`text-label border-b border-line bg-ground ${
-                tableMaxHeight ? "sticky top-0 z-10" : ""
-              }`}
-            >
+            <thead className={`table-head ${tableMaxHeight ? "sticky top-0 z-10" : ""}`}>
               <tr>
                 <th className="w-12 px-3 py-2">
                   <span className="sr-only">{t("favoriteColumn")}</span>
@@ -362,7 +358,7 @@ export function ThemeExplorerClient({
                 const id = recordId(record, dataset.idField) || String(index);
                 const saved = favorites.has(id);
                 return (
-                  <tr key={`${id}::${index}`} className="border-b border-line/80 last:border-0">
+                  <tr key={`${id}::${index}`} className="table-row">
                     <td className="px-2 py-1.5">
                       <button
                         type="button"
