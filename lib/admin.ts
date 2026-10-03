@@ -61,23 +61,6 @@ export function demoteAdminBlockReason(params: {
   return null;
 }
 
-/** @deprecated Prefer demoteAdminBlockReason for distinct errors. */
-export function canDemoteAdmin(params: {
-  targetUserId: string;
-  targetRole: string | null | undefined;
-  actorUserId: string;
-  adminCount: number;
-}): boolean {
-  return (
-    demoteAdminBlockReason({
-      targetUserId: params.targetUserId,
-      targetIsAdmin: params.targetRole === ADMIN_ROLE || parseAdminUserIds().includes(params.targetUserId),
-      actorUserId: params.actorUserId,
-      adminCount: params.adminCount,
-    }) == null
-  );
-}
-
 export type BanBlockReason = "selfBan" | "peerAdmin";
 
 export function banUserBlockReason(params: {
@@ -88,20 +71,6 @@ export function banUserBlockReason(params: {
   if (params.targetUserId === params.actorUserId) return "selfBan";
   if (params.targetIsAdmin) return "peerAdmin";
   return null;
-}
-
-export function canBanUser(params: {
-  targetUserId: string;
-  actorUserId: string;
-  targetIsAdmin?: boolean;
-}): boolean {
-  return (
-    banUserBlockReason({
-      targetUserId: params.targetUserId,
-      actorUserId: params.actorUserId,
-      targetIsAdmin: params.targetIsAdmin ?? false,
-    }) == null
-  );
 }
 
 export function clampBanReason(raw: string | undefined, fallback = "Banned by admin"): string {

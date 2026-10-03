@@ -1,8 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import {
   banUserBlockReason,
-  canBanUser,
-  canDemoteAdmin,
   clampBanReason,
   demoteAdminBlockReason,
   isAdminUser,
@@ -92,14 +90,6 @@ describe("banUserBlockReason", () => {
   });
 });
 
-describe("canBanUser", () => {
-  it("blocks self-ban and peer admins", () => {
-    expect(canBanUser({ targetUserId: "a", actorUserId: "a" })).toBe(false);
-    expect(canBanUser({ targetUserId: "b", actorUserId: "a", targetIsAdmin: true })).toBe(false);
-    expect(canBanUser({ targetUserId: "b", actorUserId: "a", targetIsAdmin: false })).toBe(true);
-  });
-});
-
 describe("demoteAdminBlockReason", () => {
   it("distinguishes self-demote from last admin", () => {
     expect(
@@ -126,54 +116,6 @@ describe("demoteAdminBlockReason", () => {
         adminCount: 2,
       }),
     ).toBeNull();
-  });
-});
-
-describe("canDemoteAdmin", () => {
-  const original = process.env.ADMIN_USER_IDS;
-  afterEach(() => {
-    if (original === undefined) delete process.env.ADMIN_USER_IDS;
-    else process.env.ADMIN_USER_IDS = original;
-  });
-
-  it("blocks demoting self or last admin", () => {
-    delete process.env.ADMIN_USER_IDS;
-    expect(
-      canDemoteAdmin({
-        targetUserId: "a",
-        targetRole: "admin",
-        actorUserId: "a",
-        adminCount: 2,
-      }),
-    ).toBe(false);
-    expect(
-      canDemoteAdmin({
-        targetUserId: "b",
-        targetRole: "admin",
-        actorUserId: "a",
-        adminCount: 1,
-      }),
-    ).toBe(false);
-    expect(
-      canDemoteAdmin({
-        targetUserId: "b",
-        targetRole: "admin",
-        actorUserId: "a",
-        adminCount: 2,
-      }),
-    ).toBe(true);
-  });
-
-  it("treats break-glass ids as admins for demotion checks", () => {
-    process.env.ADMIN_USER_IDS = "b";
-    expect(
-      canDemoteAdmin({
-        targetUserId: "b",
-        targetRole: "user",
-        actorUserId: "a",
-        adminCount: 1,
-      }),
-    ).toBe(false);
   });
 });
 

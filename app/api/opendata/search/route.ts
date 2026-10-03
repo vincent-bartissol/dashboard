@@ -1,22 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isBannedUser } from "@/lib/admin";
+import { requireApiSession } from "@/lib/api-auth";
 import { searchOpenData } from "@/lib/opendata/global-search";
+import { logOpendataFailure } from "@/lib/opendata/log-failure";
 import { opendataSearchLimit } from "@/lib/rate-limit";
-import { getSession } from "@/lib/session";
 
 export async function GET(request: NextRequest) {
-  const session = await getSession();
-  if (!session || isBannedUser(session.user)) {
-    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
-  }
-
-  const limited = opendataSearchLimit.check(session.user.id);
-  if (!limited.ok) {
-    return NextResponse.json(
-      { ok: false, error: "rate_limited" },
-      { status: 429, headers: { "Retry-After": String(limited.retryAfterSec) } },
-    );
-  }
+  const auth = await requireApiSession(opendataSearchLimit);
+  if (!auth.ok) return auth.response;
 
   const q = request.nextUrl.searchParams.get("q")?.trim() ?? "";
   if (q.length < 2) {
@@ -30,7 +20,7 @@ export async function GET(request: NextRequest) {
     const results = await searchOpenData(q);
     return NextResponse.json({ ok: true, results });
   } catch (cause) {
-    console.error(cause);
+    logOpendataFailure("search", cause);
     return NextResponse.json({ ok: false, error: "opendata" }, { status: 502 });
   }
 }
