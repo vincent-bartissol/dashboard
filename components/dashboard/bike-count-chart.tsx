@@ -43,7 +43,7 @@ export function BikeCountChart({ records }: { records: OpenDataRecord[] }) {
       ) : (
         <>
           <p id={summaryId} className="sr-only">
-            {t("bikeSummary", { from, to, peak: String(peak) })}
+            {t("bikeSummary", { from, to, peak: String(peak) })} {t("keyboardHint")}
           </p>
           <div className="h-[320px] w-full" aria-describedby={summaryId}>
             <ResponsiveContainer width="100%" height="100%">

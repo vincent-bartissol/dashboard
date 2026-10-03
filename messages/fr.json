@@ -164,7 +164,9 @@
     "invalidToken": "Ce lien n’est plus valide.",
     "passwordTooLong": "Le mot de passe est trop long.",
     "namesTooLong": "Le prénom et le nom doivent faire 80 caractères maximum.",
-    "choosePassword": "Choisir le mot de passe"
+    "choosePassword": "Choisir le mot de passe",
+    "verifyStepTitle": "Confirmez votre e-mail",
+    "otpStepTitle": "Code de connexion"
   },
   "Explorer": {
     "filterPlaceholder": "Filtrer le tableau et la carte…",
@@ -191,7 +193,9 @@
     "alertRateLimited": "Trop de requêtes d’alerte. Réessayez dans un instant.",
     "alertError": "Impossible de créer cette alerte.",
     "loadingMore": "Chargement…",
-    "loadMoreHint": "Faites défiler pour charger la suite."
+    "loadMoreHint": "Faites défiler pour charger la suite.",
+    "alertColumn": "Alerte",
+    "datasetTabs": "Jeux de données"
   },
   "Overview": {
     "title": "Vue d’ensemble",
@@ -324,7 +328,10 @@
       "delete": "Supprimer",
       "station": "Station",
       "lastTriggered": "Dernier déclenchement",
-      "never": "Jamais"
+      "never": "Jamais",
+      "enableAction": "Activer l’alerte",
+      "disableAction": "Désactiver l’alerte",
+      "mutationError": "Impossible de mettre à jour cette alerte."
     }
   },
   "Profile": {
@@ -365,7 +372,8 @@
     "passages": "Passages",
     "airSummary": "Jours par indice ATMO de {from} à {to}.",
     "bikeSummary": "Passages du {from} au {to}, pic {peak}.",
-    "empty": "Aucune donnée à afficher."
+    "empty": "Aucune donnée à afficher.",
+    "keyboardHint": "Le graphique n’est pas navigable au clavier ; les chiffres sont résumés ci-dessus."
   },
   "Landmarks": {
     "metro": {
@@ -677,6 +685,18 @@
       "emailSentNo": "Non envoyé",
       "message": "Message",
       "back": "Retour à l’administration"
+    },
+    "actions": {
+      "signup": "Inscription",
+      "login": "Connexion",
+      "favorite.add": "Favori ajouté",
+      "favorite.remove": "Favori retiré",
+      "profile.update": "Profil mis à jour",
+      "page.view": "Page consultée",
+      "admin.ban": "Utilisateur banni",
+      "admin.unban": "Ban levé",
+      "admin.setRole": "Rôle modifié",
+      "admin.revokeSession": "Session révoquée"
     }
   },
   "CommandPalette": {
@@ -686,7 +706,8 @@
     "hint": "Tapez au moins 2 caractères.",
     "loading": "Recherche…",
     "empty": "Aucun résultat.",
-    "footer": "Échap pour fermer · Entrée pour ouvrir"
+    "footer": "Échap pour fermer · Entrée pour ouvrir",
+    "results": "{count} résultats"
   },
   "Compare": {
     "title": "Comparer un arrondissement",

@@ -265,7 +265,7 @@ export function ThemeExplorerClient({
       ) : null}
       {alertMessage ? (
         <p
-          role="status"
+          role={alertMessage === "alertCreated" ? "status" : "alert"}
           className={
             alertMessage === "alertCreated" ? "text-sm text-muted" : "text-sm text-danger"
           }
@@ -307,7 +307,11 @@ export function ThemeExplorerClient({
                 <th className="w-12 px-3 py-2">
                   <span className="sr-only">{t("favoriteColumn")}</span>
                 </th>
-                {canAlert ? <th className="w-12 px-3 py-2" /> : null}
+                {canAlert ? (
+                  <th className="w-12 px-3 py-2">
+                    <span className="sr-only">{t("alertColumn")}</span>
+                  </th>
+                ) : null}
                 {dataset.columns.map((column) => {
                   const active = sortKey === column.key;
                   const nextDir: SortDir = active && sortDir === "asc" ? "desc" : "asc";

@@ -164,7 +164,9 @@
     "invalidToken": "This link is no longer valid.",
     "passwordTooLong": "The password is too long.",
     "namesTooLong": "First and last name must be 80 characters or fewer.",
-    "choosePassword": "Choose password"
+    "choosePassword": "Choose password",
+    "verifyStepTitle": "Confirm your email",
+    "otpStepTitle": "Sign-in code"
   },
   "Explorer": {
     "filterPlaceholder": "Filter the table and map…",
@@ -191,7 +193,9 @@
     "alertRateLimited": "Too many alert requests. Try again shortly.",
     "alertError": "Could not create this alert.",
     "loadingMore": "Loading…",
-    "loadMoreHint": "Scroll to load more."
+    "loadMoreHint": "Scroll to load more.",
+    "alertColumn": "Alert",
+    "datasetTabs": "Datasets"
   },
   "Overview": {
     "title": "Overview",
@@ -324,7 +328,10 @@
       "delete": "Delete",
       "station": "Station",
       "lastTriggered": "Last triggered",
-      "never": "Never"
+      "never": "Never",
+      "enableAction": "Enable alert",
+      "disableAction": "Disable alert",
+      "mutationError": "Could not update this alert."
     }
   },
   "Profile": {
@@ -365,7 +372,8 @@
     "passages": "Passages",
     "airSummary": "ATMO index days from {from} to {to}.",
     "bikeSummary": "Passages from {from} to {to}, peak {peak}.",
-    "empty": "No data to chart."
+    "empty": "No data to chart.",
+    "keyboardHint": "The chart is not keyboard-navigable; figures are summarised above."
   },
   "Landmarks": {
     "metro": {
@@ -677,6 +685,18 @@
       "emailSentNo": "Not sent",
       "message": "Message",
       "back": "Back to administration"
+    },
+    "actions": {
+      "signup": "Sign-up",
+      "login": "Sign-in",
+      "favorite.add": "Favorite added",
+      "favorite.remove": "Favorite removed",
+      "profile.update": "Profile updated",
+      "page.view": "Page viewed",
+      "admin.ban": "User banned",
+      "admin.unban": "User unbanned",
+      "admin.setRole": "Role changed",
+      "admin.revokeSession": "Session revoked"
     }
   },
   "CommandPalette": {
@@ -686,7 +706,8 @@
     "hint": "Type at least 2 characters.",
     "loading": "Searching…",
     "empty": "No results.",
-    "footer": "Esc to close · Enter to open"
+    "footer": "Esc to close · Enter to open",
+    "results": "{count} results"
   },
   "Compare": {
     "title": "Compare an arrondissement",

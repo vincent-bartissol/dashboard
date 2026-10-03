@@ -21,6 +21,10 @@ vi.mock("@/i18n/navigation", () => ({
   ),
 }));
 
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => key === "datasetTabs" ? "Datasets" : key,
+}));
+
 describe("DatasetTabs", () => {
   afterEach(() => {
     cleanup();

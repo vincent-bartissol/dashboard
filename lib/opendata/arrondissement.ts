@@ -1,3 +1,4 @@
+import type { AppLocale } from "@/i18n/routing";
 import type { DatasetConfig } from "./client";
 
 export const ARRONDISSEMENTS = [
@@ -22,6 +23,23 @@ export const ARRONDISSEMENTS = [
   { code: "19", label: "19e", zip: "75019" },
   { code: "20", label: "20e", zip: "75020" },
 ] as const;
+
+/** Locale-aware ordinal for UI (French labels stay on `ARRONDISSEMENTS` for ODSQL helpers). */
+export function formatDistrictOrdinal(code: string, locale: AppLocale = "fr") {
+  const n = Number(code);
+  if (!Number.isFinite(n) || n < 1) return code;
+  if (locale === "en") {
+    const mod100 = n % 100;
+    if (mod100 >= 11 && mod100 <= 13) return `${n}th`;
+    if (n % 10 === 1) return `${n}st`;
+    if (n % 10 === 2) return `${n}nd`;
+    if (n % 10 === 3) return `${n}rd`;
+    return `${n}th`;
+  }
+  if (locale === "es") return `${n}.º`;
+  if (n === 1) return "1er";
+  return `${n}e`;
+}
 
 export type ArrondissementCode = (typeof ARRONDISSEMENTS)[number]["code"];
 

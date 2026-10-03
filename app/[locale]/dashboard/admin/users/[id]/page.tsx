@@ -1,6 +1,11 @@
 import { getFormatter, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Link } from "@/i18n/navigation";
+import {
+  ActivityMetadataList,
+  isKnownActivityAction,
+  parseActivityMetadata,
+} from "@/components/admin/activity-display";
 import { AdminUserControls } from "@/components/admin/user-controls";
 import { PageIntro } from "@/components/dashboard/page-intro";
 import { Card } from "@/components/ui/card";
@@ -16,15 +21,6 @@ import {
   listSessionsForUser,
 } from "@/lib/db/queries";
 import { requireAdmin } from "@/lib/session";
-
-function parseMetadata(raw: string | null) {
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as Record<string, unknown>;
-  } catch {
-    return null;
-  }
-}
 
 export default async function AdminUserDetailPage({
   params,
@@ -218,7 +214,10 @@ export default async function AdminUserDetailPage({
               </tr>
             ) : null}
             {activities.map((row) => {
-              const meta = parseMetadata(row.metadata);
+              const meta = parseActivityMetadata(row.metadata);
+              const actionLabel = isKnownActivityAction(row.action)
+                ? t(`actions.${row.action}`)
+                : row.action;
               return (
                 <tr key={row.id} className="border-b border-line/80 last:border-0">
                   <td className="px-3 py-2 tabular-nums">
@@ -227,9 +226,9 @@ export default async function AdminUserDetailPage({
                       timeStyle: "short",
                     })}
                   </td>
-                  <td className="px-3 py-2">{row.action}</td>
+                  <td className="px-3 py-2">{actionLabel}</td>
                   <td className="px-3 py-2 text-muted">
-                    {meta ? JSON.stringify(meta) : "—"}
+                    <ActivityMetadataList meta={meta} />
                   </td>
                 </tr>
               );
