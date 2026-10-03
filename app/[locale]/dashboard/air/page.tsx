@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { AirCharts } from "@/components/dashboard/air-charts";
+import { DynamicAirCharts } from "@/components/dashboard/dynamic-air-charts";
 import { DatasetNotice } from "@/components/dashboard/dataset-notice";
 import { InfiniteThemeExplorer } from "@/components/dashboard/infinite-theme-explorer";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
@@ -37,7 +37,7 @@ export default async function AirPage() {
           { label: t("badDays"), value: dash ? "—" : Number(latest?.ind_jour_qa_mauvaise ?? 0) },
         ]}
       />
-      <AirCharts records={chartRecords} />
+      <DynamicAirCharts records={chartRecords} />
       <InfiniteThemeExplorer
         dataset={await localizeExplorerDataset(DATASETS.air)}
         initial={loaded.table}

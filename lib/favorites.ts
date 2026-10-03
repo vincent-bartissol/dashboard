@@ -1,12 +1,9 @@
 import { and, count, eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { favorite } from "@/lib/db/schema";
 import { recordActivity } from "@/lib/activity";
 import { isAtFavoriteLimit, parseFavoriteInput, type FavoriteInput } from "@/lib/favorite-input";
-import { routing } from "@/i18n/routing";
 import { listFavorites } from "@/lib/db/queries";
-import { NAV_ITEMS } from "@/lib/opendata/datasets";
 
 export type ToggleFavoriteResult = { ok: true } | { ok: false; error: string };
 
@@ -79,11 +76,7 @@ export async function toggleFavoriteForUser(
       });
     }
 
-    for (const locale of routing.locales) {
-      for (const item of NAV_ITEMS) {
-        revalidatePath(`/${locale}${item.href}`);
-      }
-    }
+    // Client refreshes via useFavoritesQuery; theme pages are already dynamic.
     return { ok: true };
   } catch {
     return { ok: false, error: "favorite" };

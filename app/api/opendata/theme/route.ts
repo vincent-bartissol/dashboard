@@ -7,6 +7,7 @@ import {
   THEME_PAGE_MAX,
   THEME_PAGE_SIZE,
 } from "@/lib/opendata/theme-api";
+import { clampLimitParam, clampOffsetParam } from "@/lib/opendata/page-clamp";
 import { opendataThemeLimit } from "@/lib/rate-limit";
 import { getSession } from "@/lib/session";
 
@@ -51,12 +52,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: true, page: result.page });
   }
 
-  const limitRaw = Number(request.nextUrl.searchParams.get("limit") ?? THEME_PAGE_SIZE);
-  const offsetRaw = Number(request.nextUrl.searchParams.get("offset") ?? 0);
-  const limit = Number.isFinite(limitRaw)
-    ? Math.min(THEME_PAGE_MAX, Math.max(1, Math.floor(limitRaw)))
-    : THEME_PAGE_SIZE;
-  const offset = Number.isFinite(offsetRaw) && offsetRaw > 0 ? Math.floor(offsetRaw) : 0;
+  const limit = clampLimitParam(request.nextUrl.searchParams.get("limit"), {
+    size: THEME_PAGE_SIZE,
+    max: THEME_PAGE_MAX,
+  });
+  const offset = clampOffsetParam(request.nextUrl.searchParams.get("offset"));
 
   const result = await loadThemePage(config, session.user.id, {
     ...loadOpts,

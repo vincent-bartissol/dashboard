@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { DATASETS } from "./datasets";
+import { MAX_OFFSET } from "./page-clamp";
 import { loadThemeMarkers, loadThemePage, markerSelect, THEME_PAGE_SIZE } from "./theme-api";
 
 vi.mock("@/lib/db/queries", () => ({
@@ -69,6 +70,17 @@ describe("loadThemePage", () => {
     });
     expect(result.hasMore).toBe(false);
     expect(result.nextOffset).toBe(55);
+  });
+
+  it("caps offset at MAX_OFFSET before calling the API", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ total_count: 0, results: [] }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    await loadThemePage(DATASETS.markets, "user-1", { offset: 99_999_999 });
+    const url = String(fetchMock.mock.calls[0]?.[0]);
+    expect(url).toContain(`offset=${MAX_OFFSET}`);
   });
 });
 

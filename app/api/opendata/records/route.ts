@@ -14,6 +14,7 @@ import {
 import { DATASETS, PARIS_BBOX } from "@/lib/opendata/datasets";
 import { BBOX_MAP_MAX, BBOX_PAGE_MAX, BBOX_PAGE_SIZE } from "@/lib/opendata/bbox-constants";
 import { themeOrderBy } from "@/lib/opendata/order-by";
+import { clampLimitParam, clampOffsetParam } from "@/lib/opendata/page-clamp";
 import { markerSelect } from "@/lib/opendata/theme-api";
 import { opendataRecordsLimit } from "@/lib/rate-limit";
 
@@ -22,18 +23,6 @@ const ALLOWED = new Map(
     .filter((dataset) => dataset.bbox)
     .map((dataset) => [dataset.id, dataset]),
 );
-
-function clampLimit(raw: string | null) {
-  const value = Number(raw ?? BBOX_PAGE_SIZE);
-  if (!Number.isFinite(value)) return BBOX_PAGE_SIZE;
-  return Math.min(BBOX_PAGE_MAX, Math.max(1, Math.floor(value)));
-}
-
-function clampOffset(raw: string | null) {
-  const value = Number(raw ?? 0);
-  if (!Number.isFinite(value) || value < 0) return 0;
-  return Math.floor(value);
-}
 
 export async function GET(request: NextRequest) {
   const session = await getSession();
@@ -81,8 +70,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: true, page: result.page });
   }
 
-  const limit = clampLimit(request.nextUrl.searchParams.get("limit"));
-  const offset = clampOffset(request.nextUrl.searchParams.get("offset"));
+  const limit = clampLimitParam(request.nextUrl.searchParams.get("limit"), {
+    size: BBOX_PAGE_SIZE,
+    max: BBOX_PAGE_MAX,
+  });
+  const offset = clampOffsetParam(request.nextUrl.searchParams.get("offset"));
 
   const result = await fetchRecordsSafe(
     config.id,

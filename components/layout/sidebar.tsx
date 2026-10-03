@@ -12,12 +12,7 @@ import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { useFavoritesQuery } from "@/lib/favorites-query";
 import type { FavoriteDto } from "@/lib/favorites";
 import { NAV_PREFETCH_DATASETS } from "@/lib/opendata/nav-prefetch";
-import {
-  fetchThemeMarkers,
-  fetchThemeTablePage,
-  themeMarkersQueryKey,
-  themeTableQueryKey,
-} from "@/lib/opendata/theme-query";
+import { fetchThemeTablePage, themeTableQueryKey } from "@/lib/opendata/theme-query";
 import type { ColorScheme } from "@/lib/theme";
 
 const linkClass = (active: boolean) =>
@@ -53,11 +48,8 @@ export function Sidebar({
   function prefetchNav(href: string) {
     const datasets = NAV_PREFETCH_DATASETS[href];
     if (!datasets?.length) return;
+    // Table page only — marker catalogs are large and burn the theme rate limit.
     for (const datasetId of datasets) {
-      void queryClient.prefetchQuery({
-        queryKey: themeMarkersQueryKey(datasetId),
-        queryFn: ({ signal }) => fetchThemeMarkers(datasetId, { signal }),
-      });
       void queryClient.prefetchInfiniteQuery({
         queryKey: themeTableQueryKey(datasetId),
         queryFn: ({ pageParam, signal }) =>
@@ -65,6 +57,7 @@ export function Sidebar({
         initialPageParam: 0,
         getNextPageParam: (last: { hasMore: boolean; nextOffset: number }) =>
           last.hasMore ? last.nextOffset : undefined,
+        staleTime: 60_000,
       });
     }
   }
