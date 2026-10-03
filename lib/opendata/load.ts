@@ -6,60 +6,19 @@ import {
   fetchRecordsSafe,
   joinWhere,
   type DatasetConfig,
-  type OpenDataPage,
+  type OpenDataRecord,
 } from "@/lib/opendata/client";
 import { PARIS_BBOX } from "@/lib/opendata/datasets";
 import { themeOrderBy } from "@/lib/opendata/order-by";
 import { BBOX_MAP_MAX, BBOX_PAGE_SIZE } from "@/lib/opendata/bbox-constants";
 import {
-  loadThemeMarkers,
   loadThemePage,
   markerSelect,
   THEME_PAGE_SIZE,
   type ThemeLoadOptions,
 } from "@/lib/opendata/theme-api";
 
-export async function loadTheme(
-  dataset: DatasetConfig,
-  userId: string,
-  extraWhere?: string,
-  options?: { ignoreProfile?: boolean },
-) {
-  const profile = await getProfile(userId);
-  const district = options?.ignoreProfile
-    ? undefined
-    : arrondissementWhere(dataset, profile.arrondissement);
-  const where = joinWhere(extraWhere, district, dataset.defaultWhere);
-  const result = dataset.bbox
-    ? await fetchRecordsSafe(
-        dataset.id,
-        {
-          limit: 100,
-          where: joinWhere(where, bboxWhere(dataset.geoField, PARIS_BBOX)),
-          orderBy: themeOrderBy(dataset),
-          host: dataset.host,
-        },
-        dataset.revalidate,
-      )
-    : await fetchAllRecords(dataset.id, dataset.revalidate, {
-        where,
-        host: dataset.host,
-        max: dataset.id === "velib-disponibilite-en-temps-reel" ? 1600 : 1500,
-        orderBy: themeOrderBy(dataset),
-      });
-  const favorites = await listFavorites(userId, dataset.id);
-  const page: OpenDataPage = result.page;
-  return {
-    page,
-    ok: result.ok,
-    error: result.error,
-    favoriteIds: favorites.map((item) => item.recordId),
-    arrondissement: profile.arrondissement,
-    where,
-  };
-}
-
-/** Table page 0 + slim map markers for non-bbox theme explorers. */
+/** Table page 0 for non-bbox theme explorers. Markers load client-side. */
 export async function loadThemeExplorer(
   dataset: DatasetConfig,
   userId: string,
@@ -83,18 +42,17 @@ export async function loadThemeExplorer(
     whereOverride: where,
   };
 
-  const [table, markers, favorites] = await Promise.all([
+  const [table, favorites] = await Promise.all([
     loadThemePage(dataset, userId, loadOpts),
-    loadThemeMarkers(dataset, userId, loadOpts),
     listFavorites(userId, dataset.id),
   ]);
   return {
     table: table.page,
-    markers: markers.page,
+    markers: { total_count: 0, results: [] as OpenDataRecord[] },
     hasMore: table.hasMore,
     nextOffset: table.nextOffset,
-    ok: table.ok && markers.ok,
-    error: table.error || markers.error,
+    ok: table.ok,
+    error: table.error,
     favoriteIds: favorites.map((item) => item.recordId),
     arrondissement: profile.arrondissement,
     where,

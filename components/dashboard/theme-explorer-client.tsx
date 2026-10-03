@@ -35,6 +35,8 @@ type Props = {
   extraMarkers?: MapMarker[];
   /** Full geo set for the map; defaults to `records` when omitted. */
   mapRecords?: OpenDataRecord[];
+  /** Show a map skeleton while markers load client-side. */
+  mapLoading?: boolean;
   /** Map markers are a viewport/sample subset — prefer table row count in the filter label. */
   mapSample?: boolean;
   /** When false, show every loaded row (for server-side infinite scroll). Default true. */
@@ -92,6 +94,7 @@ export function ThemeExplorerClient({
   mapZoom,
   extraMarkers = [],
   mapRecords,
+  mapLoading = false,
   mapSample = false,
   paginate = true,
   tableMaxHeight,
@@ -99,6 +102,7 @@ export function ThemeExplorerClient({
   tableScrollRef,
 }: Props) {
   const t = useTranslations("Explorer");
+  const tCommon = useTranslations("Common");
   const format = useFormatter();
   const filterId = useId();
   const [query, setQuery] = useState("");
@@ -270,12 +274,22 @@ export function ThemeExplorerClient({
         </p>
       ) : null}
       {dataset.geoField ? (
-        <DynamicParisMap
-          markers={[...markers, ...extraMarkers]}
-          onBounds={dataset.bbox ? onBbox : undefined}
-          center={mapCenter}
-          zoom={mapZoom}
-        />
+        mapLoading ? (
+          <div
+            className="surface-panel flex h-[420px] items-center justify-center text-sm text-muted"
+            role="status"
+            aria-live="polite"
+          >
+            {tCommon("mapLoading")}
+          </div>
+        ) : (
+          <DynamicParisMap
+            markers={[...markers, ...extraMarkers]}
+            onBounds={dataset.bbox ? onBbox : undefined}
+            center={mapCenter}
+            zoom={mapZoom}
+          />
+        )
       ) : null}
       <Card className="p-0">
         <div
