@@ -79,7 +79,7 @@ export function AdminUserTable({
         </form>
       </div>
       <table className="min-w-full text-left text-sm">
-        <thead className="text-label border-b border-line bg-ground">
+        <thead className="table-head">
           <tr>
             {COLUMNS.map((column) => {
               const label = t(`columns.${column.labelKey}`);
@@ -126,7 +126,7 @@ export function AdminUserTable({
             </tr>
           ) : null}
           {sorted.map((row) => (
-            <tr key={row.id} className="border-b border-line/80 last:border-0">
+            <tr key={row.id} className="table-row">
               <td className="px-3 py-2">
                 <Link
                   href={`/dashboard/admin/users/${row.id}`}

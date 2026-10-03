@@ -1,6 +1,7 @@
 "use client";
 
 import { useId } from "react";
+import { useReducedMotion } from "motion/react";
 import { useTranslations } from "next-intl";
 import {
   CartesianGrid,
@@ -15,10 +16,11 @@ import {
 import type { OpenDataRecord } from "@/lib/opendata/client";
 import { Card } from "@/components/ui/card";
 import { SectionTitle } from "@/components/ui/heading";
-import { useChartChrome } from "@/components/theme/use-chart-chrome";
+import { chartMotion, chartTooltipStyle, useChartChrome } from "@/components/theme/use-chart-chrome";
 
 export function BikeCountChart({ records }: { records: OpenDataRecord[] }) {
   const chrome = useChartChrome();
+  const motion = chartMotion(useReducedMotion());
   const t = useTranslations("Charts");
   const summaryId = useId();
   const byDay = new Map<string, number>();
@@ -48,18 +50,21 @@ export function BikeCountChart({ records }: { records: OpenDataRecord[] }) {
           <div className="h-[320px] w-full" aria-describedby={summaryId}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" stroke={chrome.grid} />
+                <CartesianGrid vertical={false} stroke={chrome.grid} strokeOpacity={0.7} />
                 <XAxis dataKey="day" stroke={chrome.tick} tick={{ fill: chrome.tick }} />
                 <YAxis stroke={chrome.tick} tick={{ fill: chrome.tick }} />
-                <Tooltip
-                  contentStyle={{
-                    background: chrome.paper,
-                    border: `1px solid ${chrome.grid}`,
-                    color: chrome.ink,
-                  }}
-                />
+                <Tooltip contentStyle={chartTooltipStyle(chrome)} />
                 <Legend wrapperStyle={{ color: chrome.ink }} />
-                <Line type="monotone" dataKey="total" name={t("passages")} stroke={chrome.accent} dot={false} />
+                <Line
+                  type="monotone"
+                  dataKey="total"
+                  name={t("passages")}
+                  stroke={chrome.accent}
+                  strokeWidth={2}
+                  dot={false}
+                  isAnimationActive={motion.isAnimationActive}
+                  animationDuration={motion.animationDuration}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
