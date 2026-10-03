@@ -1,38 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isBannedUser } from "@/lib/admin";
+import { requireApiSession } from "@/lib/api-auth";
 import { listFavorites } from "@/lib/db/queries";
 import { toFavoriteDtos, toggleFavoriteForUser } from "@/lib/favorites";
 import { favoritesApiLimit } from "@/lib/rate-limit";
-import { getSession } from "@/lib/session";
 
 export async function GET() {
-  const session = await getSession();
-  if (!session || isBannedUser(session.user)) {
-    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
-  }
-  const limited = favoritesApiLimit.check(session.user.id);
-  if (!limited.ok) {
-    return NextResponse.json(
-      { ok: false, error: "rate_limited" },
-      { status: 429, headers: { "Retry-After": String(limited.retryAfterSec) } },
-    );
-  }
-  const rows = await listFavorites(session.user.id);
+  const auth = await requireApiSession(favoritesApiLimit);
+  if (!auth.ok) return auth.response;
+  const rows = await listFavorites(auth.session.user.id);
   return NextResponse.json({ ok: true, favorites: toFavoriteDtos(rows) });
 }
 
 export async function POST(request: NextRequest) {
-  const session = await getSession();
-  if (!session || isBannedUser(session.user)) {
-    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
-  }
-  const limited = favoritesApiLimit.check(session.user.id);
-  if (!limited.ok) {
-    return NextResponse.json(
-      { ok: false, error: "rate_limited" },
-      { status: 429, headers: { "Retry-After": String(limited.retryAfterSec) } },
-    );
-  }
+  const auth = await requireApiSession(favoritesApiLimit);
+  if (!auth.ok) return auth.response;
 
   let body: unknown;
   try {
@@ -50,7 +31,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: "favorite" }, { status: 400 });
   }
 
-  const result = await toggleFavoriteForUser(session.user.id, {
+  const result = await toggleFavoriteForUser(auth.session.user.id, {
     datasetId: input.datasetId,
     recordId: input.recordId,
     label: input.label,
@@ -60,6 +41,6 @@ export async function POST(request: NextRequest) {
     const status = result.error === "favoriteLimit" ? 403 : 400;
     return NextResponse.json(result, { status });
   }
-  const rows = await listFavorites(session.user.id);
+  const rows = await listFavorites(auth.session.user.id);
   return NextResponse.json({ ok: true, favorites: toFavoriteDtos(rows) });
 }

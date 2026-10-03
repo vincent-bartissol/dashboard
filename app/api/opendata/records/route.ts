@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireApiSession } from "@/lib/api-auth";
 import { getProfile } from "@/lib/db/queries";
-import { isBannedUser } from "@/lib/admin";
-import { getSession } from "@/lib/session";
 import { arrondissementWhere } from "@/lib/opendata/arrondissement";
 import { recordsQueryFromSearch } from "@/lib/opendata/bbox";
 import {
@@ -13,6 +12,7 @@ import {
 } from "@/lib/opendata/client";
 import { DATASETS, PARIS_BBOX } from "@/lib/opendata/datasets";
 import { BBOX_MAP_MAX, BBOX_PAGE_MAX, BBOX_PAGE_SIZE } from "@/lib/opendata/bbox-constants";
+import { logOpendataFailure } from "@/lib/opendata/log-failure";
 import { themeOrderBy } from "@/lib/opendata/order-by";
 import { clampLimitParam, clampOffsetParam } from "@/lib/opendata/page-clamp";
 import { markerSelect } from "@/lib/opendata/theme-api";
@@ -25,18 +25,8 @@ const ALLOWED = new Map(
 );
 
 export async function GET(request: NextRequest) {
-  const session = await getSession();
-  if (!session || isBannedUser(session.user)) {
-    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
-  }
-
-  const limited = opendataRecordsLimit.check(session.user.id);
-  if (!limited.ok) {
-    return NextResponse.json(
-      { ok: false, error: "rate_limited" },
-      { status: 429, headers: { "Retry-After": String(limited.retryAfterSec) } },
-    );
-  }
+  const auth = await requireApiSession(opendataRecordsLimit);
+  if (!auth.ok) return auth.response;
 
   const query = recordsQueryFromSearch(request.nextUrl.searchParams, PARIS_BBOX);
   if (!query.ok) {
@@ -48,7 +38,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: false, error: "unknown_dataset" }, { status: 400 });
   }
 
-  const profile = await getProfile(session.user.id);
+  const profile = await getProfile(auth.session.user.id);
   const district = arrondissementWhere(config, profile.arrondissement);
   const where = joinWhere(district, bboxWhere(config.geoField, query.bbox));
 
@@ -61,7 +51,7 @@ export async function GET(request: NextRequest) {
       // No orderBy: better spatial spread for map samples than id-sorted clusters.
     });
     if (!result.ok) {
-      console.error(result.error);
+      logOpendataFailure("records/markers", result.error);
       return NextResponse.json(
         { ok: false, error: "opendata", page: result.page },
         { status: 502 },
@@ -88,7 +78,7 @@ export async function GET(request: NextRequest) {
     config.revalidate,
   );
   if (!result.ok) {
-    console.error(result.error);
+    logOpendataFailure("records/page", result.error);
     return NextResponse.json(
       { ok: false, error: "opendata", page: result.page },
       { status: 502 },

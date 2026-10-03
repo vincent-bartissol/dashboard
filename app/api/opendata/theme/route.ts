@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isBannedUser } from "@/lib/admin";
+import { requireApiSession } from "@/lib/api-auth";
 import {
   loadThemeMarkers,
   loadThemePage,
@@ -8,22 +8,12 @@ import {
   THEME_PAGE_SIZE,
 } from "@/lib/opendata/theme-api";
 import { clampLimitParam, clampOffsetParam } from "@/lib/opendata/page-clamp";
+import { logOpendataFailure } from "@/lib/opendata/log-failure";
 import { opendataThemeLimit } from "@/lib/rate-limit";
-import { getSession } from "@/lib/session";
 
 export async function GET(request: NextRequest) {
-  const session = await getSession();
-  if (!session || isBannedUser(session.user)) {
-    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
-  }
-
-  const limited = opendataThemeLimit.check(session.user.id);
-  if (!limited.ok) {
-    return NextResponse.json(
-      { ok: false, error: "rate_limited" },
-      { status: 429, headers: { "Retry-After": String(limited.retryAfterSec) } },
-    );
-  }
+  const auth = await requireApiSession(opendataThemeLimit);
+  if (!auth.ok) return auth.response;
 
   const datasetId = request.nextUrl.searchParams.get("dataset");
   const district = request.nextUrl.searchParams.get("district");
@@ -39,11 +29,12 @@ export async function GET(request: NextRequest) {
   };
 
   if (mode === "markers") {
-    const result = await loadThemeMarkers(config, session.user.id, loadOpts);
+    const result = await loadThemeMarkers(config, auth.session.user.id, loadOpts);
     if (result.error === "bad_district") {
       return NextResponse.json({ ok: false, error: "bad_district" }, { status: 400 });
     }
     if (!result.ok) {
+      logOpendataFailure("theme/markers", result.error ?? "opendata");
       return NextResponse.json(
         { ok: false, error: "opendata", page: result.page },
         { status: 502 },
@@ -58,7 +49,7 @@ export async function GET(request: NextRequest) {
   });
   const offset = clampOffsetParam(request.nextUrl.searchParams.get("offset"));
 
-  const result = await loadThemePage(config, session.user.id, {
+  const result = await loadThemePage(config, auth.session.user.id, {
     ...loadOpts,
     limit,
     offset,
@@ -67,6 +58,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: false, error: "bad_district" }, { status: 400 });
   }
   if (!result.ok) {
+    logOpendataFailure("theme/page", result.error ?? "opendata");
     return NextResponse.json(
       { ok: false, error: "opendata", page: result.page },
       { status: 502 },

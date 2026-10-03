@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { and, count, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { favorite } from "@/lib/db/schema";
@@ -78,7 +79,8 @@ export async function toggleFavoriteForUser(
 
     // Client refreshes via useFavoritesQuery; theme pages are already dynamic.
     return { ok: true };
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     return { ok: false, error: "favorite" };
   }
 }
