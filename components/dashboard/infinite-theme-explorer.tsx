@@ -58,7 +58,7 @@ export function InfiniteThemeExplorer({
   const markersQuery = useQuery({
     queryKey: themeMarkersQueryKey(dataset.id, district),
     queryFn: ({ signal }) => fetchThemeMarkers(dataset.id, { district, signal }),
-    initialData: { total_count: initial.total_count, results: initialMapRecords },
+    enabled: Boolean(dataset.geoField),
     staleTime: refetchInterval ? 30_000 : 60_000,
     refetchInterval,
   });
@@ -112,6 +112,7 @@ export function InfiniteThemeExplorer({
     ? (markersQuery.data?.total_count ?? tableTotal)
     : tableTotal;
   const mapRecords = markersQuery.data?.results ?? initialMapRecords;
+  const mapLoading = Boolean(dataset.geoField) && markersQuery.isPending;
 
   const liveError =
     tableQuery.error instanceof Error || markersQuery.error instanceof Error
@@ -160,6 +161,7 @@ export function InfiniteThemeExplorer({
         dataset={dataset}
         records={records}
         mapRecords={dataset.geoField ? mapRecords : undefined}
+        mapLoading={mapLoading}
         totalCount={totalCount}
         favoriteIds={favoriteIds}
         colorScheme={colorScheme}

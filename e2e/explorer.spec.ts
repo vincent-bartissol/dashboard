@@ -32,6 +32,10 @@ test("velib table filter hides unmatched rows", async ({ page, context }) => {
   const filter = page.getByLabel("Filtrer les lignes chargées…");
   await waitForOpenDataOrSkip(page, filter);
 
+  // Markers load client-side after first paint — wait for the map skeleton to clear.
+  const mapLoading = page.getByRole("status").filter({ hasText: "Chargement de la carte" });
+  await expect(mapLoading).toHaveCount(0, { timeout: 30_000 });
+
   await expect(page.getByRole("button", { name: "Ajouter aux favoris" }).first()).toBeVisible();
   await filter.fill("zzzx-no-such-station-xyz");
   await expect(page.getByText("Aucun résultat pour ce filtre.")).toBeVisible();
