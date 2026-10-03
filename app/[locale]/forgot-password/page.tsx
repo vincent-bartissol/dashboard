@@ -3,6 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 import { SiteFooter, SiteHeader } from "@/components/layout/site-chrome";
 import { Card } from "@/components/ui/card";
+import { PageTitle } from "@/components/ui/heading";
 import { requireGuest } from "@/lib/session";
 
 export default async function ForgotPasswordPage({
@@ -19,7 +20,7 @@ export default async function ForgotPasswordPage({
       <SiteHeader variant="auth" />
       <main id="main" className="flex flex-1 items-center justify-center px-6 py-16">
         <Card className="w-full max-w-md">
-          <h1 className="text-2xl font-semibold text-heading">{t("forgotTitle")}</h1>
+          <PageTitle>{t("forgotTitle")}</PageTitle>
           <p className="mt-1 mb-6 text-sm text-muted">{t("forgotBody")}</p>
           <ForgotPasswordForm />
           <p className="mt-4 text-sm text-muted">

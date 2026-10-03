@@ -176,6 +176,7 @@ export function AuthForm({ mode, next }: { mode: Mode; next?: string | string[] 
   if (mode === "signup" && awaitingVerification) {
     return (
       <div className="space-y-4">
+        <h2 className="text-lg font-semibold text-heading">{t("verifyStepTitle")}</h2>
         <p className="text-sm text-muted">
           {emailForResend ? t("signupSentTo", { email: emailForResend }) : t("signupSent")}
         </p>
@@ -191,6 +192,7 @@ export function AuthForm({ mode, next }: { mode: Mode; next?: string | string[] 
   if (mode === "login" && awaitingOtp) {
     return (
       <form key="otp-step" onSubmit={onVerifyOtp} className="space-y-4">
+        <h2 className="text-lg font-semibold text-heading">{t("otpStepTitle")}</h2>
         <p className="text-sm text-muted">
           {emailForResend ? t("otpSentTo", { email: emailForResend }) : t("otpSent")}
         </p>

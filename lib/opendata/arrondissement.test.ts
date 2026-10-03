@@ -1,6 +1,22 @@
 import { describe, expect, it } from "vitest";
-import { arrondissementWhere, parsePreferredDistrict } from "./arrondissement";
+import {
+  arrondissementWhere,
+  formatDistrictOrdinal,
+  parsePreferredDistrict,
+} from "./arrondissement";
 import { DATASETS } from "./datasets";
+
+describe("formatDistrictOrdinal", () => {
+  it("localises ordinals", () => {
+    expect(formatDistrictOrdinal("01", "fr")).toBe("1er");
+    expect(formatDistrictOrdinal("02", "fr")).toBe("2e");
+    expect(formatDistrictOrdinal("01", "en")).toBe("1st");
+    expect(formatDistrictOrdinal("02", "en")).toBe("2nd");
+    expect(formatDistrictOrdinal("03", "en")).toBe("3rd");
+    expect(formatDistrictOrdinal("11", "en")).toBe("11th");
+    expect(formatDistrictOrdinal("01", "es")).toBe("1.º");
+  });
+});
 
 describe("arrondissementWhere", () => {
   it("uses dataset-specific Paris encodings", () => {

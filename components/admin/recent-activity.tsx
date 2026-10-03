@@ -2,6 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useFormatter, useTranslations } from "next-intl";
+import {
+  ActivityMetadataList,
+  isKnownActivityAction,
+  parseActivityMetadata,
+} from "@/components/admin/activity-display";
 import { Card } from "@/components/ui/card";
 import { SectionTitle } from "@/components/ui/heading";
 
@@ -45,25 +50,36 @@ export function AdminRecentActivity({ initial }: { initial: ActivityRow[] }) {
         {rows.length === 0 ? (
           <li className="text-muted">{t("recentEmpty")}</li>
         ) : (
-          rows.map((row) => (
-            <li
-              key={row.id}
-              className="flex justify-between gap-3 border-b border-line/60 py-1.5 last:border-0"
-            >
-              <span className="min-w-0 truncate">
-                <span className="font-medium text-heading">{row.action}</span>
-                <span className="mt-0.5 block truncate text-xs text-muted">
-                  {row.userName || row.userEmail}
+          rows.map((row) => {
+            const actionLabel = isKnownActivityAction(row.action)
+              ? t(`actions.${row.action}`)
+              : row.action;
+            const meta = parseActivityMetadata(row.metadata);
+            return (
+              <li
+                key={row.id}
+                className="flex justify-between gap-3 border-b border-line/60 py-1.5 last:border-0"
+              >
+                <span className="min-w-0">
+                  <span className="font-medium text-heading">{actionLabel}</span>
+                  <span className="mt-0.5 block truncate text-xs text-muted">
+                    {row.userName || row.userEmail}
+                  </span>
+                  {meta ? (
+                    <span className="mt-1 block">
+                      <ActivityMetadataList meta={meta} empty={null} />
+                    </span>
+                  ) : null}
                 </span>
-              </span>
-              <span className="shrink-0 text-xs text-muted">
-                {format.dateTime(new Date(row.createdAt), {
-                  dateStyle: "short",
-                  timeStyle: "short",
-                })}
-              </span>
-            </li>
-          ))
+                <span className="shrink-0 text-xs text-muted">
+                  {format.dateTime(new Date(row.createdAt), {
+                    dateStyle: "short",
+                    timeStyle: "short",
+                  })}
+                </span>
+              </li>
+            );
+          })
         )}
       </ul>
     </Card>

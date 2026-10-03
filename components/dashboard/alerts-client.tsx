@@ -65,6 +65,11 @@ export function AlertsClient({ initial }: { initial: AlertRule[] }) {
 
   return (
     <div className="space-y-3">
+      {mutation.isError ? (
+        <p role="alert" className="text-sm text-danger">
+          {t("mutationError")}
+        </p>
+      ) : null}
       {rules.map((rule) => {
         const last = rule.lastTriggeredAt ? new Date(rule.lastTriggeredAt) : null;
         return (
@@ -87,6 +92,7 @@ export function AlertsClient({ initial }: { initial: AlertRule[] }) {
                 type="button"
                 variant="secondary"
                 disabled={mutation.isPending}
+                aria-label={rule.enabled ? t("disableAction") : t("enableAction")}
                 onClick={() =>
                   mutation.mutate({
                     action: rule.enabled ? "disable" : "enable",
@@ -94,7 +100,7 @@ export function AlertsClient({ initial }: { initial: AlertRule[] }) {
                   })
                 }
               >
-                {rule.enabled ? t("disabled") : t("enabled")}
+                {rule.enabled ? t("disableAction") : t("enableAction")}
               </Button>
               <Button
                 type="button"

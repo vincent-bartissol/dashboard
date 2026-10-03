@@ -2,11 +2,16 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useFormatter, useTranslations } from "next-intl";
-import { ARRONDISSEMENTS } from "@/lib/opendata/arrondissement";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
+import {
+  ARRONDISSEMENTS,
+  formatDistrictOrdinal,
+} from "@/lib/opendata/arrondissement";
 import { fetchThemePage, themeQueryKey } from "@/lib/opendata/theme-query";
 import { DATASETS } from "@/lib/opendata/datasets";
+import type { AppLocale } from "@/i18n/routing";
 import { Card } from "@/components/ui/card";
+import { Select } from "@/components/ui/input";
 
 function datasetHasGeo(datasetId: string) {
   return Object.values(DATASETS).some(
@@ -24,6 +29,7 @@ export function CompareDistrictPanel({
   const t = useTranslations("Compare");
   const tCommon = useTranslations("Common");
   const format = useFormatter();
+  const locale = useLocale() as AppLocale;
   const [district, setDistrict] = useState("");
   const [open, setOpen] = useState(false);
   const useMarkers = datasetHasGeo(datasetId);
@@ -61,19 +67,19 @@ export function CompareDistrictPanel({
         <>
           <label className="block text-sm text-muted">
             {t("district")}
-            <select
-              className="mt-1 block w-full max-w-xs border border-line bg-paper px-2 py-1.5 text-sm text-ink focus-field"
+            <Select
+              className="mt-1 max-w-xs"
               value={district}
               onChange={(event) => setDistrict(event.target.value)}
             >
               <option value="">{t("pick")}</option>
               {ARRONDISSEMENTS.map((item) => (
                 <option key={item.code} value={item.code}>
-                  {item.label}
+                  {formatDistrictOrdinal(item.code, locale)}
                 </option>
               ))}
               <option value="montreuil">{tCommon("montreuil")}</option>
-            </select>
+            </Select>
           </label>
           {query.isError ? (
             <p className="text-sm text-danger">{tCommon("opendataDown")}</p>

@@ -6,7 +6,11 @@ import { useRouter } from "@/i18n/navigation";
 import { withLocale } from "@/i18n/path";
 import { updateProfile } from "@/lib/actions/profile";
 import { authClient } from "@/lib/auth-client";
-import { ARRONDISSEMENTS } from "@/lib/opendata/arrondissement";
+import {
+  ARRONDISSEMENTS,
+  formatDistrictOrdinal,
+} from "@/lib/opendata/arrondissement";
+import type { AppLocale } from "@/i18n/routing";
 import { PROFILE_NAME_MAX } from "@/lib/profile-name";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/input";
@@ -132,7 +136,7 @@ export function ProfileForm({
             <option value="montreuil">{t("montreuil")}</option>
             {ARRONDISSEMENTS.map((item) => (
               <option key={item.code} value={item.code}>
-                {item.label} — {item.zip}
+                {formatDistrictOrdinal(item.code, locale as AppLocale)} — {item.zip}
               </option>
             ))}
           </Select>

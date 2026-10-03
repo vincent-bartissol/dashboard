@@ -164,7 +164,9 @@
     "invalidToken": "Este enlace ya no es válido.",
     "passwordTooLong": "La contraseña es demasiado larga.",
     "namesTooLong": "El nombre y el apellido deben tener 80 caracteres como máximo.",
-    "choosePassword": "Elegir la contraseña"
+    "choosePassword": "Elegir la contraseña",
+    "verifyStepTitle": "Confirme su correo",
+    "otpStepTitle": "Código de acceso"
   },
   "Explorer": {
     "filterPlaceholder": "Filtrar la tabla y el mapa…",
@@ -191,7 +193,9 @@
     "alertRateLimited": "Demasiadas solicitudes de alerta. Inténtelo de nuevo en un momento.",
     "alertError": "No se ha podido crear esta alerta.",
     "loadingMore": "Cargando…",
-    "loadMoreHint": "Desplácese para cargar más."
+    "loadMoreHint": "Desplácese para cargar más.",
+    "alertColumn": "Alerta",
+    "datasetTabs": "Conjuntos de datos"
   },
   "Overview": {
     "title": "Vista general",
@@ -324,7 +328,10 @@
       "delete": "Eliminar",
       "station": "Estación",
       "lastTriggered": "Último disparo",
-      "never": "Nunca"
+      "never": "Nunca",
+      "enableAction": "Activar alerta",
+      "disableAction": "Desactivar alerta",
+      "mutationError": "No se pudo actualizar esta alerta."
     }
   },
   "Profile": {
@@ -365,7 +372,8 @@
     "passages": "Pasos",
     "airSummary": "Días por índice ATMO de {from} a {to}.",
     "bikeSummary": "Pasos del {from} al {to}, máximo {peak}.",
-    "empty": "No hay datos para el gráfico."
+    "empty": "No hay datos para el gráfico.",
+    "keyboardHint": "El gráfico no se puede navegar con el teclado; las cifras se resumen arriba."
   },
   "Landmarks": {
     "metro": {
@@ -677,6 +685,18 @@
       "emailSentNo": "No enviado",
       "message": "Mensaje",
       "back": "Volver a la administración"
+    },
+    "actions": {
+      "signup": "Registro",
+      "login": "Inicio de sesión",
+      "favorite.add": "Favorito añadido",
+      "favorite.remove": "Favorito eliminado",
+      "profile.update": "Perfil actualizado",
+      "page.view": "Página visitada",
+      "admin.ban": "Usuario bloqueado",
+      "admin.unban": "Bloqueo levantado",
+      "admin.setRole": "Rol modificado",
+      "admin.revokeSession": "Sesión revocada"
     }
   },
   "CommandPalette": {
@@ -686,7 +706,8 @@
     "hint": "Escribe al menos 2 caracteres.",
     "loading": "Buscando…",
     "empty": "Sin resultados.",
-    "footer": "Esc para cerrar · Enter para abrir"
+    "footer": "Esc para cerrar · Enter para abrir",
+    "results": "{count} resultados"
   },
   "Compare": {
     "title": "Comparar un distrito",

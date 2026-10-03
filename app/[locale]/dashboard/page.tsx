@@ -1,5 +1,6 @@
-import { getFormatter, getTranslations } from "next-intl/server";
+import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import type { AppLocale } from "@/i18n/routing";
 import { PageIntro } from "@/components/dashboard/page-intro";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { Card } from "@/components/ui/card";
@@ -7,7 +8,10 @@ import { SectionTitle } from "@/components/ui/heading";
 import { DatasetNotice } from "@/components/dashboard/dataset-notice";
 import { getProfile, listFavorites } from "@/lib/db/queries";
 import { fetchAggregate, fetchCount, formatCount } from "@/lib/opendata/client";
-import { ARRONDISSEMENTS } from "@/lib/opendata/arrondissement";
+import {
+  ARRONDISSEMENTS,
+  formatDistrictOrdinal,
+} from "@/lib/opendata/arrondissement";
 import { DATASETS } from "@/lib/opendata/datasets";
 import { requireSession } from "@/lib/session";
 
@@ -36,17 +40,21 @@ const THEME_HREF: Record<(typeof THEME_IDS)[number], string> = {
 function districtLabel(
   code: string | null,
   t: Awaited<ReturnType<typeof getTranslations<"Common">>>,
+  locale: AppLocale,
 ) {
   if (!code) return t("allParis");
   if (code === "montreuil") return t("montreuil");
   const found = ARRONDISSEMENTS.find((item) => item.code === code);
-  return found ? t("arrondissement", { label: found.label }) : t("allParis");
+  return found
+    ? t("arrondissement", { label: formatDistrictOrdinal(found.code, locale) })
+    : t("allParis");
 }
 
 export default async function DashboardPage() {
   const session = await requireSession();
   const t = await getTranslations("Overview");
   const common = await getTranslations("Common");
+  const locale = (await getLocale()) as AppLocale;
   const format = await getFormatter();
   const [profile, favorites, velib, trees, events, fountains, markets] = await Promise.all([
     getProfile(session.user.id),
@@ -71,7 +79,7 @@ export default async function DashboardPage() {
       <PageIntro title={t("title")}>
         {t("hello", {
           name: profile.firstName || session.user.name,
-          district: districtLabel(profile.arrondissement, common),
+          district: districtLabel(profile.arrondissement, common, locale),
         })}
       </PageIntro>
       <DatasetNotice error={countError} />

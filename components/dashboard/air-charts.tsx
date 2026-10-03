@@ -49,7 +49,7 @@ export function AirCharts({ records }: { records: OpenDataRecord[] }) {
       ) : (
         <>
           <p id={summaryId} className="sr-only">
-            {charts("airSummary", { from, to })}
+            {charts("airSummary", { from, to })} {charts("keyboardHint")}
           </p>
           <div className="h-[360px] w-full" aria-describedby={summaryId}>
             <ResponsiveContainer width="100%" height="100%">

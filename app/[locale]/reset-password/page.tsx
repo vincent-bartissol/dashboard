@@ -3,6 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 import { SiteFooter, SiteHeader } from "@/components/layout/site-chrome";
 import { Card } from "@/components/ui/card";
+import { PageTitle } from "@/components/ui/heading";
 import { firstSearchParam } from "@/lib/safe-next";
 import { requireGuest } from "@/lib/session";
 
@@ -26,7 +27,7 @@ export default async function ResetPasswordPage({
       <SiteHeader variant="auth" />
       <main id="main" className="flex flex-1 items-center justify-center px-6 py-16">
         <Card className="w-full max-w-md">
-          <h1 className="text-2xl font-semibold text-heading">{t("resetTitle")}</h1>
+          <PageTitle>{t("resetTitle")}</PageTitle>
           {token && !error ? (
             <>
               <p className="mt-1 mb-6 text-sm text-muted">{t("resetBody")}</p>
