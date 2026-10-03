@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isBannedUser } from "@/lib/admin";
+import { parseAlertBody } from "@/lib/alerts/parse-body";
 import {
   createAlertRule,
   deleteAlertRule,
   listAlertRules,
   setAlertRuleEnabled,
-  VELIB_DATASET_ID,
 } from "@/lib/alerts/store";
 import { alertsApiLimit } from "@/lib/rate-limit";
 import { getSession } from "@/lib/session";
@@ -17,7 +17,10 @@ export async function GET() {
   }
   const limited = alertsApiLimit.check(session.user.id);
   if (!limited.ok) {
-    return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429 });
+    return NextResponse.json(
+      { ok: false, error: "rate_limited" },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSec) } },
+    );
   }
   const rules = await listAlertRules(session.user.id);
   return NextResponse.json({ ok: true, rules });
@@ -30,7 +33,10 @@ export async function POST(request: NextRequest) {
   }
   const limited = alertsApiLimit.check(session.user.id);
   if (!limited.ok) {
-    return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429 });
+    return NextResponse.json(
+      { ok: false, error: "rate_limited" },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSec) } },
+    );
   }
 
   let body: unknown;
@@ -39,42 +45,30 @@ export async function POST(request: NextRequest) {
   } catch {
     return NextResponse.json({ ok: false, error: "bad_request" }, { status: 400 });
   }
-  const input = body as {
-    datasetId?: string;
-    recordId?: string;
-    label?: string;
-    threshold?: number;
-    action?: "create" | "delete" | "enable" | "disable";
-    id?: string;
-  };
 
-  if (input.action === "delete" && input.id) {
-    await deleteAlertRule(session.user.id, input.id);
-    return NextResponse.json({ ok: true, rules: await listAlertRules(session.user.id) });
-  }
-  if ((input.action === "enable" || input.action === "disable") && input.id) {
-    await setAlertRuleEnabled(session.user.id, input.id, input.action === "enable");
-    return NextResponse.json({ ok: true, rules: await listAlertRules(session.user.id) });
+  const parsed = parseAlertBody(body);
+  if (!parsed.ok) {
+    return NextResponse.json({ ok: false, error: "bad_request" }, { status: 400 });
   }
 
-  const threshold = Number(input.threshold ?? 3);
-  if (
-    input.datasetId !== VELIB_DATASET_ID ||
-    !input.recordId?.trim() ||
-    !input.label?.trim() ||
-    !Number.isFinite(threshold) ||
-    threshold < 1 ||
-    threshold > 50
-  ) {
+  if (parsed.action === "delete") {
+    await deleteAlertRule(session.user.id, parsed.id);
+    return NextResponse.json({ ok: true, rules: await listAlertRules(session.user.id) });
+  }
+  if (parsed.action === "enable" || parsed.action === "disable") {
+    await setAlertRuleEnabled(session.user.id, parsed.id, parsed.action === "enable");
+    return NextResponse.json({ ok: true, rules: await listAlertRules(session.user.id) });
+  }
+  if (parsed.action !== "create") {
     return NextResponse.json({ ok: false, error: "bad_request" }, { status: 400 });
   }
 
   const created = await createAlertRule({
     userId: session.user.id,
-    datasetId: input.datasetId,
-    recordId: input.recordId.trim(),
-    label: input.label.trim().slice(0, 200),
-    threshold: Math.floor(threshold),
+    datasetId: parsed.datasetId,
+    recordId: parsed.recordId,
+    label: parsed.label,
+    threshold: parsed.threshold,
   });
   if (!created.ok) {
     return NextResponse.json({ ok: false, error: "limit" }, { status: 403 });

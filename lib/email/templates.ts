@@ -23,6 +23,11 @@ export function escapeHtml(value: string) {
     .replaceAll("'", "&#39;");
 }
 
+/** Strip CR/LF so user-controlled values cannot split mail headers. */
+export function stripHeaderBreaks(value: string) {
+  return value.replace(/[\r\n]+/g, " ").trim();
+}
+
 function button(href: string, label: string) {
   const safeHref = escapeHtml(href);
   return `<a href="${safeHref}" style="display:inline-block;background:${ACCENT};color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:999px;font-size:14px;font-weight:600;">${escapeHtml(label)}</a>
@@ -138,22 +143,27 @@ export function alertMail(
   locale: AppLocale = "fr",
 ): MailContent {
   const copy = mailCopy(locale);
+  const station = stripHeaderBreaks(values.station);
+  const bikes = stripHeaderBreaks(values.bikes);
+  const threshold = stripHeaderBreaks(values.threshold);
   return layout({
     locale,
-    subject: interpolate(copy.alertSubject, { station: values.station }),
-    preview: interpolate(copy.alertPreview, {
-      bikes: values.bikes,
-      threshold: values.threshold,
-    }),
+    subject: interpolate(copy.alertSubject, { station }),
+    preview: interpolate(copy.alertPreview, { bikes, threshold }),
     bodyHtml: `<p style="margin:0 0 16px;">${escapeHtml(
       interpolate(copy.alertBody, {
-        station: values.station,
-        bikes: values.bikes,
-        threshold: values.threshold,
+        station,
+        bikes,
+        threshold,
       }),
     )}</p>
 <p style="margin:0;">${button(values.url, copy.alertButton)}</p>`,
-    bodyText: interpolate(copy.alertText, values),
+    bodyText: interpolate(copy.alertText, {
+      station,
+      bikes,
+      threshold,
+      url: values.url,
+    }),
   });
 }
 
@@ -162,11 +172,13 @@ export function contactMail(
   locale: AppLocale = "fr",
 ): MailContent {
   const copy = mailCopy(locale);
-  const subject = interpolate(copy.contactSubject, { name: values.name });
-  const preview = interpolate(copy.contactPreview, { name: values.name });
+  const name = stripHeaderBreaks(values.name);
+  const email = stripHeaderBreaks(values.email);
+  const subject = interpolate(copy.contactSubject, { name });
+  const preview = interpolate(copy.contactPreview, { name });
   const intro = interpolate(copy.contactBody, {
-    name: values.name,
-    email: values.email,
+    name,
+    email,
     locale: values.locale,
   });
   const safeMessage = escapeHtml(values.message).replaceAll("\n", "<br />");

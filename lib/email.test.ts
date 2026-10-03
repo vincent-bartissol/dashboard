@@ -6,11 +6,13 @@ import {
   smtpOptions,
 } from "./email";
 import {
+  alertMail,
   changeEmailMail,
   contactMail,
   escapeHtml,
   otpMail,
   resetPasswordMail,
+  stripHeaderBreaks,
   verificationMail,
 } from "./email/templates";
 
@@ -135,5 +137,28 @@ describe("mail templates", () => {
     expect(mail.html).toContain("Ada &lt;Lovelace&gt;");
     expect(mail.html).toContain("Hello<br />&lt;script&gt;x&lt;/script&gt;");
     expect(mail.html).not.toContain("<script>x</script>");
+  });
+
+  it("strips CR/LF from contact subject and preview", () => {
+    const mail = contactMail({
+      name: "Ada\r\nBcc: evil@example.com",
+      email: "ada@example.com",
+      message: "hi",
+      locale: "fr",
+    });
+    expect(mail.subject).not.toMatch(/[\r\n]/);
+    expect(mail.subject).toBe("Contact Paris Ouverte · Ada Bcc: evil@example.com");
+    expect(stripHeaderBreaks("a\rb\nc")).toBe("a b c");
+  });
+
+  it("strips CR/LF from alert subject", () => {
+    const mail = alertMail({
+      station: "Nation\r\nBcc: evil@example.com",
+      bikes: "2",
+      threshold: "3",
+      url: "https://example.com/alerts",
+    });
+    expect(mail.subject).not.toMatch(/[\r\n]/);
+    expect(mail.subject).toContain("Nation Bcc:");
   });
 });

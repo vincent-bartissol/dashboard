@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gt, isNull, like, or, sql } from "drizzle-orm";
+import { and, count, desc, eq, gt, isNull, or, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { activity, contactMessage, favorite, profile, session, user } from "@/lib/db/schema";
 import { isAdminUser, isBannedUser } from "@/lib/admin";
@@ -19,6 +19,12 @@ export async function getProfile(userId: string) {
 }
 
 export const ADMIN_USERS_PAGE_SIZE = 50;
+export const ADMIN_SESSIONS_LIMIT = 50;
+
+/** Escape `%`, `_`, and `\` so they match literally in a LIKE pattern. */
+export function escapeLikePattern(value: string) {
+  return value.replaceAll("\\", "\\\\").replaceAll("%", "\\%").replaceAll("_", "\\_");
+}
 
 export async function listUsersForAdmin(options?: {
   search?: string;
@@ -28,9 +34,12 @@ export async function listUsersForAdmin(options?: {
   const q = options?.search?.trim();
   const limit = options?.limit ?? ADMIN_USERS_PAGE_SIZE;
   const offset = options?.offset ?? 0;
-  const pattern = q ? `%${q}%` : null;
+  const pattern = q ? `%${escapeLikePattern(q)}%` : null;
   const where = pattern
-    ? or(like(user.email, pattern), like(user.name, pattern))
+    ? or(
+        sql`${user.email} like ${pattern} escape '\\'`,
+        sql`${user.name} like ${pattern} escape '\\'`,
+      )
     : undefined;
 
   const selectFields = {
@@ -79,7 +88,10 @@ export async function getUserForAdmin(userId: string) {
 }
 
 /** Public session fields for admin UI — never includes the bearer token. */
-export async function listSessionsForUser(userId: string) {
+export async function listSessionsForUser(
+  userId: string,
+  limit = ADMIN_SESSIONS_LIMIT,
+) {
   return db
     .select({
       id: session.id,
@@ -90,7 +102,8 @@ export async function listSessionsForUser(userId: string) {
     })
     .from(session)
     .where(eq(session.userId, userId))
-    .orderBy(desc(session.createdAt));
+    .orderBy(desc(session.createdAt))
+    .limit(limit);
 }
 
 /** Server-only: resolve a session token for revoke after ownership check. */

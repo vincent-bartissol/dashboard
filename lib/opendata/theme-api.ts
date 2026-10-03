@@ -9,9 +9,11 @@ import {
 } from "@/lib/opendata/client";
 import { DATASETS } from "@/lib/opendata/datasets";
 import { themeOrderBy } from "@/lib/opendata/order-by";
+import { clampPageLimit, clampPageOffset } from "@/lib/opendata/page-clamp";
 import { THEME_PAGE_MAX, THEME_PAGE_SIZE } from "@/lib/opendata/theme-constants";
 
 export { THEME_PAGE_MAX, THEME_PAGE_SIZE } from "@/lib/opendata/theme-constants";
+export { MAX_OFFSET } from "@/lib/opendata/page-clamp";
 
 export const THEME_DATASETS = new Map(
   Object.values(DATASETS)
@@ -61,16 +63,6 @@ async function resolveDistrictWhere(
   };
 }
 
-function clampLimit(value: number | undefined) {
-  if (value == null || !Number.isFinite(value)) return THEME_PAGE_SIZE;
-  return Math.min(THEME_PAGE_MAX, Math.max(1, Math.floor(value)));
-}
-
-function clampOffset(value: number | undefined) {
-  if (value == null || !Number.isFinite(value) || value < 0) return 0;
-  return Math.floor(value);
-}
-
 export type ThemePageResult = {
   ok: boolean;
   page: OpenDataPage;
@@ -96,8 +88,11 @@ export async function loadThemePage(
     };
   }
 
-  const limit = clampLimit(options?.limit);
-  const offset = clampOffset(options?.offset);
+  const limit = clampPageLimit(options?.limit, {
+    size: THEME_PAGE_SIZE,
+    max: THEME_PAGE_MAX,
+  });
+  const offset = clampPageOffset(options?.offset);
   const result = await fetchRecordsSafe(
     config.id,
     {

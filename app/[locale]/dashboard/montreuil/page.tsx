@@ -1,4 +1,4 @@
-import { BikeCountChart } from "@/components/dashboard/bike-count-chart";
+import { DynamicBikeCountChart } from "@/components/dashboard/dynamic-bike-count-chart";
 import { DatasetNotice } from "@/components/dashboard/dataset-notice";
 import { DatasetTabs } from "@/components/dashboard/dataset-tabs";
 import { InfiniteThemeExplorer } from "@/components/dashboard/infinite-theme-explorer";
@@ -184,7 +184,7 @@ export default async function MontreuilPage({
 
       {active === "bikes" && tabData.bikeCounts ? (
         <div className="space-y-6">
-          <BikeCountChart records={tabData.bikeCounts.page.results} />
+          <DynamicBikeCountChart records={tabData.bikeCounts.page.results} />
           <p className="text-sm text-muted">
             {t.rich("bikeSource", {
               link: (chunks) => (
