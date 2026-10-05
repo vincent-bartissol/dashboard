@@ -5,6 +5,7 @@ import { Wordmark } from "@/components/layout/wordmark";
 import { Button } from "@/components/ui/button";
 import { Card, KpiCard } from "@/components/ui/card";
 import { SectionTitle } from "@/components/ui/heading";
+import { Reveal, RevealItem, RevealList } from "@/components/ui/reveal";
 import { DatasetNotice } from "@/components/dashboard/dataset-notice";
 import { fetchAggregate, fetchCount, fetchRecordsSafe, formatCount } from "@/lib/opendata/client";
 import { DATASETS } from "@/lib/opendata/datasets";
@@ -48,13 +49,13 @@ export default async function Home() {
       <SiteHeader />
       <main id="main" className="flex-1">
         <section className="relative overflow-hidden border-b border-line bg-navy text-white">
-          <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:py-20">
-            <div>
+          <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:py-24">
+            <Reveal>
               <Wordmark href="/" invert size="lg" />
-              <h1 className="mt-8 max-w-xl font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
+              <h1 className="mt-8 max-w-xl font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl">
                 {t("heroTitle")}
               </h1>
-              <p className="mt-4 max-w-xl text-base leading-7 text-white/75">{t("heroBody")}</p>
+              <p className="mt-5 max-w-xl text-base leading-7 text-white/75">{t("heroBody")}</p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button href="/signup">{t("signup")}</Button>
                 <Button
@@ -65,28 +66,38 @@ export default async function Home() {
                   {t("login")}
                 </Button>
               </div>
-            </div>
-            <Card className="border-white/15 bg-paper text-ink">
-              <p className="text-sm font-medium text-heading">{t("live")}</p>
-              <dl className="mt-4 space-y-3 text-sm">
-                <div className="flex justify-between gap-4 border-b border-line pb-2">
-                  <dt className="text-muted">{t("stations")}</dt>
-                  <dd className="font-semibold tabular-nums">{stationsLabel}</dd>
-                </div>
-                <div className="flex justify-between gap-4 border-b border-line pb-2">
-                  <dt className="text-muted">{t("bikesAvailable")}</dt>
-                  <dd className="font-semibold tabular-nums">{bikesLabel}</dd>
-                </div>
-                <div className="flex justify-between gap-4 border-b border-line pb-2">
-                  <dt className="text-muted">{t("treesCounted")}</dt>
-                  <dd className="font-semibold tabular-nums">{treesLabel}</dd>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <dt className="text-muted">{t("events")}</dt>
-                  <dd className="font-semibold tabular-nums">{eventsLabel}</dd>
-                </div>
-              </dl>
-            </Card>
+            </Reveal>
+            <Reveal delay={0.12}>
+              <Card className="border-white/15 bg-paper text-ink">
+                <p className="text-sm font-medium text-heading">{t("live")}</p>
+                <dl className="mt-4 space-y-3 text-sm">
+                  <div className="flex items-baseline justify-between gap-4 border-b border-line pb-2">
+                    <dt className="text-muted">{t("stations")}</dt>
+                    <dd className="font-display text-lg font-semibold tabular-nums text-accent">
+                      {stationsLabel}
+                    </dd>
+                  </div>
+                  <div className="flex items-baseline justify-between gap-4 border-b border-line pb-2">
+                    <dt className="text-muted">{t("bikesAvailable")}</dt>
+                    <dd className="font-display text-lg font-semibold tabular-nums text-accent">
+                      {bikesLabel}
+                    </dd>
+                  </div>
+                  <div className="flex items-baseline justify-between gap-4 border-b border-line pb-2">
+                    <dt className="text-muted">{t("treesCounted")}</dt>
+                    <dd className="font-display text-lg font-semibold tabular-nums text-accent">
+                      {treesLabel}
+                    </dd>
+                  </div>
+                  <div className="flex items-baseline justify-between gap-4">
+                    <dt className="text-muted">{t("events")}</dt>
+                    <dd className="font-display text-lg font-semibold tabular-nums text-accent">
+                      {eventsLabel}
+                    </dd>
+                  </div>
+                </dl>
+              </Card>
+            </Reveal>
           </div>
         </section>
 
@@ -98,28 +109,38 @@ export default async function Home() {
               <DatasetNotice error="opendata" />
             </div>
           ) : null}
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <KpiCard label={t("kpiVelib")} value={bikesLabel} hint={t("kpiVelibHint")} />
-            <KpiCard label={t("kpiNature")} value={treesLabel} hint={t("kpiNatureHint")} />
-            <KpiCard
-              label={t("kpiAir")}
-              value={
-                latestAir ? t("kpiAirValue", { count: String(latestAir.ind_jour_qa_bonne ?? "—") }) : "—"
-              }
-              hint={
-                latestAir
-                  ? t("kpiAirHint", { year: String(latestAir.annee) })
-                  : t("kpiAirUnavailable")
-              }
-            />
-            <KpiCard label={t("kpiAgenda")} value={eventsLabel} hint={t("kpiAgendaHint")} />
-          </div>
+          <RevealList className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <RevealItem>
+              <KpiCard label={t("kpiVelib")} value={bikesLabel} hint={t("kpiVelibHint")} />
+            </RevealItem>
+            <RevealItem>
+              <KpiCard label={t("kpiNature")} value={treesLabel} hint={t("kpiNatureHint")} />
+            </RevealItem>
+            <RevealItem>
+              <KpiCard
+                label={t("kpiAir")}
+                value={
+                  latestAir
+                    ? t("kpiAirValue", { count: String(latestAir.ind_jour_qa_bonne ?? "—") })
+                    : "—"
+                }
+                hint={
+                  latestAir
+                    ? t("kpiAirHint", { year: String(latestAir.annee) })
+                    : t("kpiAirUnavailable")
+                }
+              />
+            </RevealItem>
+            <RevealItem>
+              <KpiCard label={t("kpiAgenda")} value={eventsLabel} hint={t("kpiAgendaHint")} />
+            </RevealItem>
+          </RevealList>
         </section>
 
         <section className="border-y border-line bg-paper">
-          <div className="mx-auto grid max-w-6xl gap-0 px-6 py-12 lg:grid-cols-3">
+          <RevealList className="mx-auto grid max-w-6xl gap-0 px-6 py-12 lg:grid-cols-3">
             {pillars.map((item, index) => (
-              <div
+              <RevealItem
                 key={item.title}
                 className={`py-2 lg:px-6 lg:py-0 ${
                   index > 0 ? "border-t border-line pt-6 lg:border-t-0 lg:border-l lg:pt-0" : ""
@@ -127,13 +148,13 @@ export default async function Home() {
               >
                 <SectionTitle as="h3">{item.title}</SectionTitle>
                 <p className="mt-2 text-sm leading-6 text-muted">{item.body}</p>
-              </div>
+              </RevealItem>
             ))}
-          </div>
+          </RevealList>
         </section>
 
         <section className="mx-auto max-w-6xl px-6 py-12">
-          <div className="rule-accent flex flex-col items-start justify-between gap-4 bg-navy px-8 py-10 text-white sm:flex-row sm:items-center">
+          <Reveal className="rule-accent flex flex-col items-start justify-between gap-4 bg-navy px-8 py-10 text-white sm:flex-row sm:items-center">
             <div>
               <SectionTitle size="lg" invert>
                 {t("ctaTitle")}
@@ -141,7 +162,7 @@ export default async function Home() {
               <p className="mt-2 max-w-xl text-white/75">{t("ctaBody")}</p>
             </div>
             <Button href="/signup">{t("ctaSignup")}</Button>
-          </div>
+          </Reveal>
           <p className="mt-6 text-sm text-muted">
             {t("already")}{" "}
             <Link href="/login" className="font-medium text-heading hover:underline">

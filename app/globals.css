@@ -8,7 +8,8 @@
   --ground: #f4f4f0;
   --paper: #ffffff;
   --ink: #12141a;
-  --muted: #5a616c;
+  /* Dark enough for AA 4.5:1 on paper and near-white panel backgrounds. */
+  --muted: #4a515c;
   --accent: #c8102e;
   --danger: #c8102e;
   --line: #d8dce3;
@@ -79,6 +80,18 @@ a {
 
 @utility surface-panel {
   @apply rounded-none border border-line bg-paper;
+}
+
+@utility panel-lift {
+  @apply shadow-[0_12px_32px_-22px_rgba(15,28,42,0.55)];
+}
+
+@utility table-head {
+  @apply text-label border-b border-line bg-ground;
+}
+
+@utility table-row {
+  @apply border-b border-line/80 transition-colors last:border-0 hover:bg-ground;
 }
 
 @utility focus-field {

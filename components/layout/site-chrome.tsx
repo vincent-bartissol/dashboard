@@ -15,11 +15,11 @@ export async function SiteHeader({ variant = "public" }: { variant?: "public" | 
   const theme = parseTheme((await cookies()).get("theme")?.value);
 
   return (
-    <header className="relative border-b border-line bg-paper">
+    <header className="relative border-b border-line bg-paper shadow-[inset_0_-2px_0_var(--accent)]">
       <SkipLink />
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-4">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-3 px-6 py-4">
         <Wordmark />
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
           <LocaleSwitcher />
           <ThemeToggle initial={theme} />
           {variant === "auth" ? null : session ? (

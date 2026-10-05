@@ -22,6 +22,8 @@ export default defineConfig({
   use: {
     baseURL: origin,
     trace: "on-first-retry",
+    // Avoid Motion opacity mid-animation false positives in axe contrast checks.
+    reducedMotion: "reduce",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {

@@ -23,10 +23,11 @@ export async function PageIntro({
     })),
   );
   return (
-    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-      <div className="rule-accent pl-4">
+    <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <span className="mb-3 block h-1 w-10 bg-accent" aria-hidden />
         <PageTitle size="lg">{title}</PageTitle>
-        <p className="mt-1 max-w-2xl text-muted">{children}</p>
+        <p className="mt-2 max-w-2xl text-muted">{children}</p>
       </div>
       {sources.length ? (
         <div className="flex flex-wrap gap-2 text-sm text-muted">

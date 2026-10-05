@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { cookies } from "next/headers";
 import { DashboardActivityTracker } from "@/components/dashboard/activity-tracker";
 import { MobileNav, Sidebar } from "@/components/layout/sidebar";
+import { Reveal } from "@/components/ui/reveal";
 import { SkipLink } from "@/components/layout/skip-link";
 import { QueryProvider } from "@/components/query-provider";
 import { isAdminUser } from "@/lib/admin";
@@ -37,7 +38,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         />
         <div className="min-w-0 flex-1">
           <main id="main" className="mx-auto max-w-6xl px-6 py-8">
-            {children}
+            <Reveal>{children}</Reveal>
           </main>
         </div>
       </div>
