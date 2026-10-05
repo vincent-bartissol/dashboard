@@ -335,6 +335,9 @@
       "never": "Jamais",
       "enableAction": "Activer l’alerte",
       "disableAction": "Désactiver l’alerte",
+      "enabledToast": "Alerte activée.",
+      "disabledToast": "Alerte mise en pause.",
+      "deletedToast": "Alerte supprimée.",
       "mutationError": "Impossible de mettre à jour cette alerte."
     }
   },
