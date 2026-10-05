@@ -25,7 +25,9 @@
     },
     "mapLoading": "Cargando el mapa…",
     "skipToContent": "Ir al contenido",
-    "opensInNewTab": "(se abre en una pestaña nueva)"
+    "opensInNewTab": "(se abre en una pestaña nueva)",
+    "notifications": "Notificaciones",
+    "dismissNotification": "Cerrar la notificación"
   },
   "Nav": {
     "overview": "Vista general",
@@ -182,6 +184,8 @@
     "favoriteColumn": "Favorito",
     "favoriteError": "No se ha podido actualizar este favorito.",
     "favoriteLimit": "Ya tiene 100 favoritos. Elimine uno para añadir otro.",
+    "favoriteAdded": "Añadido a favoritos.",
+    "favoriteRemoved": "Eliminado de favoritos.",
     "untitled": "Sin nombre",
     "mapLabel": "Mapa de registros",
     "mapHint": "El mapa no se puede usar con el teclado. Use la tabla siguiente.",
@@ -331,6 +335,9 @@
       "never": "Nunca",
       "enableAction": "Activar alerta",
       "disableAction": "Desactivar alerta",
+      "enabledToast": "Alerta activada.",
+      "disabledToast": "Alerta en pausa.",
+      "deletedToast": "Alerta eliminada.",
       "mutationError": "No se pudo actualizar esta alerta."
     }
   },
@@ -645,7 +652,12 @@
       "confirmDemote": "¿Quitar el rol admin a este usuario?",
       "sessionsTitle": "Revocar una sesión",
       "revoke": "Revocar",
-      "confirmRevoke": "¿Revocar esta sesión?"
+      "confirmRevoke": "¿Revocar esta sesión?",
+      "bannedToast": "Usuario baneado.",
+      "unbannedToast": "Ban levantado.",
+      "promotedToast": "Usuario promovido a admin.",
+      "demotedToast": "Usuario degradado.",
+      "revokedToast": "Sesión revocada."
     },
     "errors": {
       "selfBan": "No puede bloquearse a sí mismo.",

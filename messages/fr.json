@@ -25,7 +25,9 @@
     },
     "mapLoading": "Chargement de la carte…",
     "skipToContent": "Aller au contenu",
-    "opensInNewTab": "(nouvelle fenêtre)"
+    "opensInNewTab": "(nouvelle fenêtre)",
+    "notifications": "Notifications",
+    "dismissNotification": "Fermer la notification"
   },
   "Nav": {
     "overview": "Vue d’ensemble",
@@ -182,6 +184,8 @@
     "favoriteColumn": "Favori",
     "favoriteError": "Impossible de mettre à jour ce favori.",
     "favoriteLimit": "Vous avez déjà 100 favoris. Retirez-en un pour en ajouter un autre.",
+    "favoriteAdded": "Ajouté aux favoris.",
+    "favoriteRemoved": "Retiré des favoris.",
     "untitled": "Sans nom",
     "mapLabel": "Carte des enregistrements",
     "mapHint": "La carte n’est pas navigable au clavier. Utilisez le tableau ci-dessous.",
@@ -331,6 +335,9 @@
       "never": "Jamais",
       "enableAction": "Activer l’alerte",
       "disableAction": "Désactiver l’alerte",
+      "enabledToast": "Alerte activée.",
+      "disabledToast": "Alerte mise en pause.",
+      "deletedToast": "Alerte supprimée.",
       "mutationError": "Impossible de mettre à jour cette alerte."
     }
   },
@@ -645,7 +652,12 @@
       "confirmDemote": "Retirer le rôle admin à cet utilisateur ?",
       "sessionsTitle": "Révoquer une session",
       "revoke": "Révoquer",
-      "confirmRevoke": "Révoquer cette session ?"
+      "confirmRevoke": "Révoquer cette session ?",
+      "bannedToast": "Utilisateur banni.",
+      "unbannedToast": "Ban levé.",
+      "promotedToast": "Utilisateur promu admin.",
+      "demotedToast": "Utilisateur rétrogradé.",
+      "revokedToast": "Session révoquée."
     },
     "errors": {
       "selfBan": "Impossible de vous bannir.",

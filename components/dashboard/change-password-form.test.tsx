@@ -29,6 +29,10 @@ vi.mock("@/i18n/navigation", () => ({
   ),
 }));
 
+vi.mock("@/components/dashboard/notifications", () => ({
+  useNotify: () => vi.fn(),
+}));
+
 const changePasswordMock = vi.mocked(authClient.changePassword);
 
 function renderForm() {

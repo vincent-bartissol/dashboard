@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useFormatter, useTranslations } from "next-intl";
+import { useNotify } from "@/components/dashboard/notifications";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
@@ -16,6 +17,8 @@ type AlertRule = {
   lastTriggeredAt: string | Date | null;
   createdAt: string | Date;
 };
+
+type AlertAction = "enable" | "disable" | "delete";
 
 const alertsKey = ["alerts"] as const;
 
@@ -40,6 +43,7 @@ async function mutateAlert(body: Record<string, unknown>): Promise<AlertRule[]> 
 export function AlertsClient({ initial }: { initial: AlertRule[] }) {
   const t = useTranslations("Pages.alerts");
   const format = useFormatter();
+  const notify = useNotify();
   const queryClient = useQueryClient();
   const query = useQuery({
     queryKey: alertsKey,
@@ -50,7 +54,16 @@ export function AlertsClient({ initial }: { initial: AlertRule[] }) {
 
   const mutation = useMutation({
     mutationFn: mutateAlert,
-    onSuccess: (rules) => queryClient.setQueryData(alertsKey, rules),
+    onSuccess: (rules, variables) => {
+      queryClient.setQueryData(alertsKey, rules);
+      const action = variables.action as AlertAction;
+      if (action === "enable") notify({ tone: "status", message: t("enabledToast") });
+      else if (action === "disable") notify({ tone: "status", message: t("disabledToast") });
+      else if (action === "delete") notify({ tone: "status", message: t("deletedToast") });
+    },
+    onError: () => {
+      notify({ tone: "danger", message: t("mutationError") });
+    },
   });
 
   const rules = query.data ?? [];
@@ -65,11 +78,6 @@ export function AlertsClient({ initial }: { initial: AlertRule[] }) {
 
   return (
     <div className="space-y-3">
-      {mutation.isError ? (
-        <p role="alert" className="text-sm text-danger">
-          {t("mutationError")}
-        </p>
-      ) : null}
       {rules.map((rule) => {
         const last = rule.lastTriggeredAt ? new Date(rule.lastTriggeredAt) : null;
         return (

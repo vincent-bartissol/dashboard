@@ -25,7 +25,9 @@
     },
     "mapLoading": "Loading the map…",
     "skipToContent": "Skip to content",
-    "opensInNewTab": "(opens in a new tab)"
+    "opensInNewTab": "(opens in a new tab)",
+    "notifications": "Notifications",
+    "dismissNotification": "Dismiss notification"
   },
   "Nav": {
     "overview": "Overview",
@@ -182,6 +184,8 @@
     "favoriteColumn": "Favourite",
     "favoriteError": "Could not update this favourite.",
     "favoriteLimit": "You already have 100 favourites. Remove one to add another.",
+    "favoriteAdded": "Added to favourites.",
+    "favoriteRemoved": "Removed from favourites.",
     "untitled": "Untitled",
     "mapLabel": "Map of records",
     "mapHint": "The map is not keyboard-accessible. Use the table below.",
@@ -331,6 +335,9 @@
       "never": "Never",
       "enableAction": "Enable alert",
       "disableAction": "Disable alert",
+      "enabledToast": "Alert enabled.",
+      "disabledToast": "Alert paused.",
+      "deletedToast": "Alert deleted.",
       "mutationError": "Could not update this alert."
     }
   },
@@ -645,7 +652,12 @@
       "confirmDemote": "Remove the admin role from this user?",
       "sessionsTitle": "Revoke a session",
       "revoke": "Revoke",
-      "confirmRevoke": "Revoke this session?"
+      "confirmRevoke": "Revoke this session?",
+      "bannedToast": "User banned.",
+      "unbannedToast": "Ban lifted.",
+      "promotedToast": "User promoted to admin.",
+      "demotedToast": "User demoted.",
+      "revokedToast": "Session revoked."
     },
     "errors": {
       "selfBan": "You cannot ban yourself.",

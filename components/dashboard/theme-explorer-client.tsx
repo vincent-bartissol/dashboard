@@ -13,6 +13,7 @@ import { useFavoritesQuery, useToggleFavoriteMutation } from "@/lib/favorites-qu
 import type { FavoriteDto } from "@/lib/favorites";
 import { DATASETS } from "@/lib/opendata/datasets";
 import { CompareDistrictPanel } from "@/components/dashboard/compare-district-panel";
+import { useNotify } from "@/components/dashboard/notifications";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -109,11 +110,8 @@ export function ThemeExplorerClient({
   const [pageIndex, setPageIndex] = useState(0);
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
-  const [favoriteError, setFavoriteError] = useState<string | null>(null);
-  const [alertMessage, setAlertMessage] = useState<
-    "alertCreated" | "alertLimit" | "alertRateLimited" | "alertError" | null
-  >(null);
 
+  const notify = useNotify();
   const favoritesQuery = useFavoritesQuery(seedFavorites(dataset.id, favoriteIds));
   const toggleFavorite = useToggleFavoriteMutation();
   const canAlert = dataset.id === DATASETS.velib.id;
@@ -182,6 +180,7 @@ export function ThemeExplorerClient({
   function onToggle(record: OpenDataRecord) {
     const id = recordId(record, dataset.idField);
     if (!id) return;
+    const wasSaved = favorites.has(id);
     const geo = dataset.geoField ? extractGeo(record, dataset.geoField) : null;
     toggleFavorite.mutate(
       {
@@ -192,13 +191,20 @@ export function ThemeExplorerClient({
       },
       {
         onError: (error) => {
-          setFavoriteError(
-            error instanceof Error && error.message === "favoriteLimit"
-              ? "favoriteLimit"
-              : "favorite",
-          );
+          notify({
+            tone: "danger",
+            message:
+              error instanceof Error && error.message === "favoriteLimit"
+                ? t("favoriteLimit")
+                : t("favoriteError"),
+          });
         },
-        onSuccess: () => setFavoriteError(null),
+        onSuccess: () => {
+          notify({
+            tone: "status",
+            message: wasSaved ? t("favoriteRemoved") : t("favoriteAdded"),
+          });
+        },
       },
     );
   }
@@ -225,10 +231,10 @@ export function ThemeExplorerClient({
       } catch {
         // keep generic alertError
       }
-      setAlertMessage(error);
+      notify({ tone: "danger", message: t(error) });
       return;
     }
-    setAlertMessage("alertCreated");
+    notify({ tone: "status", message: t("alertCreated") });
   }
 
   return (
@@ -257,21 +263,6 @@ export function ThemeExplorerClient({
       </div>
       {!paginate && query.trim() ? (
         <p className="text-xs text-muted">{t("filterLoadedHint")}</p>
-      ) : null}
-      {favoriteError ? (
-        <p role="alert" className="text-sm text-danger">
-          {favoriteError === "favoriteLimit" ? t("favoriteLimit") : t("favoriteError")}
-        </p>
-      ) : null}
-      {alertMessage ? (
-        <p
-          role={alertMessage === "alertCreated" ? "status" : "alert"}
-          className={
-            alertMessage === "alertCreated" ? "text-sm text-muted" : "text-sm text-danger"
-          }
-        >
-          {t(alertMessage)}
-        </p>
       ) : null}
       {dataset.geoField ? (
         mapLoading ? (

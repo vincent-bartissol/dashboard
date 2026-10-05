@@ -5,14 +5,15 @@ import { useTranslations } from "next-intl";
 import { authClient } from "@/lib/auth-client";
 import { mapAuthError } from "@/lib/auth-errors";
 import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "@/lib/password";
+import { useNotify } from "@/components/dashboard/notifications";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 
 export function ChangePasswordForm() {
   const t = useTranslations("Profile");
+  const notify = useNotify();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -23,7 +24,6 @@ export function ChangePasswordForm() {
     const confirmPassword = String(data.get("confirmPassword") ?? "");
 
     setError(null);
-    setSaved(false);
 
     if (newPassword.length < MIN_PASSWORD_LENGTH) {
       setError(t("passwordTooShort"));
@@ -60,7 +60,7 @@ export function ChangePasswordForm() {
     }
 
     form.reset();
-    setSaved(true);
+    notify({ tone: "status", message: t("passwordUpdated") });
   }
 
   return (
@@ -103,7 +103,6 @@ export function ChangePasswordForm() {
         />
       </div>
       {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
-      {saved ? <p aria-live="polite" className="text-sm text-muted">{t("passwordUpdated")}</p> : null}
       <Button type="submit" disabled={pending}>
         {pending ? t("saving") : t("changePassword")}
       </Button>
