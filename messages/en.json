@@ -652,7 +652,12 @@
       "confirmDemote": "Remove the admin role from this user?",
       "sessionsTitle": "Revoke a session",
       "revoke": "Revoke",
-      "confirmRevoke": "Revoke this session?"
+      "confirmRevoke": "Revoke this session?",
+      "bannedToast": "User banned.",
+      "unbannedToast": "Ban lifted.",
+      "promotedToast": "User promoted to admin.",
+      "demotedToast": "User demoted.",
+      "revokedToast": "Session revoked."
     },
     "errors": {
       "selfBan": "You cannot ban yourself.",

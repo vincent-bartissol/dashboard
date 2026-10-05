@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { useNotify } from "@/components/dashboard/notifications";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -62,11 +63,15 @@ export function AdminUserControls({
 }) {
   const t = useTranslations("Admin");
   const router = useRouter();
+  const notify = useNotify();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [banReason, setBanReason] = useState("");
 
-  function run(action: () => Promise<{ ok: boolean; error?: string }>) {
+  function run(
+    action: () => Promise<{ ok: boolean; error?: string }>,
+    successMessage: string,
+  ) {
     setError(null);
     startTransition(async () => {
       const result = await action();
@@ -75,6 +80,7 @@ export function AdminUserControls({
         setError(t(`errors.${code}` as ErrorKey));
         return;
       }
+      notify({ tone: "status", message: successMessage });
       router.refresh();
     });
   }
@@ -92,7 +98,7 @@ export function AdminUserControls({
               type="button"
               variant="secondary"
               disabled={pending}
-              onClick={() => run(() => unbanUserAction({ userId }))}
+              onClick={() => run(() => unbanUserAction({ userId }), t("moderation.unbannedToast"))}
             >
               {t("moderation.unban")}
             </Button>
@@ -112,7 +118,7 @@ export function AdminUserControls({
                 disabled={pending || !canBan}
                 onClick={() => {
                   if (!window.confirm(t("moderation.confirmBan"))) return;
-                  run(() => banUserAction({ userId, banReason }));
+                  run(() => banUserAction({ userId, banReason }), t("moderation.bannedToast"));
                 }}
               >
                 {t("moderation.ban")}
@@ -135,7 +141,7 @@ export function AdminUserControls({
             disabled={pending || role === "admin"}
             onClick={() => {
               if (!window.confirm(t("moderation.confirmPromote"))) return;
-              run(() => setUserRoleAction({ userId, role: "admin" }));
+              run(() => setUserRoleAction({ userId, role: "admin" }), t("moderation.promotedToast"));
             }}
           >
             {t("moderation.makeAdmin")}
@@ -146,7 +152,7 @@ export function AdminUserControls({
             disabled={pending || !canDemote}
             onClick={() => {
               if (!window.confirm(t("moderation.confirmDemote"))) return;
-              run(() => setUserRoleAction({ userId, role: "user" }));
+              run(() => setUserRoleAction({ userId, role: "user" }), t("moderation.demotedToast"));
             }}
           >
             {t("moderation.makeUser")}
@@ -184,7 +190,10 @@ export function AdminUserControls({
                 disabled={pending || !row.live}
                 onClick={() => {
                   if (!window.confirm(t("moderation.confirmRevoke"))) return;
-                  run(() => revokeSessionAction({ userId, sessionId: row.id }));
+                  run(
+                    () => revokeSessionAction({ userId, sessionId: row.id }),
+                    t("moderation.revokedToast"),
+                  );
                 }}
               >
                 {t("moderation.revoke")}
