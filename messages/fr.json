@@ -25,7 +25,9 @@
     },
     "mapLoading": "Chargement de la carte…",
     "skipToContent": "Aller au contenu",
-    "opensInNewTab": "(nouvelle fenêtre)"
+    "opensInNewTab": "(nouvelle fenêtre)",
+    "notifications": "Notifications",
+    "dismissNotification": "Fermer la notification"
   },
   "Nav": {
     "overview": "Vue d’ensemble",

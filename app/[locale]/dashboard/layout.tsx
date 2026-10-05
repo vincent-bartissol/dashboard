@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { cookies } from "next/headers";
 import { DashboardActivityTracker } from "@/components/dashboard/activity-tracker";
+import { NotificationProvider } from "@/components/dashboard/notifications";
 import { MobileNav, Sidebar } from "@/components/layout/sidebar";
 import { Reveal } from "@/components/ui/reveal";
 import { SkipLink } from "@/components/layout/skip-link";
@@ -19,29 +20,31 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   return (
     <QueryProvider>
-      <div className="relative flex min-h-full flex-col bg-ground lg:flex-row">
-        <SkipLink />
-        <DashboardActivityTracker />
-        <div className="hidden lg:flex">
-          <Sidebar
+      <NotificationProvider>
+        <div className="relative flex min-h-full flex-col bg-ground lg:flex-row">
+          <SkipLink />
+          <DashboardActivityTracker />
+          <div className="hidden lg:flex">
+            <Sidebar
+              userName={session.user.name || session.user.email}
+              theme={theme}
+              isAdmin={isAdmin}
+              initialFavorites={initialFavorites}
+            />
+          </div>
+          <MobileNav
             userName={session.user.name || session.user.email}
             theme={theme}
             isAdmin={isAdmin}
             initialFavorites={initialFavorites}
           />
+          <div className="min-w-0 flex-1">
+            <main id="main" className="mx-auto max-w-6xl px-6 py-8">
+              <Reveal>{children}</Reveal>
+            </main>
+          </div>
         </div>
-        <MobileNav
-          userName={session.user.name || session.user.email}
-          theme={theme}
-          isAdmin={isAdmin}
-          initialFavorites={initialFavorites}
-        />
-        <div className="min-w-0 flex-1">
-          <main id="main" className="mx-auto max-w-6xl px-6 py-8">
-            <Reveal>{children}</Reveal>
-          </main>
-        </div>
-      </div>
+      </NotificationProvider>
     </QueryProvider>
   );
 }
