@@ -12,6 +12,7 @@ import {
 } from "@/lib/opendata/arrondissement";
 import type { AppLocale } from "@/i18n/routing";
 import { PROFILE_NAME_MAX } from "@/lib/profile-name";
+import { useNotify } from "@/components/dashboard/notifications";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/input";
 
@@ -31,15 +32,14 @@ export function ProfileForm({
   const t = useTranslations("Profile");
   const locale = useLocale();
   const router = useRouter();
+  const notify = useNotify();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
   const [district, setDistrict] = useState(arrondissement ?? "");
   /** After save, ignore stale RSC props until the server catches up. */
   const expectedDistrict = useRef<string | null>(null);
   const [emailPending, setEmailPending] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
-  const [emailSent, setEmailSent] = useState(false);
 
   useEffect(() => {
     const server = arrondissement ?? "";
@@ -57,7 +57,6 @@ export function ProfileForm({
     const form = new FormData(event.currentTarget);
     const newEmail = String(form.get("email") ?? "").trim();
     setEmailError(null);
-    setEmailSent(false);
     if (newEmail === email) {
       setEmailError(t("emailSame"));
       return;
@@ -72,7 +71,7 @@ export function ProfileForm({
       setEmailError(t("genericError"));
       return;
     }
-    setEmailSent(true);
+    notify({ tone: "status", message: t("emailSent") });
   }
 
   function onSave(event: FormEvent<HTMLFormElement>) {
@@ -80,7 +79,6 @@ export function ProfileForm({
     const form = new FormData(event.currentTarget);
     const nextDistrict = district;
     setError(null);
-    setSaved(false);
     startTransition(async () => {
       const result = await updateProfile({
         firstName: String(form.get("firstName") ?? ""),
@@ -94,7 +92,7 @@ export function ProfileForm({
       const savedDistrict = result.arrondissement ?? "";
       expectedDistrict.current = savedDistrict;
       setDistrict(savedDistrict);
-      setSaved(true);
+      notify({ tone: "status", message: t("saved") });
       router.refresh();
     });
   }
@@ -142,7 +140,6 @@ export function ProfileForm({
           </Select>
         </div>
         {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
-        {saved ? <p aria-live="polite" className="text-sm text-muted">{t("saved")}</p> : null}
         <Button type="submit" disabled={pending}>
           {pending ? t("saving") : t("save")}
         </Button>
@@ -164,11 +161,6 @@ export function ProfileForm({
           </p>
         </div>
         {emailError ? <p role="alert" className="text-sm text-danger">{emailError}</p> : null}
-        {emailSent ? (
-          <p aria-live="polite" className="text-sm text-muted">
-            {t("emailSent")}
-          </p>
-        ) : null}
         <Button type="submit" variant="ghost" disabled={emailPending}>
           {emailPending ? t("sending") : t("changeEmail")}
         </Button>
