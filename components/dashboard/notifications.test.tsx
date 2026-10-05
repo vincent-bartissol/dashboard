@@ -39,6 +39,11 @@ function renderStack() {
 }
 
 describe("NotificationProvider", () => {
+  it("exposes a labelled notifications region", () => {
+    renderStack();
+    expect(screen.getByRole("region", { name: "Notifications" })).toBeInTheDocument();
+  });
+
   it("shows a status toast with aria-live polite", async () => {
     const user = userEvent.setup();
     renderStack();

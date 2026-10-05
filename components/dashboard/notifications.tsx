@@ -82,6 +82,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     <NotificationContext.Provider value={value}>
       {children}
       <div
+        role="region"
         className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex flex-col items-end gap-2 p-4 sm:p-6"
         aria-label={t("notifications")}
       >
