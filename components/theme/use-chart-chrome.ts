@@ -13,7 +13,7 @@ export function useChartChrome() {
   return {
     dark,
     grid: cssVar("--line", dark ? "#2c3a48" : "#d8dce3"),
-    tick: cssVar("--muted", dark ? "#9aa3ad" : "#5a616c"),
+    tick: cssVar("--muted", dark ? "#9aa3ad" : "#4a515c"),
     ink: cssVar("--ink", dark ? "#e8e4d9" : "#12141a"),
     paper: cssVar("--paper", dark ? "#1a2430" : "#ffffff"),
     accent: cssVar("--accent", "#c8102e"),

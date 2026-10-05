@@ -8,7 +8,8 @@
   --ground: #f4f4f0;
   --paper: #ffffff;
   --ink: #12141a;
-  --muted: #5a616c;
+  /* Dark enough for AA 4.5:1 on paper and near-white panel backgrounds. */
+  --muted: #4a515c;
   --accent: #c8102e;
   --danger: #c8102e;
   --line: #d8dce3;
