@@ -14,6 +14,7 @@ import {
   YAxis,
 } from "recharts";
 import type { OpenDataRecord } from "@/lib/opendata/client";
+import { scalarString } from "@/lib/safe-string";
 import { Card } from "@/components/ui/card";
 import { SectionTitle } from "@/components/ui/heading";
 import { chartMotion, chartTooltipStyle, useChartChrome } from "@/components/theme/use-chart-chrome";
@@ -27,7 +28,7 @@ export function BikeCountChart({
   const summaryId = useId();
   const byDay = new Map<string, number>();
   for (const row of records) {
-    const raw = String(row.date ?? "");
+    const raw = scalarString(row.date);
     const day = raw.slice(0, 10);
     if (!day) continue;
     byDay.set(day, (byDay.get(day) ?? 0) + Number(row.total ?? 0));

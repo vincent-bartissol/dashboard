@@ -1,9 +1,10 @@
 import type { DatasetConfig, OpenDataRecord } from "./client";
+import { scalarString } from "@/lib/safe-string";
 
 export function cellSearchText(value: unknown) {
   if (value == null || value === "") return "";
   if (typeof value === "object") return JSON.stringify(value);
-  return String(value);
+  return scalarString(value);
 }
 
 export function recordMatchesQuery(

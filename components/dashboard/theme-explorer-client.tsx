@@ -4,6 +4,7 @@ import { useId, useMemo, useState, type ReactNode, type RefObject } from "react"
 import { useFormatter, useTranslations } from "next-intl";
 import { ChevronDown, ChevronUp, Bell, Heart } from "lucide-react";
 import { extractGeo, recordId, recordLabel, type OpenDataRecord } from "@/lib/opendata/client";
+import { scalarString } from "@/lib/safe-string";
 import type { ExplorerDataset } from "@/lib/opendata/client";
 import { DynamicParisMap } from "@/components/map/dynamic-map";
 import { recordsToMarkers } from "@/lib/opendata/markers";
@@ -58,7 +59,7 @@ function colorFor(scheme: ColorScheme | undefined, record: OpenDataRecord) {
     return "#2f9e44";
   }
   if (scheme === "status") {
-    const value = String(record.dispo ?? record.statut ?? "").toLowerCase();
+    const value = scalarString(record.dispo ?? record.statut).toLowerCase();
     if (value.includes("non") || value.includes("hors")) return "#c8102e";
     return "#2f9e44";
   }
@@ -443,5 +444,5 @@ export function ThemeExplorerClient({
 function formatCell(value: unknown) {
   if (value == null || value === "") return "—";
   if (typeof value === "object") return JSON.stringify(value);
-  return String(value);
+  return scalarString(value);
 }

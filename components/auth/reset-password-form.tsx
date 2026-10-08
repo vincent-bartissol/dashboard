@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
 import { mapAuthError } from "@/lib/auth-errors";
+import { formString } from "@/lib/safe-string";
 import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "@/lib/password";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
@@ -20,8 +21,8 @@ export function ResetPasswordForm({
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const newPassword = String(form.get("newPassword") ?? "");
-    const confirmPassword = String(form.get("confirmPassword") ?? "");
+    const newPassword = formString(form, "newPassword");
+    const confirmPassword = formString(form, "confirmPassword");
     setError(null);
 
     if (newPassword.length < MIN_PASSWORD_LENGTH) {

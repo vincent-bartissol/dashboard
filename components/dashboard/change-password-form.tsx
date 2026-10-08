@@ -6,6 +6,7 @@ import { authClient } from "@/lib/auth-client";
 import { mapAuthError } from "@/lib/auth-errors";
 import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "@/lib/password";
 import { useNotify } from "@/components/dashboard/notifications";
+import { formString } from "@/lib/safe-string";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 
@@ -19,9 +20,9 @@ export function ChangePasswordForm() {
     event.preventDefault();
     const form = event.currentTarget;
     const data = new FormData(form);
-    const currentPassword = String(data.get("currentPassword") ?? "");
-    const newPassword = String(data.get("newPassword") ?? "");
-    const confirmPassword = String(data.get("confirmPassword") ?? "");
+    const currentPassword = formString(data, "currentPassword");
+    const newPassword = formString(data, "newPassword");
+    const confirmPassword = formString(data, "confirmPassword");
 
     setError(null);
 

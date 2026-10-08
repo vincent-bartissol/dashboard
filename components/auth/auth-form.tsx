@@ -12,6 +12,7 @@ import {
   type AuthErrorLike,
 } from "@/lib/auth-errors";
 import { safeNext } from "@/lib/safe-next";
+import { formString } from "@/lib/safe-string";
 import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "@/lib/password";
 import { PROFILE_NAME_MAX } from "@/lib/profile-name";
 import { Button } from "@/components/ui/button";
@@ -97,7 +98,7 @@ export function AuthForm({
     setError(null);
     setResent(false);
     const form = new FormData(event.currentTarget);
-    const code = String(form.get("code") ?? "").trim();
+    const code = formString(form, "code").trim();
     const result = await authClient.twoFactor.verifyOtp({ code });
     setPending(false);
     if (result.error) {
@@ -114,10 +115,10 @@ export function AuthForm({
     setError(null);
     setResent(false);
     const form = new FormData(event.currentTarget);
-    const email = String(form.get("email") ?? "");
-    const password = String(form.get("password") ?? "");
-    const firstName = String(form.get("firstName") ?? "").trim();
-    const lastName = String(form.get("lastName") ?? "").trim();
+    const email = formString(form, "email");
+    const password = formString(form, "password");
+    const firstName = formString(form, "firstName").trim();
+    const lastName = formString(form, "lastName").trim();
     const name = `${firstName} ${lastName}`.trim();
 
     if (mode === "signup" && (firstName.length > PROFILE_NAME_MAX || lastName.length > PROFILE_NAME_MAX)) {

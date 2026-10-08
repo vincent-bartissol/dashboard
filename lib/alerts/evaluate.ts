@@ -4,6 +4,7 @@ import { alertMail } from "@/lib/email/templates";
 import { db } from "@/lib/db";
 import { user } from "@/lib/db/schema";
 import { fetchRecordsSafe, type DatasetConfig } from "@/lib/opendata/client";
+import { scalarString } from "@/lib/safe-string";
 import { DATASETS } from "@/lib/opendata/datasets";
 import {
   ALERT_COOLDOWN_MS,
@@ -65,7 +66,7 @@ async function loadStationsByCode(
       throw new Error(result.error ?? "opendata");
     }
     for (const row of result.page.results) {
-      const code = String(row.stationcode ?? "");
+      const code = scalarString(row.stationcode);
       if (code) byStation.set(code, row);
     }
   }

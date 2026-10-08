@@ -1,3 +1,5 @@
+import { scalarString } from "@/lib/safe-string";
+
 export type GeoPoint = { lat: number; lon: number };
 
 export type OpenDataRecord = Record<string, unknown>;
@@ -303,7 +305,7 @@ export function recordId(record: OpenDataRecord, idField: string) {
         const value = record[key.trim()];
         if (value == null || value === "") return "";
         if (typeof value === "object") return "";
-        return String(value);
+        return scalarString(value);
       })
       .join("::");
   }
@@ -316,10 +318,10 @@ export function recordId(record: OpenDataRecord, idField: string) {
     }
     return JSON.stringify(value);
   }
-  return String(value);
+  return scalarString(value);
 }
 
 export function recordLabel(record: OpenDataRecord, titleField: string, fallback = "") {
   const value = record[titleField];
-  return value == null || value === "" ? fallback : String(value);
+  return value == null || value === "" ? fallback : scalarString(value);
 }

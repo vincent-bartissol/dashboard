@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useTranslations } from "next-intl";
 import { submitContact } from "@/lib/actions/contact";
+import { formString } from "@/lib/safe-string";
 import { CONTACT_EMAIL_MAX, CONTACT_MESSAGE_MAX, CONTACT_NAME_MAX } from "@/lib/contact";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
@@ -20,10 +21,10 @@ export function ContactForm() {
     setPending(true);
     try {
       const result = await submitContact({
-        name: String(form.get("name") ?? ""),
-        email: String(form.get("email") ?? ""),
-        message: String(form.get("message") ?? ""),
-        website: String(form.get("website") ?? ""),
+        name: formString(form, "name"),
+        email: formString(form, "email"),
+        message: formString(form, "message"),
+        website: formString(form, "website"),
       });
       if (!result.ok) {
         setError(result.error);

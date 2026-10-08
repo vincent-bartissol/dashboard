@@ -1,3 +1,5 @@
+import { scalarString } from "@/lib/safe-string";
+
 export type SortDir = "asc" | "desc";
 
 function isEmpty(value: unknown) {
@@ -18,7 +20,7 @@ function asNumber(value: unknown): number | null {
 function asText(value: unknown) {
   if (isEmpty(value)) return "";
   if (typeof value === "object") return JSON.stringify(value);
-  return String(value);
+  return scalarString(value);
 }
 
 /** Compare two cell values for table sorting. Empty values sort last. */
