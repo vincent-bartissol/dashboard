@@ -17,8 +17,8 @@ export function safeNext(nextPath?: string | string[] | null, locale?: string) {
   const fallback = withLocale("/dashboard", fallbackLocale);
   if (!raw) return fallback;
   try {
-    const url = new URL(raw, "http://local.invalid");
-    if (url.origin !== "http://local.invalid") return fallback;
+    const url = new URL(raw, "https://local.invalid");
+    if (url.origin !== "https://local.invalid") return fallback;
     const path = url.pathname;
     if (!path.startsWith("/") || path.startsWith("//")) return fallback;
     const rest = stripLocalePrefix(path);

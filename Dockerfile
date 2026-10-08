@@ -40,6 +40,8 @@ COPY docker-entrypoint.sh /app/docker-entrypoint.sh
 RUN chmod 755 /app/docker-entrypoint.sh
 
 EXPOSE 3000
-# Entrypoint runs as root to chown the Railway volume, then drops to node.
+# Non-root by default (Sonar docker:S6471). Start as root only when a host
+# volume needs chown; the entrypoint then drops to `node`.
+USER node
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["node", "server.js"]
