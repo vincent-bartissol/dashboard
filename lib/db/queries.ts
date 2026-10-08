@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { activity, contactMessage, favorite, profile, session, user } from "@/lib/db/schema";
 import { isAdminUser, isBannedUser } from "@/lib/admin";
 
-export async function listFavorites(userId: string, datasetId?: string) {
+export function listFavorites(userId: string, datasetId?: string) {
   if (datasetId) {
     return db
       .select()
@@ -88,7 +88,7 @@ export async function getUserForAdmin(userId: string) {
 }
 
 /** Public session fields for admin UI — never includes the bearer token. */
-export async function listSessionsForUser(
+export function listSessionsForUser(
   userId: string,
   limit = ADMIN_SESSIONS_LIMIT,
 ) {
@@ -120,7 +120,7 @@ export async function getOwnedSessionToken(sessionId: string, userId: string) {
   return rows[0] ?? null;
 }
 
-export async function listActivityForUser(userId: string, limit = 100) {
+export function listActivityForUser(userId: string, limit = 100) {
   return db
     .select()
     .from(activity)
@@ -129,7 +129,7 @@ export async function listActivityForUser(userId: string, limit = 100) {
     .limit(limit);
 }
 
-export async function listRecentActivity(limit = 30) {
+export function listRecentActivity(limit = 30) {
   return db
     .select({
       id: activity.id,
@@ -237,7 +237,7 @@ export function adminRoleLabel(row: { id: string; role: string }): "admin" | "ad
   return "user";
 }
 
-export async function listContactMessages(limit = 100) {
+export function listContactMessages(limit = 100) {
   return db
     .select()
     .from(contactMessage)

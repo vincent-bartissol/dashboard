@@ -178,17 +178,19 @@ export function CommandPalette() {
   });
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-start justify-center bg-navy/50 p-4 pt-[12vh]"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby={inputId}
-      onClick={close}
-    >
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[12vh]">
+      <button
+        type="button"
+        className="absolute inset-0 bg-navy/50"
+        aria-label={t("close")}
+        onClick={close}
+      />
       <div
         ref={panelRef}
-        className="w-full max-w-lg border border-line bg-paper shadow-lg"
-        onClick={(event) => event.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={inputId}
+        className="relative z-10 w-full max-w-lg border border-line bg-paper shadow-lg"
       >
         <div className="border-b border-line p-3">
           <Input

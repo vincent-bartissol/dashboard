@@ -12,7 +12,7 @@ export type CreateAlertResult =
   | { ok: true; id: string }
   | { ok: false; error: "limit" };
 
-export async function listAlertRules(userId: string) {
+export function listAlertRules(userId: string) {
   return db
     .select()
     .from(alertRule)
@@ -20,17 +20,17 @@ export async function listAlertRules(userId: string) {
     .orderBy(desc(alertRule.createdAt));
 }
 
-export async function listEnabledAlertRules() {
+export function listEnabledAlertRules() {
   return db.select().from(alertRule).where(eq(alertRule.enabled, true));
 }
 
-export async function createAlertRule(input: {
+export function createAlertRule(input: {
   userId: string;
   datasetId: string;
   recordId: string;
   label: string;
   threshold: number;
-}): Promise<CreateAlertResult> {
+}): CreateAlertResult {
   return db.transaction((tx) => {
     const existing = tx
       .select()

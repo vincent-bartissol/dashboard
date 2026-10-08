@@ -713,6 +713,7 @@
   },
   "CommandPalette": {
     "open": "Abrir búsqueda",
+    "close": "Cerrar búsqueda",
     "trigger": "Buscar en los datos…",
     "placeholder": "Estación, evento, mercado…",
     "hint": "Escribe al menos 2 caracteres.",

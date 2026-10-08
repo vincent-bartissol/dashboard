@@ -8,11 +8,17 @@ export function localeFromPath(pathname: string): AppLocale {
   return isAppLocale(first) ? first : routing.defaultLocale;
 }
 
+function trimTrailingSlashes(path: string) {
+  let end = path.length;
+  while (end > 1 && path.charAt(end - 1) === "/") end -= 1;
+  return path.slice(0, end) || "/";
+}
+
 export function stripLocalePrefix(pathname: string) {
   const parts = pathname.split("/");
   if (isAppLocale(parts[1])) {
     const rest = `/${parts.slice(2).join("/")}`;
-    return rest === "/" ? "/" : rest.replace(/\/+$/, "") || "/";
+    return rest === "/" ? "/" : trimTrailingSlashes(rest);
   }
   return pathname;
 }

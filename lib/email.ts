@@ -22,35 +22,33 @@ export function emailFrom(value: string | undefined = process.env.EMAIL_FROM): s
   return trimmed ? trimmed : "Paris Ouverte <noreply@localhost>";
 }
 
-export function smtpOptions(
-  env: { SMTP_HOST?: string; SMTP_PORT?: string } = {
+export function smtpOptions(env?: { SMTP_HOST?: string; SMTP_PORT?: string }) {
+  const resolved = env ?? {
     SMTP_HOST: process.env.SMTP_HOST,
     SMTP_PORT: process.env.SMTP_PORT,
-  },
-) {
+  };
   return {
-    host: env.SMTP_HOST || "localhost",
-    port: Number(env.SMTP_PORT || 1025),
+    host: resolved.SMTP_HOST || "localhost",
+    port: Number(resolved.SMTP_PORT || 1025),
     secure: false as const,
   };
 }
 
-export function assertMailerConfig(
-  env: {
-    MAILER_PROVIDER?: string;
-    RESEND_API_KEY?: string;
-    EMAIL_FROM?: string;
-  } = {
+export function assertMailerConfig(env?: {
+  MAILER_PROVIDER?: string;
+  RESEND_API_KEY?: string;
+  EMAIL_FROM?: string;
+}) {
+  const resolved = env ?? {
     MAILER_PROVIDER: process.env.MAILER_PROVIDER,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     EMAIL_FROM: process.env.EMAIL_FROM,
-  },
-) {
-  if (resolveMailerProvider(env.MAILER_PROVIDER) !== "resend") return;
-  if (!env.RESEND_API_KEY?.trim()) {
+  };
+  if (resolveMailerProvider(resolved.MAILER_PROVIDER) !== "resend") return;
+  if (!resolved.RESEND_API_KEY?.trim()) {
     throw new Error("RESEND_API_KEY is required when MAILER_PROVIDER=resend");
   }
-  if (!env.EMAIL_FROM?.trim()) {
+  if (!resolved.EMAIL_FROM?.trim()) {
     throw new Error("EMAIL_FROM is required when MAILER_PROVIDER=resend");
   }
 }

@@ -94,11 +94,9 @@ a {
   @apply border-b border-line/80 transition-colors last:border-0 hover:bg-ground;
 }
 
-@utility focus-field {
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+.focus-field:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .leaflet-container {

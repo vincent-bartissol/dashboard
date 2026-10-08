@@ -57,8 +57,8 @@ export async function SiteFooter() {
             target="_blank"
             rel="noreferrer"
           >
-            opendata.paris.fr
-            <span className="sr-only"> {common("opensInNewTab")}</span>
+            opendata.paris.fr{" "}
+            <span className="sr-only">{common("opensInNewTab")}</span>
           </a>
         </div>
       </div>
