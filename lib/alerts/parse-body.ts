@@ -30,17 +30,17 @@ function stringField(value: unknown): string | null {
   return trimmed || null;
 }
 
+function actionFrom(actionRaw: unknown): string | null {
+  if (actionRaw === undefined || actionRaw === null) return "create";
+  if (typeof actionRaw === "string") return actionRaw;
+  return null;
+}
+
 export function parseAlertBody(body: unknown): ParsedAlertBody {
   const input = asRecord(body);
   if (!input) return { ok: false, error: "bad_request" };
 
-  const actionRaw = input.action;
-  const action =
-    actionRaw === undefined || actionRaw === null
-      ? "create"
-      : typeof actionRaw === "string"
-        ? actionRaw
-        : null;
+  const action = actionFrom(input.action);
 
   if (action === "delete" || action === "enable" || action === "disable") {
     const id = stringField(input.id);

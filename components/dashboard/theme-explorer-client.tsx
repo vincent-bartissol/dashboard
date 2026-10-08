@@ -73,6 +73,37 @@ function describe(record: OpenDataRecord, keys?: string[]) {
     .join(" · ");
 }
 
+function ExplorerMap(props: {
+  hasGeoField: boolean;
+  mapLoading: boolean;
+  loadingLabel: string;
+  markers: MapMarker[];
+  onBounds?: (bbox: { south: number; west: number; north: number; east: number }) => void;
+  center?: { lat: number; lon: number };
+  zoom?: number;
+}) {
+  if (!props.hasGeoField) return null;
+  if (props.mapLoading) {
+    return (
+      <div
+        className="surface-panel flex h-[420px] items-center justify-center text-sm text-muted"
+        role="status"
+        aria-live="polite"
+      >
+        {props.loadingLabel}
+      </div>
+    );
+  }
+  return (
+    <DynamicParisMap
+      markers={props.markers}
+      onBounds={props.onBounds}
+      center={props.center}
+      zoom={props.zoom}
+    />
+  );
+}
+
 function seedFavorites(datasetId: string, favoriteIds: string[]): FavoriteDto[] {
   return favoriteIds.map((id) => ({
     id: `seed-${id}`,
@@ -264,24 +295,15 @@ export function ThemeExplorerClient({
       {!paginate && query.trim() ? (
         <p className="text-xs text-muted">{t("filterLoadedHint")}</p>
       ) : null}
-      {dataset.geoField ? (
-        mapLoading ? (
-          <div
-            className="surface-panel flex h-[420px] items-center justify-center text-sm text-muted"
-            role="status"
-            aria-live="polite"
-          >
-            {tCommon("mapLoading")}
-          </div>
-        ) : (
-          <DynamicParisMap
-            markers={[...markers, ...extraMarkers]}
-            onBounds={dataset.bbox ? onBbox : undefined}
-            center={mapCenter}
-            zoom={mapZoom}
-          />
-        )
-      ) : null}
+      <ExplorerMap
+        hasGeoField={Boolean(dataset.geoField)}
+        mapLoading={mapLoading}
+        loadingLabel={tCommon("mapLoading")}
+        markers={[...markers, ...extraMarkers]}
+        onBounds={dataset.bbox ? onBbox : undefined}
+        center={mapCenter}
+        zoom={mapZoom}
+      />
       <Card className="p-0">
         <div
           ref={tableScrollRef}

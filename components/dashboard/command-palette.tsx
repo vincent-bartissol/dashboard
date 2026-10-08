@@ -40,6 +40,31 @@ function focusableWithin(root: HTMLElement) {
   ].filter((el) => !el.hasAttribute("disabled") && el.tabIndex !== -1);
 }
 
+function searchStatusMessage(params: {
+  queryLength: number;
+  isPending: boolean;
+  isError: boolean;
+  error: unknown;
+  resultCount: number;
+  hint: string;
+  loading: string;
+  empty: string;
+  results: (count: string) => string;
+  rateLimited: string;
+  opendataDown: string;
+}): string {
+  if (params.queryLength < 2) return params.hint;
+  if (params.isPending) return params.loading;
+  if (params.isError) {
+    if (params.error instanceof Error && params.error.message === "rate_limited") {
+      return params.rateLimited;
+    }
+    return params.opendataDown;
+  }
+  if (params.resultCount === 0) return params.empty;
+  return params.results(String(params.resultCount));
+}
+
 export function CommandPalette() {
   const t = useTranslations("CommandPalette");
   const tDatasets = useTranslations("Datasets");
@@ -138,18 +163,19 @@ export function CommandPalette() {
     );
   }
 
-  const statusMessage =
-    query.length < 2
-      ? t("hint")
-      : search.isPending
-        ? t("loading")
-        : search.isError
-          ? search.error instanceof Error && search.error.message === "rate_limited"
-            ? tCommon("rateLimited")
-            : tCommon("opendataDown")
-          : (search.data?.length ?? 0) === 0
-            ? t("empty")
-            : t("results", { count: String(search.data?.length ?? 0) });
+  const statusMessage = searchStatusMessage({
+    queryLength: query.length,
+    isPending: search.isPending,
+    isError: search.isError,
+    error: search.error,
+    resultCount: search.data?.length ?? 0,
+    hint: t("hint"),
+    loading: t("loading"),
+    empty: t("empty"),
+    results: (count) => t("results", { count }),
+    rateLimited: tCommon("rateLimited"),
+    opendataDown: tCommon("opendataDown"),
+  });
 
   return (
     <div

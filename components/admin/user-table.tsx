@@ -41,12 +41,12 @@ export function AdminUserTable({
   search = "",
   page = 1,
   totalPages = 1,
-}: {
+}: Readonly<{
   users: AdminUserRow[];
   search?: string;
   page?: number;
   totalPages?: number;
-}) {
+}>) {
   const t = useTranslations("Admin");
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");

@@ -29,7 +29,7 @@ function bikesFor(record: Record<string, unknown> | undefined) {
 }
 
 function escapeStationCode(value: string) {
-  return value.replaceAll("\\", "\\\\").replaceAll('"', '\\"');
+  return value.replaceAll("\\", String.raw`\\`).replaceAll('"', String.raw`\"`);
 }
 
 export function stationCodesWhere(codes: string[]) {
