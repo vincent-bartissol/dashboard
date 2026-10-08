@@ -14,9 +14,11 @@ export function themeIsDark(theme: ColorScheme, prefersDark: boolean): boolean {
   return prefersDark;
 }
 
+const THEME_COOKIE_RE = /(?:^|; )theme=([^;]*)/;
+
 export function readThemeCookie(): ColorScheme {
   if (typeof document === "undefined") return "system";
-  const match = document.cookie.match(/(?:^|; )theme=([^;]*)/);
+  const match = THEME_COOKIE_RE.exec(document.cookie);
   return parseTheme(match ? decodeURIComponent(match[1]) : undefined);
 }
 

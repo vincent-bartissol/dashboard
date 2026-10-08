@@ -151,11 +151,11 @@ export async function fetchRecords<T = OpenDataRecord>(
   }
   const data = (await res.json()) as OpenDataPage<T>;
   if (!data || typeof data !== "object" || !Array.isArray(data.results)) {
-    throw new Error(`Open Data ${datasetId}: invalid payload`);
+    throw new TypeError(`Open Data ${datasetId}: invalid payload`);
   }
   const total_count = Number(data.total_count);
   if (!Number.isFinite(total_count)) {
-    throw new Error(`Open Data ${datasetId}: invalid payload`);
+    throw new TypeError(`Open Data ${datasetId}: invalid payload`);
   }
   return { total_count, results: data.results };
 }

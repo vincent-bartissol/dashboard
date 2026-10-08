@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode, type RefObject } from "react";
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { ThemeExplorerClient } from "@/components/dashboard/theme-explorer-client";
@@ -42,6 +42,33 @@ function infiniteExplorerErrorMessage(
   if (liveError === "opendata") return tCommon("opendataDown");
   if (initialError) return tCommon("opendataDown");
   return null;
+}
+
+function useInfiniteTableScroll(options: {
+  scrollRef: RefObject<HTMLDivElement | null>;
+  sentinelRef: RefObject<HTMLDivElement | null>;
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
+  fetchNextPage: () => Promise<unknown>;
+  dep: number;
+}) {
+  const { scrollRef, sentinelRef, hasNextPage, isFetchingNextPage, fetchNextPage, dep } = options;
+
+  useEffect(() => {
+    const root = scrollRef.current;
+    const node = sentinelRef.current;
+    if (!root || !node || !hasNextPage) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting) && !isFetchingNextPage) {
+          void fetchNextPage();
+        }
+      },
+      { root, rootMargin: "80px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, dep, scrollRef, sentinelRef]);
 }
 
 export function InfiniteThemeExplorer({
@@ -145,21 +172,14 @@ export function InfiniteThemeExplorer({
 
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = tableQuery;
 
-  useEffect(() => {
-    const root = scrollRef.current;
-    const node = sentinel.current;
-    if (!root || !node || !hasNextPage) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting) && !isFetchingNextPage) {
-          void fetchNextPage();
-        }
-      },
-      { root, rootMargin: "80px" },
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage, records.length]);
+  useInfiniteTableScroll({
+    scrollRef,
+    sentinelRef: sentinel,
+    hasNextPage: Boolean(hasNextPage),
+    isFetchingNextPage,
+    fetchNextPage,
+    dep: records.length,
+  });
 
   const slot: InfiniteThemeSlot = { mapRecords, totalCount };
   const childNode = typeof children === "function" ? children(slot) : children;
@@ -167,9 +187,9 @@ export function InfiniteThemeExplorer({
   return (
     <div className="space-y-6">
       {errorMessage ? (
-        <p role="status" className="text-sm text-danger">
+        <output className="block text-sm text-danger" aria-live="polite">
           {errorMessage}
-        </p>
+        </output>
       ) : null}
       {childNode}
       <ThemeExplorerClient

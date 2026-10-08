@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { keepPreviousData, useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { ThemeExplorerClient } from "@/components/dashboard/theme-explorer-client";
@@ -96,6 +96,44 @@ export async function fetchBboxMarkers(
     );
   }
   return data.page;
+}
+
+function useInfiniteTableScroll(options: {
+  scrollRef: RefObject<HTMLDivElement | null>;
+  sentinelRef: RefObject<HTMLDivElement | null>;
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
+  fetchNextPage: () => Promise<unknown>;
+  isFetching: boolean;
+  ready: boolean;
+  dep: number;
+}) {
+  const {
+    scrollRef,
+    sentinelRef,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+    isFetching,
+    ready,
+    dep,
+  } = options;
+
+  useEffect(() => {
+    const root = scrollRef.current;
+    const node = sentinelRef.current;
+    if (!root || !node || !hasNextPage || !ready || isFetching) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting) && !isFetchingNextPage) {
+          void fetchNextPage();
+        }
+      },
+      { root, rootMargin: "80px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, ready, isFetching, dep, scrollRef, sentinelRef]);
 }
 
 export function BboxExplorerClient({
@@ -196,36 +234,23 @@ export function BboxExplorerClient({
 
   const { hasNextPage, isFetchingNextPage, fetchNextPage, isFetching } = tableQuery;
 
-  useEffect(() => {
-    const root = scrollRef.current;
-    const node = sentinel.current;
-    // Wait until the current bbox has real data — never page with a stale offset.
-    if (!root || !node || !hasNextPage || !tableQuery.data || isFetching) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting) && !isFetchingNextPage) {
-          void fetchNextPage();
-        }
-      },
-      { root, rootMargin: "80px" },
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [
-    hasNextPage,
+  useInfiniteTableScroll({
+    scrollRef,
+    sentinelRef: sentinel,
+    hasNextPage: Boolean(hasNextPage),
     isFetchingNextPage,
     fetchNextPage,
-    tableRecords.length,
-    tableQuery.data,
     isFetching,
-  ]);
+    ready: Boolean(tableQuery.data),
+    dep: tableRecords.length,
+  });
 
   return (
     <div className="space-y-4">
       {error ? (
-        <p role="status" className="text-sm text-danger">
+        <output className="block text-sm text-danger" aria-live="polite">
           {error === "rate_limited" ? tCommon("rateLimited") : tCommon("opendataDown")}
-        </p>
+        </output>
       ) : null}
       <ThemeExplorerClient
         dataset={dataset}

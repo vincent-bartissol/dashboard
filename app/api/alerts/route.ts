@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: "bad_request" }, { status: 400 });
   }
 
-  const created = await createAlertRule({
+  const created = createAlertRule({
     userId: auth.session.user.id,
     datasetId: parsed.datasetId,
     recordId: parsed.recordId,

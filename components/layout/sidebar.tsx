@@ -27,6 +27,15 @@ const mobileLinkClass = (active: boolean) =>
     active ? "border-accent text-white" : "border-transparent bg-white/5 text-white/80"
   }`;
 
+function useLogout() {
+  const router = useRouter();
+  return async () => {
+    await authClient.signOut();
+    router.push("/");
+    router.refresh();
+  };
+}
+
 export function Sidebar({
   userName,
   theme,
@@ -39,7 +48,6 @@ export function Sidebar({
   initialFavorites?: FavoriteDto[];
 }>) {
   const pathname = usePathname();
-  const router = useRouter();
   const t = useTranslations("Nav");
   const favorites = useFavoritesQuery(initialFavorites);
   const favoriteCount = favorites.data?.length ?? 0;
@@ -62,11 +70,7 @@ export function Sidebar({
     }
   }
 
-  async function logout() {
-    await authClient.signOut();
-    router.push("/");
-    router.refresh();
-  }
+  const logout = useLogout();
 
   return (
     <aside className="sticky top-0 flex h-dvh w-64 shrink-0 flex-col self-start border-r border-white/10 bg-navy text-white">
@@ -140,16 +144,10 @@ export function MobileNav({
   initialFavorites?: FavoriteDto[];
 }>) {
   const pathname = usePathname();
-  const router = useRouter();
   const t = useTranslations("Nav");
   const favorites = useFavoritesQuery(initialFavorites);
   const favoriteCount = favorites.data?.length ?? 0;
-
-  async function logout() {
-    await authClient.signOut();
-    router.push("/");
-    router.refresh();
-  }
+  const logout = useLogout();
 
   return (
     <div className="border-b border-navy/20 bg-navy text-white lg:hidden">

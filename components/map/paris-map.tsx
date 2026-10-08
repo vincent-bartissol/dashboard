@@ -73,9 +73,8 @@ export function ParisMap({
   const tiles = dark ? DARK_TILES : LIGHT_TILES;
 
   return (
-    <div
+    <section
       className={`surface-panel overflow-hidden ${className}`}
-      role="region"
       aria-label={t("mapLabel")}
       aria-describedby={hintId}
     >
@@ -109,6 +108,6 @@ export function ParisMap({
           </CircleMarker>
         ))}
       </MapContainer>
-    </div>
+    </section>
   );
 }

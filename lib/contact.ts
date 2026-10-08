@@ -84,5 +84,5 @@ export function clientIpFromHeaders(headerStore: Headers): string {
 
 export function contactTo(value: string | undefined = process.env.CONTACT_TO): string | null {
   const trimmed = value?.trim();
-  return trimmed ? trimmed : null;
+  return trimmed || null;
 }

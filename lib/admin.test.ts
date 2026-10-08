@@ -123,6 +123,6 @@ describe("clampBanReason", () => {
   it("trims and caps length", () => {
     expect(clampBanReason("  spam  ")).toBe("spam");
     expect(clampBanReason(undefined)).toBe("Banned by admin");
-    expect(clampBanReason("x".repeat(250)).length).toBe(200);
+    expect(clampBanReason("x".repeat(250))).toHaveLength(200);
   });
 });

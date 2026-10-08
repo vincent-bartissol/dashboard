@@ -1,6 +1,14 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+  type RefObject,
+} from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";
@@ -95,6 +103,104 @@ function renderSearchResults(params: {
     return <p className="px-2 py-3 text-sm text-muted">{params.empty}</p>;
   }
   return params.hits;
+}
+
+function CommandPalettePanel(props: Readonly<{
+  close: () => void;
+  inputId: string;
+  statusId: string;
+  draft: string;
+  setDraft: (value: string) => void;
+  query: string;
+  statusMessage: string;
+  search: {
+    isPending: boolean;
+    isError: boolean;
+    error: unknown;
+    data?: SearchHit[];
+  };
+  t: ReturnType<typeof useTranslations<"CommandPalette">>;
+  tCommon: ReturnType<typeof useTranslations<"Common">>;
+  panelRef: RefObject<HTMLDivElement | null>;
+  datasetTitle: (hit: SearchHit) => string;
+}>) {
+  const {
+    close,
+    inputId,
+    statusId,
+    draft,
+    setDraft,
+    query,
+    statusMessage,
+    search,
+    t,
+    tCommon,
+    panelRef,
+    datasetTitle,
+  } = props;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[12vh]">
+      <button
+        type="button"
+        className="absolute inset-0 bg-navy/50"
+        aria-label={t("close")}
+        onClick={close}
+      />
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={inputId}
+        className="relative z-10 w-full max-w-lg border border-line bg-paper shadow-lg"
+      >
+        <div className="border-b border-line p-3">
+          <Input
+            id={inputId}
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
+            placeholder={t("placeholder")}
+            aria-label={t("placeholder")}
+            aria-describedby={statusId}
+          />
+        </div>
+        <div className="max-h-80 overflow-y-auto p-2">
+          <p id={statusId} className="sr-only" aria-live="polite">
+            {statusMessage}
+          </p>
+          {renderSearchResults({
+            queryLength: query.length,
+            isError: search.isError,
+            isPending: search.isPending,
+            error: search.error,
+            resultCount: search.data?.length ?? 0,
+            hint: t("hint"),
+            loading: t("loading"),
+            empty: t("empty"),
+            rateLimited: tCommon("rateLimited"),
+            opendataDown: tCommon("opendataDown"),
+            hits: (
+              <ul className="space-y-0.5">
+                {search.data?.map((hit) => (
+                  <li key={`${hit.datasetId}:${hit.recordId}`}>
+                    <Link
+                      href={hit.href}
+                      onClick={close}
+                      className="block px-2 py-2 text-sm hover:bg-ground focus-field"
+                    >
+                      <span className="font-medium text-heading">{hit.label}</span>
+                      <span className="mt-0.5 block text-xs text-muted">{datasetTitle(hit)}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ),
+          })}
+        </div>
+        <div className="border-t border-line px-3 py-2 text-xs text-muted">{t("footer")}</div>
+      </div>
+    </div>
+  );
 }
 
 export function CommandPalette() {
@@ -210,65 +316,19 @@ export function CommandPalette() {
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[12vh]">
-      <button
-        type="button"
-        className="absolute inset-0 bg-navy/50"
-        aria-label={t("close")}
-        onClick={close}
-      />
-      <div
-        ref={panelRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={inputId}
-        className="relative z-10 w-full max-w-lg border border-line bg-paper shadow-lg"
-      >
-        <div className="border-b border-line p-3">
-          <Input
-            id={inputId}
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            placeholder={t("placeholder")}
-            aria-label={t("placeholder")}
-            aria-describedby={statusId}
-          />
-        </div>
-        <div className="max-h-80 overflow-y-auto p-2">
-          <p id={statusId} className="sr-only" aria-live="polite">
-            {statusMessage}
-          </p>
-          {renderSearchResults({
-            queryLength: query.length,
-            isError: search.isError,
-            isPending: search.isPending,
-            error: search.error,
-            resultCount: search.data?.length ?? 0,
-            hint: t("hint"),
-            loading: t("loading"),
-            empty: t("empty"),
-            rateLimited: tCommon("rateLimited"),
-            opendataDown: tCommon("opendataDown"),
-            hits: (
-              <ul className="space-y-0.5">
-                {search.data?.map((hit) => (
-                  <li key={`${hit.datasetId}:${hit.recordId}`}>
-                    <Link
-                      href={hit.href}
-                      onClick={close}
-                      className="block px-2 py-2 text-sm hover:bg-ground focus-field"
-                    >
-                      <span className="font-medium text-heading">{hit.label}</span>
-                      <span className="mt-0.5 block text-xs text-muted">{datasetTitle(hit)}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            ),
-          })}
-        </div>
-        <div className="border-t border-line px-3 py-2 text-xs text-muted">{t("footer")}</div>
-      </div>
-    </div>
+    <CommandPalettePanel
+      close={close}
+      inputId={inputId}
+      statusId={statusId}
+      draft={draft}
+      setDraft={setDraft}
+      query={query}
+      statusMessage={statusMessage}
+      search={search}
+      t={t}
+      tCommon={tCommon}
+      panelRef={panelRef}
+      datasetTitle={datasetTitle}
+    />
   );
 }

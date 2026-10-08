@@ -18,6 +18,7 @@ async function waitForOpenDataOrSkip(page: Page, ready: Locator) {
     )
     .not.toBe("pending");
   if (await down.isVisible()) {
+    // CI/local runs depend on opendata.paris.fr; skip rather than fail when the API is down.
     test.skip(true, "Open Data unavailable");
   }
   await expect(ready).toBeVisible();

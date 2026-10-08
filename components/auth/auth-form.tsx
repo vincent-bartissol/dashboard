@@ -49,6 +49,22 @@ function authErrorText(
   return t("genericError");
 }
 
+function validateAuthPassword(
+  mode: Mode,
+  firstName: string,
+  lastName: string,
+  password: string,
+  t: (key: "namesTooLong" | "passwordTooLong") => string,
+): string | null {
+  if (mode === "signup" && (firstName.length > PROFILE_NAME_MAX || lastName.length > PROFILE_NAME_MAX)) {
+    return t("namesTooLong");
+  }
+  if (password.length > MAX_PASSWORD_LENGTH) {
+    return t("passwordTooLong");
+  }
+  return null;
+}
+
 export function AuthForm({
   mode,
   next,
@@ -131,14 +147,10 @@ export function AuthForm({
     const lastName = formString(form, "lastName").trim();
     const name = `${firstName} ${lastName}`.trim();
 
-    if (mode === "signup" && (firstName.length > PROFILE_NAME_MAX || lastName.length > PROFILE_NAME_MAX)) {
+    const validationError = validateAuthPassword(mode, firstName, lastName, password, t);
+    if (validationError) {
       setPending(false);
-      setError(t("namesTooLong"));
-      return;
-    }
-    if (password.length > MAX_PASSWORD_LENGTH) {
-      setPending(false);
-      setError(t("passwordTooLong"));
+      setError(validationError);
       return;
     }
 

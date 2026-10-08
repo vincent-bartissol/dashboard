@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
@@ -35,6 +36,14 @@ const THEME_HREF: Record<(typeof THEME_IDS)[number], string> = {
   traffic: "/dashboard/traffic",
   markets: "/dashboard/markets",
 };
+
+function ProfileCatalogLink({ children }: Readonly<{ children: ReactNode }>) {
+  return (
+    <Link href="/dashboard/profile" className="text-heading underline">
+      {children}
+    </Link>
+  );
+}
 
 function districtLabel(
   code: string | null,
@@ -106,11 +115,7 @@ export default async function DashboardPage() {
         {t.rich("catalog", {
           fountains: formatCount(fountains, (value) => format.number(value)),
           markets: formatCount(markets, (value) => format.number(value)),
-          profile: (chunks) => (
-            <Link href="/dashboard/profile" className="text-heading underline">
-              {chunks}
-            </Link>
-          ),
+          profile: (chunks) => <ProfileCatalogLink>{chunks}</ProfileCatalogLink>,
         })}
       </p>
     </div>

@@ -46,29 +46,41 @@ function chunkCodes(codes: string[], size: number) {
   return chunks;
 }
 
+async function fetchVelibStationChunk(velib: DatasetConfig, chunk: string[]) {
+  const result = await fetchRecordsSafe(
+    velib.id,
+    {
+      limit: 100,
+      where: stationCodesWhere(chunk),
+      host: velib.host,
+      select: "stationcode,numbikesavailable",
+    },
+    velib.revalidate,
+  );
+  if (!result.ok) {
+    throw new Error(result.error ?? "opendata");
+  }
+  return result.page.results;
+}
+
+function mergeStationRows(
+  byStation: Map<string, Record<string, unknown>>,
+  rows: Record<string, unknown>[],
+) {
+  for (const row of rows) {
+    const code = scalarString(row.stationcode);
+    if (code) byStation.set(code, row);
+  }
+}
+
 async function loadStationsByCode(
   velib: DatasetConfig,
   codes: string[],
 ): Promise<Map<string, Record<string, unknown>>> {
   const byStation = new Map<string, Record<string, unknown>>();
   for (const chunk of chunkCodes(codes, STATION_CHUNK)) {
-    const result = await fetchRecordsSafe(
-      velib.id,
-      {
-        limit: 100,
-        where: stationCodesWhere(chunk),
-        host: velib.host,
-        select: "stationcode,numbikesavailable",
-      },
-      velib.revalidate,
-    );
-    if (!result.ok) {
-      throw new Error(result.error ?? "opendata");
-    }
-    for (const row of result.page.results) {
-      const code = scalarString(row.stationcode);
-      if (code) byStation.set(code, row);
-    }
+    const rows = await fetchVelibStationChunk(velib, chunk);
+    mergeStationRows(byStation, rows);
   }
   return byStation;
 }
@@ -96,26 +108,37 @@ export async function evaluateVelibAlerts(now = Date.now()): Promise<EvaluateAle
   let emailed = 0;
 
   for (const rule of rules) {
-    if (rule.lastTriggeredAt) {
-      const last = new Date(rule.lastTriggeredAt).getTime();
-      if (Number.isFinite(last) && now - last < ALERT_COOLDOWN_MS) continue;
-    }
-    const bikes = bikesFor(byStation.get(rule.recordId));
-    if (bikes == null || bikes >= rule.threshold) continue;
-
-    try {
-      const outcome = await sendAlertEmail(rule, bikes, ownersById);
-      // Only cool down after a successful send or an intentional skip (no/unverified email).
-      // Delivery failures leave lastTriggeredAt untouched so the next cron can retry.
-      await markAlertTriggered(rule.id, new Date(now));
-      triggered += 1;
-      if (outcome === "sent") emailed += 1;
-    } catch {
-      // leave cooldown unset
-    }
+    const outcome = await tryTriggerVelibRule(rule, byStation, ownersById, now);
+    if (outcome === "skipped") continue;
+    triggered += 1;
+    if (outcome === "sent") emailed += 1;
   }
 
   return { checked: rules.length, triggered, emailed };
+}
+
+async function tryTriggerVelibRule(
+  rule: AlertRuleRow,
+  byStation: Map<string, Record<string, unknown>>,
+  ownersById: Map<string, { email: string; emailVerified: boolean }>,
+  now: number,
+): Promise<"skipped" | "sent" | "triggered"> {
+  if (rule.lastTriggeredAt) {
+    const last = new Date(rule.lastTriggeredAt).getTime();
+    if (Number.isFinite(last) && now - last < ALERT_COOLDOWN_MS) return "skipped";
+  }
+  const bikes = bikesFor(byStation.get(rule.recordId));
+  if (bikes == null || bikes >= rule.threshold) return "skipped";
+
+  try {
+    const outcome = await sendAlertEmail(rule, bikes, ownersById);
+    // Only cool down after a successful send or an intentional skip (no/unverified email).
+    // Delivery failures leave lastTriggeredAt untouched so the next cron can retry.
+    await markAlertTriggered(rule.id, new Date(now));
+    return outcome === "sent" ? "sent" : "triggered";
+  } catch {
+    return "skipped";
+  }
 }
 
 async function sendAlertEmail(

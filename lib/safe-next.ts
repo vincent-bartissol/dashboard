@@ -1,7 +1,5 @@
-import { routing } from "@/i18n/routing";
-import { isAppLocale } from "@/i18n/routing";
+import { routing, isAppLocale, type AppLocale } from "@/i18n/routing";
 import { localeFromPath, stripLocalePrefix, withLocale } from "@/i18n/path";
-import type { AppLocale } from "@/i18n/routing";
 
 const AUTH_PAGES = new Set(["login", "signup", "forgot-password", "reset-password"]);
 

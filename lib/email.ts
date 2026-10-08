@@ -19,7 +19,7 @@ export function resolveMailerProvider(
 
 export function emailFrom(value: string | undefined = process.env.EMAIL_FROM): string {
   const trimmed = value?.trim();
-  return trimmed ? trimmed : "Paris Ouverte <noreply@localhost>";
+  return trimmed || "Paris Ouverte <noreply@localhost>";
 }
 
 export function smtpOptions(env?: { SMTP_HOST?: string; SMTP_PORT?: string }) {
