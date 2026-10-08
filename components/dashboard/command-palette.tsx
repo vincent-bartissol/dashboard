@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";
@@ -63,6 +63,38 @@ function searchStatusMessage(params: {
   }
   if (params.resultCount === 0) return params.empty;
   return params.results(String(params.resultCount));
+}
+
+function renderSearchResults(params: {
+  queryLength: number;
+  isError: boolean;
+  isPending: boolean;
+  error: unknown;
+  resultCount: number;
+  hint: string;
+  loading: string;
+  empty: string;
+  rateLimited: string;
+  opendataDown: string;
+  hits: ReactNode;
+}): ReactNode {
+  if (params.queryLength < 2) {
+    return <p className="px-2 py-3 text-sm text-muted">{params.hint}</p>;
+  }
+  if (params.isError) {
+    let message = params.opendataDown;
+    if (params.error instanceof Error && params.error.message === "rate_limited") {
+      message = params.rateLimited;
+    }
+    return <p className="px-2 py-3 text-sm text-danger">{message}</p>;
+  }
+  if (params.isPending) {
+    return <p className="px-2 py-3 text-sm text-muted">{params.loading}</p>;
+  }
+  if (params.resultCount === 0) {
+    return <p className="px-2 py-3 text-sm text-muted">{params.empty}</p>;
+  }
+  return params.hits;
 }
 
 export function CommandPalette() {
@@ -206,34 +238,34 @@ export function CommandPalette() {
           <p id={statusId} className="sr-only" aria-live="polite">
             {statusMessage}
           </p>
-          {query.length < 2 ? (
-            <p className="px-2 py-3 text-sm text-muted">{t("hint")}</p>
-          ) : search.isError ? (
-            <p className="px-2 py-3 text-sm text-danger">
-              {search.error instanceof Error && search.error.message === "rate_limited"
-                ? tCommon("rateLimited")
-                : tCommon("opendataDown")}
-            </p>
-          ) : search.isPending ? (
-            <p className="px-2 py-3 text-sm text-muted">{t("loading")}</p>
-          ) : (search.data?.length ?? 0) === 0 ? (
-            <p className="px-2 py-3 text-sm text-muted">{t("empty")}</p>
-          ) : (
-            <ul className="space-y-0.5">
-              {search.data?.map((hit) => (
-                <li key={`${hit.datasetId}:${hit.recordId}`}>
-                  <Link
-                    href={hit.href}
-                    onClick={close}
-                    className="block px-2 py-2 text-sm hover:bg-ground focus-field"
-                  >
-                    <span className="font-medium text-heading">{hit.label}</span>
-                    <span className="mt-0.5 block text-xs text-muted">{datasetTitle(hit)}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
+          {renderSearchResults({
+            queryLength: query.length,
+            isError: search.isError,
+            isPending: search.isPending,
+            error: search.error,
+            resultCount: search.data?.length ?? 0,
+            hint: t("hint"),
+            loading: t("loading"),
+            empty: t("empty"),
+            rateLimited: tCommon("rateLimited"),
+            opendataDown: tCommon("opendataDown"),
+            hits: (
+              <ul className="space-y-0.5">
+                {search.data?.map((hit) => (
+                  <li key={`${hit.datasetId}:${hit.recordId}`}>
+                    <Link
+                      href={hit.href}
+                      onClick={close}
+                      className="block px-2 py-2 text-sm hover:bg-ground focus-field"
+                    >
+                      <span className="font-medium text-heading">{hit.label}</span>
+                      <span className="mt-0.5 block text-xs text-muted">{datasetTitle(hit)}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ),
+          })}
         </div>
         <div className="border-t border-line px-3 py-2 text-xs text-muted">{t("footer")}</div>
       </div>

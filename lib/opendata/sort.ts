@@ -2,6 +2,14 @@ import { scalarString } from "@/lib/safe-string";
 
 export type SortDir = "asc" | "desc";
 
+export type ColumnAriaSort = "ascending" | "descending" | "none";
+
+export function columnAriaSort(active: boolean, sortDir: SortDir): ColumnAriaSort {
+  if (!active) return "none";
+  if (sortDir === "asc") return "ascending";
+  return "descending";
+}
+
 function isEmpty(value: unknown) {
   return value == null || value === "";
 }

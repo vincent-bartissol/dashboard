@@ -15,6 +15,16 @@ export type FetchResult<T = OpenDataRecord> = {
   error?: string;
 };
 
+export type OpendataQueryErrorKind = "rate_limited" | "opendata";
+
+/** Classify TanStack/query errors from live Open Data fetches. */
+export function opendataQueryErrorKind(...errors: unknown[]): OpendataQueryErrorKind | null {
+  const instances = errors.filter((error): error is Error => error instanceof Error);
+  if (instances.length === 0) return null;
+  if (instances.some((error) => error.message === "rate_limited")) return "rate_limited";
+  return "opendata";
+}
+
 export type CountResult = {
   ok: boolean;
   count: number;

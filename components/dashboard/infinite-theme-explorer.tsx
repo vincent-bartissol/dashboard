@@ -4,7 +4,12 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { ThemeExplorerClient } from "@/components/dashboard/theme-explorer-client";
-import type { ExplorerDataset, OpenDataPage, OpenDataRecord } from "@/lib/opendata/client";
+import {
+  opendataQueryErrorKind,
+  type ExplorerDataset,
+  type OpenDataPage,
+  type OpenDataRecord,
+} from "@/lib/opendata/client";
 import type { MapMarker } from "@/lib/opendata/markers";
 import {
   fetchThemeMarkers,
@@ -17,6 +22,27 @@ export type InfiniteThemeSlot = {
   mapRecords: OpenDataRecord[];
   totalCount: number;
 };
+
+function infiniteTableEndLabel(
+  t: (key: "loadingMore" | "loadMoreHint") => string,
+  isFetchingNextPage: boolean,
+  hasNextPage: boolean,
+) {
+  if (isFetchingNextPage) return t("loadingMore");
+  if (hasNextPage) return t("loadMoreHint");
+  return null;
+}
+
+function infiniteExplorerErrorMessage(
+  liveError: ReturnType<typeof opendataQueryErrorKind>,
+  initialError: string | null | undefined,
+  tCommon: (key: "rateLimited" | "opendataDown") => string,
+) {
+  if (liveError === "rate_limited") return tCommon("rateLimited");
+  if (liveError === "opendata") return tCommon("opendataDown");
+  if (initialError) return tCommon("opendataDown");
+  return null;
+}
 
 export function InfiniteThemeExplorer({
   dataset,
@@ -114,15 +140,8 @@ export function InfiniteThemeExplorer({
   const mapRecords = markersQuery.data?.results ?? initialMapRecords;
   const mapLoading = Boolean(dataset.geoField) && markersQuery.isPending;
 
-  const liveError =
-    tableQuery.error instanceof Error || markersQuery.error instanceof Error
-      ? (tableQuery.error instanceof Error ? tableQuery.error.message : null) ===
-          "rate_limited" ||
-        (markersQuery.error instanceof Error ? markersQuery.error.message : null) ===
-          "rate_limited"
-        ? "rate_limited"
-        : "opendata"
-      : null;
+  const liveError = opendataQueryErrorKind(tableQuery.error, markersQuery.error);
+  const errorMessage = infiniteExplorerErrorMessage(liveError, initialError, tCommon);
 
   const { hasNextPage, isFetchingNextPage, fetchNextPage } = tableQuery;
 
@@ -147,13 +166,9 @@ export function InfiniteThemeExplorer({
 
   return (
     <div className="space-y-6">
-      {liveError ? (
+      {errorMessage ? (
         <p role="status" className="text-sm text-danger">
-          {liveError === "rate_limited" ? tCommon("rateLimited") : tCommon("opendataDown")}
-        </p>
-      ) : initialError ? (
-        <p role="status" className="text-sm text-danger">
-          {tCommon("opendataDown")}
+          {errorMessage}
         </p>
       ) : null}
       {childNode}
@@ -178,11 +193,7 @@ export function InfiniteThemeExplorer({
             className="border-t border-line px-4 py-3 text-center text-sm text-muted"
             aria-live="polite"
           >
-            {isFetchingNextPage
-              ? t("loadingMore")
-              : hasNextPage
-                ? t("loadMoreHint")
-                : null}
+            {infiniteTableEndLabel(t, isFetchingNextPage, hasNextPage)}
           </div>
         }
       />

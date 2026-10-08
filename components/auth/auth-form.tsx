@@ -20,6 +20,16 @@ import { Input, Label } from "@/components/ui/input";
 
 type Mode = "login" | "signup";
 
+function authSubmitLabel(
+  pending: boolean,
+  mode: Mode,
+  t: (key: "pending" | "submitSignup" | "submitLogin") => string,
+) {
+  if (pending) return t("pending");
+  if (mode === "signup") return t("submitSignup");
+  return t("submitLogin");
+}
+
 function needsTwoFactor(data: unknown): boolean {
   return Boolean(
     data &&
@@ -277,7 +287,7 @@ export function AuthForm({
       {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
       {resent ? <p aria-live="polite" className="text-sm text-muted">{t("emailResent")}</p> : null}
       <Button type="submit" className="w-full" disabled={pending}>
-        {pending ? t("pending") : mode === "signup" ? t("submitSignup") : t("submitLogin")}
+        {authSubmitLabel(pending, mode, t)}
       </Button>
       {mode === "login" && awaitingVerification ? (
         <Button

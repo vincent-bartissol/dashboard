@@ -2,14 +2,15 @@
 
 import { useId, useMemo, useState, type ReactNode, type RefObject } from "react";
 import { useFormatter, useTranslations } from "next-intl";
-import { ChevronDown, ChevronUp, Bell, Heart } from "lucide-react";
+import { Bell, Heart } from "lucide-react";
 import { extractGeo, recordId, recordLabel, type OpenDataRecord } from "@/lib/opendata/client";
 import { scalarString } from "@/lib/safe-string";
 import type { ExplorerDataset } from "@/lib/opendata/client";
 import { DynamicParisMap } from "@/components/map/dynamic-map";
 import { recordsToMarkers } from "@/lib/opendata/markers";
 import { recordMatchesQuery } from "@/lib/opendata/search";
-import { compareCellValues, type SortDir } from "@/lib/opendata/sort";
+import { compareCellValues, columnAriaSort, type SortDir } from "@/lib/opendata/sort";
+import { SortColumnChevron } from "@/components/dashboard/sort-column-chevron";
 import { useFavoritesQuery, useToggleFavoriteMutation } from "@/lib/favorites-query";
 import type { FavoriteDto } from "@/lib/favorites";
 import { DATASETS } from "@/lib/opendata/datasets";
@@ -331,9 +332,7 @@ export function ThemeExplorerClient({
                     <th
                       key={column.key}
                       className="px-3 py-2"
-                      aria-sort={
-                        active ? (sortDir === "asc" ? "ascending" : "descending") : "none"
-                      }
+                      aria-sort={columnAriaSort(active, sortDir)}
                     >
                       <button
                         type="button"
@@ -346,13 +345,7 @@ export function ThemeExplorerClient({
                         }
                       >
                         {column.label}
-                        {active ? (
-                          sortDir === "asc" ? (
-                            <ChevronUp className="h-3.5 w-3.5" aria-hidden />
-                          ) : (
-                            <ChevronDown className="h-3.5 w-3.5" aria-hidden />
-                          )
-                        ) : null}
+                        <SortColumnChevron active={active} sortDir={sortDir} />
                       </button>
                     </th>
                   );

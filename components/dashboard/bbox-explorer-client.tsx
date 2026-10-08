@@ -4,7 +4,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { keepPreviousData, useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { ThemeExplorerClient } from "@/components/dashboard/theme-explorer-client";
-import type { ExplorerDataset, FetchResult, OpenDataPage, OpenDataRecord } from "@/lib/opendata/client";
+import {
+  opendataQueryErrorKind,
+  type ExplorerDataset,
+  type FetchResult,
+  type OpenDataPage,
+  type OpenDataRecord,
+} from "@/lib/opendata/client";
 import { PARIS_BBOX } from "@/lib/opendata/datasets";
 import type { MapMarker } from "@/lib/opendata/markers";
 import { BBOX_PAGE_SIZE } from "@/lib/opendata/bbox-constants";
@@ -19,6 +25,23 @@ export type BboxRecordsPage = {
 
 function bboxKey(bbox: Bbox) {
   return `${bbox.south},${bbox.west},${bbox.north},${bbox.east}`;
+}
+
+function bboxTableEndLabel(
+  t: (key: "loadingMore" | "loadMoreHint") => string,
+  params: {
+    isFetchingNextPage: boolean;
+    hasNextPage: boolean;
+    hasTableData: boolean;
+    bboxActive: boolean;
+    isFetching: boolean;
+  },
+) {
+  if (params.isFetchingNextPage || (params.bboxActive && params.isFetching && !params.hasTableData)) {
+    return t("loadingMore");
+  }
+  if (params.hasNextPage && params.hasTableData) return t("loadMoreHint");
+  return null;
 }
 
 export async function fetchBboxRecords(
@@ -169,15 +192,7 @@ export function BboxExplorerClient({
     tableQuery.data?.pages[0]?.page.total_count ??
     initial.total_count;
 
-  const error =
-    markersQuery.error instanceof Error || tableQuery.error instanceof Error
-      ? (markersQuery.error instanceof Error ? markersQuery.error.message : null) ===
-          "rate_limited" ||
-        (tableQuery.error instanceof Error ? tableQuery.error.message : null) ===
-          "rate_limited"
-        ? "rate_limited"
-        : "opendata"
-      : null;
+  const error = opendataQueryErrorKind(markersQuery.error, tableQuery.error);
 
   const { hasNextPage, isFetchingNextPage, fetchNextPage, isFetching } = tableQuery;
 
@@ -234,11 +249,13 @@ export function BboxExplorerClient({
             className="border-t border-line px-4 py-3 text-center text-sm text-muted"
             aria-live="polite"
           >
-            {isFetchingNextPage || (bbox != null && isFetching && !tableQuery.data)
-              ? t("loadingMore")
-              : hasNextPage && tableQuery.data
-                ? t("loadMoreHint")
-                : null}
+            {bboxTableEndLabel(t, {
+              isFetchingNextPage,
+              hasNextPage,
+              hasTableData: Boolean(tableQuery.data),
+              bboxActive: bbox != null,
+              isFetching,
+            })}
           </div>
         }
       />
