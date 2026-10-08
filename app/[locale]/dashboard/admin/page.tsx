@@ -19,9 +19,9 @@ import { requireAdmin } from "@/lib/session";
 
 export default async function AdminPage({
   searchParams,
-}: {
+}: Readonly<{
   searchParams: Promise<{ q?: string | string[]; page?: string | string[] }>;
-}) {
+}>) {
   await requireAdmin();
   const t = await getTranslations("Admin");
   const format = await getFormatter();

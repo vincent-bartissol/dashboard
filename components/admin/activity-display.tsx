@@ -30,6 +30,14 @@ export function parseActivityMetadata(raw: string | null): Record<string, unknow
   }
 }
 
+function formatMetaValue(value: unknown): string {
+  if (value == null || value === "") return "—";
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+  return JSON.stringify(value);
+}
+
 export function ActivityMetadataList({
   meta,
   empty = "—",
@@ -45,13 +53,7 @@ export function ActivityMetadataList({
       {Object.entries(meta).map(([key, value]) => (
         <div key={key} className="grid grid-cols-[auto_1fr] gap-x-2">
           <dt className="font-medium text-heading">{key}</dt>
-          <dd className="truncate text-muted">
-            {value == null || value === ""
-              ? "—"
-              : typeof value === "string" || typeof value === "number" || typeof value === "boolean"
-                ? String(value)
-                : JSON.stringify(value)}
-          </dd>
+          <dd className="truncate text-muted">{formatMetaValue(value)}</dd>
         </div>
       ))}
     </dl>

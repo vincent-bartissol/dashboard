@@ -81,25 +81,17 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   return (
     <NotificationContext.Provider value={value}>
       {children}
-      <div
-        role="region"
+      <section
         className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex flex-col items-end gap-2 p-4 sm:p-6"
         aria-label={t("notifications")}
       >
-        {items.map((item) => (
-          <div
-            key={item.id}
-            role={item.tone === "danger" ? "alert" : "status"}
-            aria-live={item.tone === "danger" ? undefined : "polite"}
-            className="pointer-events-auto flex max-w-sm items-start gap-3 border border-line bg-paper p-3 shadow-[0_12px_32px_-22px_rgba(15,28,42,0.55)]"
-          >
-            <p
-              className={`min-w-0 flex-1 text-sm ${
-                item.tone === "danger" ? "text-danger" : "text-muted"
-              }`}
-            >
-              {item.message}
-            </p>
+        {items.map((item) => {
+          const toastClassName =
+            "pointer-events-auto flex max-w-sm items-start gap-3 border border-line bg-paper p-3 shadow-[0_12px_32px_-22px_rgba(15,28,42,0.55)]";
+          const messageClassName = `min-w-0 flex-1 text-sm ${
+            item.tone === "danger" ? "text-danger" : "text-muted"
+          }`;
+          const dismissButton = (
             <button
               type="button"
               className="shrink-0 text-muted transition hover:text-heading focus-field"
@@ -108,9 +100,25 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
             >
               <X className="h-4 w-4" aria-hidden />
             </button>
-          </div>
-        ))}
-      </div>
+          );
+
+          if (item.tone === "danger") {
+            return (
+              <div key={item.id} role="alert" className={toastClassName}>
+                <p className={messageClassName}>{item.message}</p>
+                {dismissButton}
+              </div>
+            );
+          }
+
+          return (
+            <output key={item.id} aria-live="polite" className={toastClassName}>
+              <p className={messageClassName}>{item.message}</p>
+              {dismissButton}
+            </output>
+          );
+        })}
+      </section>
     </NotificationContext.Provider>
   );
 }
