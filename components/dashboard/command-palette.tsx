@@ -184,11 +184,15 @@ export function CommandPalette() {
       aria-modal="true"
       aria-labelledby={inputId}
       onClick={close}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") close();
+      }}
     >
       <div
         ref={panelRef}
         className="w-full max-w-lg border border-line bg-paper shadow-lg"
         onClick={(event) => event.stopPropagation()}
+        onKeyDown={(event) => event.stopPropagation()}
       >
         <div className="border-b border-line p-3">
           <Input

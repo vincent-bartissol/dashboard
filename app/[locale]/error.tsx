@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { PageTitle } from "@/components/ui/heading";
 
-export default function Error({
+export default function ErrorPage({
   error,
   retry,
 }: {
