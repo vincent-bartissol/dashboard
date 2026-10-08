@@ -4,7 +4,7 @@ import { isAppLocale, routing } from "@/i18n/routing";
 export type { AppLocale };
 
 export function localeFromPath(pathname: string): AppLocale {
-  const first = pathname.split("/").filter(Boolean)[0];
+  const first = pathname.split("/").find(Boolean);
   return isAppLocale(first) ? first : routing.defaultLocale;
 }
 

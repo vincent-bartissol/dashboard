@@ -40,7 +40,9 @@ async function mutateAlert(body: Record<string, unknown>): Promise<AlertRule[]> 
   return data.rules;
 }
 
-export function AlertsClient({ initial }: { initial: AlertRule[] }) {
+export function AlertsClient({
+  initial,
+}: Readonly<{ initial: AlertRule[] }>) {
   const t = useTranslations("Pages.alerts");
   const format = useFormatter();
   const notify = useNotify();

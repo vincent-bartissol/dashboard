@@ -1,6 +1,8 @@
 import { getTranslations } from "next-intl/server";
 
-export async function DatasetNotice({ error }: { error?: string }) {
+export async function DatasetNotice({
+  error,
+}: Readonly<{ error?: string }>) {
   const t = await getTranslations("Common");
   if (!error) return null;
   return (

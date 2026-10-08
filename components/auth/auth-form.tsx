@@ -38,7 +38,10 @@ function authErrorText(
   return t("genericError");
 }
 
-export function AuthForm({ mode, next }: { mode: Mode; next?: string | string[] }) {
+export function AuthForm({
+  mode,
+  next,
+}: Readonly<{ mode: Mode; next?: string | string[] }>) {
   const t = useTranslations("Auth");
   const locale = useLocale();
   const router = useRouter();

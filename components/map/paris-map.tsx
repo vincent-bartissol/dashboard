@@ -22,9 +22,9 @@ const DARK_TILES = {
 
 function MapBounds({
   onBounds,
-}: {
+}: Readonly<{
   onBounds?: (bbox: { south: number; west: number; north: number; east: number }) => void;
-}) {
+}>) {
   const map = useMap();
 
   useMapEvents({
@@ -60,13 +60,13 @@ export function ParisMap({
   className = "",
   center = PARIS_CENTER,
   zoom = 12,
-}: {
+}: Readonly<{
   markers: MapMarker[];
   onBounds?: (bbox: { south: number; west: number; north: number; east: number }) => void;
   className?: string;
   center?: { lat: number; lon: number };
   zoom?: number;
-}) {
+}>) {
   const dark = useHtmlDark();
   const t = useTranslations("Explorer");
   const hintId = useId();

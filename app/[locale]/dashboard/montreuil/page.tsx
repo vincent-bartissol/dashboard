@@ -21,9 +21,9 @@ const MONTREUIL_VELIB = `nom_arrondissement_communes = 'Montreuil'`;
 
 export default async function MontreuilPage({
   searchParams,
-}: {
+}: Readonly<{
   searchParams: Promise<{ tab?: string }>;
-}) {
+}>) {
   const session = await requireSession();
   const t = await getTranslations("Pages.montreuil");
   const datasets = await getTranslations("Datasets");

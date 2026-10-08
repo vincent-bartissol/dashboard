@@ -8,11 +8,11 @@ export async function PageIntro({
   title,
   children,
   dataset,
-}: {
+}: Readonly<{
   title: string;
   children: ReactNode;
   dataset?: DatasetConfig | DatasetConfig[];
-}) {
+}>) {
   const t = await getTranslations("Common");
   const datasets = dataset ? (Array.isArray(dataset) ? dataset : [dataset]) : [];
   const sources = await Promise.all(

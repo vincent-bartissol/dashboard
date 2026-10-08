@@ -23,6 +23,8 @@ function getQueryClient() {
   return browserQueryClient;
 }
 
-export function QueryProvider({ children }: { children: ReactNode }) {
+export function QueryProvider({
+  children,
+}: Readonly<{ children: ReactNode }>) {
   return <QueryClientProvider client={getQueryClient()}>{children}</QueryClientProvider>;
 }

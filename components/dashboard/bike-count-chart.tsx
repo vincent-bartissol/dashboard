@@ -18,7 +18,9 @@ import { Card } from "@/components/ui/card";
 import { SectionTitle } from "@/components/ui/heading";
 import { chartMotion, chartTooltipStyle, useChartChrome } from "@/components/theme/use-chart-chrome";
 
-export function BikeCountChart({ records }: { records: OpenDataRecord[] }) {
+export function BikeCountChart({
+  records,
+}: Readonly<{ records: OpenDataRecord[] }>) {
   const chrome = useChartChrome();
   const motion = chartMotion(useReducedMotion());
   const t = useTranslations("Charts");
@@ -34,7 +36,7 @@ export function BikeCountChart({ records }: { records: OpenDataRecord[] }) {
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([day, total]) => ({ day, total }));
   const from = data[0]?.day ?? "—";
-  const to = data[data.length - 1]?.day ?? "—";
+  const to = data.at(-1)?.day ?? "—";
   const peak = data.reduce((max, row) => Math.max(max, row.total), 0);
 
   return (

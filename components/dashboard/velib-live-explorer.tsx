@@ -11,13 +11,13 @@ export function VelibLiveExplorer({
   mapRecords,
   favoriteIds,
   initialError,
-}: {
+}: Readonly<{
   dataset: ExplorerDataset;
   initial: OpenDataPage;
   mapRecords: OpenDataRecord[];
   favoriteIds: string[];
   initialError?: string | null;
-}) {
+}>) {
   const t = useTranslations("Pages.velib");
   const format = useFormatter();
 

@@ -26,7 +26,9 @@ async function fetchActivity(): Promise<ActivityRow[]> {
   return data.activity;
 }
 
-export function AdminRecentActivity({ initial }: { initial: ActivityRow[] }) {
+export function AdminRecentActivity({
+  initial,
+}: Readonly<{ initial: ActivityRow[] }>) {
   const t = useTranslations("Admin");
   const format = useFormatter();
   const query = useQuery({

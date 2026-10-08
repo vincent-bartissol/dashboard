@@ -24,9 +24,9 @@ import { requireAdmin } from "@/lib/session";
 
 export default async function AdminUserDetailPage({
   params,
-}: {
+}: Readonly<{
   params: Promise<{ id: string }>;
-}) {
+}>) {
   const session = await requireAdmin();
   const { id } = await params;
   const user = await getUserForAdmin(id);

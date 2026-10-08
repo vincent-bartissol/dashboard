@@ -22,13 +22,13 @@ export function ProfileForm({
   email,
   emailVerified,
   arrondissement,
-}: {
+}: Readonly<{
   firstName: string;
   lastName: string;
   email: string;
   emailVerified: boolean;
   arrondissement: string | null;
-}) {
+}>) {
   const t = useTranslations("Profile");
   const locale = useLocale();
   const router = useRouter();

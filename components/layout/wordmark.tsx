@@ -4,11 +4,11 @@ export function Wordmark({
   href = "/",
   invert = false,
   size = "md",
-}: {
+}: Readonly<{
   href?: string;
   invert?: boolean;
   size?: "md" | "lg";
-}) {
+}>) {
   const titleSize = size === "lg" ? "text-4xl sm:text-5xl" : "text-xl";
   const subSize = size === "lg" ? "text-lg sm:text-xl" : "text-sm";
 

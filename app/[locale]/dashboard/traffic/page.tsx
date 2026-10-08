@@ -11,9 +11,9 @@ import { requireSession } from "@/lib/session";
 
 export default async function TrafficPage({
   searchParams,
-}: {
+}: Readonly<{
   searchParams: Promise<{ tab?: string }>;
-}) {
+}>) {
   const session = await requireSession();
   const t = await getTranslations("Pages.traffic");
   const format = await getFormatter();

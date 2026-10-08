@@ -85,7 +85,7 @@ export function BboxExplorerClient({
   mapCenter,
   mapZoom,
   extraMarkers,
-}: {
+}: Readonly<{
   dataset: ExplorerDataset;
   initial: OpenDataPage;
   mapRecords?: OpenDataRecord[];
@@ -95,7 +95,7 @@ export function BboxExplorerClient({
   mapCenter?: { lat: number; lon: number };
   mapZoom?: number;
   extraMarkers?: MapMarker[];
-}) {
+}>) {
   const t = useTranslations("Explorer");
   const tCommon = useTranslations("Common");
   const [bbox, setBbox] = useState<Bbox | null>(null);

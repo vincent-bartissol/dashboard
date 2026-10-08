@@ -23,7 +23,7 @@ const SEARCHABLE: Searchable[] = [
 ];
 
 function escapeSearch(value: string) {
-  return value.replaceAll("\\", "\\\\").replaceAll('"', '\\"');
+  return value.replaceAll("\\", String.raw`\\`).replaceAll('"', String.raw`\"`);
 }
 
 export async function searchOpenData(query: string): Promise<SearchHit[]> {

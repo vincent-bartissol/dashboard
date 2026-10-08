@@ -23,10 +23,10 @@ export function Textarea({ className, ...props }: TextareaHTMLAttributes<HTMLTex
 export function Label({
   htmlFor,
   children,
-}: {
+}: Readonly<{
   htmlFor?: string;
   children: string;
-}) {
+}>) {
   return (
     <label htmlFor={htmlFor} className="mb-1 block text-sm font-medium text-heading">
       {children}

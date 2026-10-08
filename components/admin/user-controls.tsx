@@ -47,7 +47,7 @@ export function AdminUserControls({
   isSelf,
   targetIsAdmin,
   sessions,
-}: {
+}: Readonly<{
   userId: string;
   role: string;
   banned: boolean;
@@ -60,7 +60,7 @@ export function AdminUserControls({
     ipAddress: string | null;
     userAgent: string | null;
   }[];
-}) {
+}>) {
   const t = useTranslations("Admin");
   const router = useRouter();
   const notify = useNotify();

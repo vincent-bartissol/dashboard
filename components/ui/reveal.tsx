@@ -9,11 +9,11 @@ export function Reveal({
   children,
   className = "",
   delay = 0,
-}: {
+}: Readonly<{
   children: ReactNode;
   className?: string;
   delay?: number;
-}) {
+}>) {
   const reduce = useReducedMotion();
   if (reduce) return <div className={className}>{children}</div>;
 
@@ -32,10 +32,10 @@ export function Reveal({
 export function RevealList({
   children,
   className = "",
-}: {
+}: Readonly<{
   children: ReactNode;
   className?: string;
-}) {
+}>) {
   const reduce = useReducedMotion();
   if (reduce) return <div className={className}>{children}</div>;
 
@@ -57,10 +57,10 @@ export function RevealList({
 export function RevealItem({
   children,
   className = "",
-}: {
+}: Readonly<{
   children: ReactNode;
   className?: string;
-}) {
+}>) {
   const reduce = useReducedMotion();
   if (reduce) return <div className={className}>{children}</div>;
 
@@ -80,10 +80,10 @@ export function RevealItem({
 export function HoverLift({
   children,
   className = "",
-}: {
+}: Readonly<{
   children: ReactNode;
   className?: string;
-}) {
+}>) {
   const reduce = useReducedMotion();
   if (reduce) return <div className={className}>{children}</div>;
 

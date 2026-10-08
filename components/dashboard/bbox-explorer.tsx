@@ -6,7 +6,7 @@ import type { MapMarker } from "@/lib/opendata/markers";
 export async function BboxExplorer({
   dataset,
   ...props
-}: {
+}: Readonly<{
   dataset: DatasetConfig;
   initial: OpenDataPage;
   mapRecords?: OpenDataPage["results"];
@@ -16,6 +16,6 @@ export async function BboxExplorer({
   mapCenter?: { lat: number; lon: number };
   mapZoom?: number;
   extraMarkers?: MapMarker[];
-}) {
+}>) {
   return <BboxExplorerClient dataset={await localizeExplorerDataset(dataset)} {...props} />;
 }

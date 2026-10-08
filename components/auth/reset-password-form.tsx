@@ -9,7 +9,9 @@ import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "@/lib/password";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 
-export function ResetPasswordForm({ token }: { token: string }) {
+export function ResetPasswordForm({
+  token,
+}: Readonly<{ token: string }>) {
   const t = useTranslations("Auth");
   const router = useRouter();
   const [pending, setPending] = useState(false);

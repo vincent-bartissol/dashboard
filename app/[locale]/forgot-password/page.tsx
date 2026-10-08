@@ -7,9 +7,9 @@ import { requireGuest } from "@/lib/session";
 
 export default async function ForgotPasswordPage({
   searchParams,
-}: {
+}: Readonly<{
   searchParams: Promise<{ next?: string | string[] }>;
-}) {
+}>) {
   const { next } = await searchParams;
   await requireGuest(next);
   const t = await getTranslations("Auth");

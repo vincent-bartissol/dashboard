@@ -123,7 +123,7 @@ export function CommandPalette() {
       const nodes = focusableWithin(panelRef.current);
       if (nodes.length === 0) return;
       const first = nodes[0];
-      const last = nodes[nodes.length - 1];
+      const last = nodes.at(-1);
       const active = document.activeElement as HTMLElement | null;
       if (event.shiftKey) {
         if (active === first || !panelRef.current.contains(active)) {

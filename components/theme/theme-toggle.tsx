@@ -30,10 +30,10 @@ function getSnapshot() {
 export function ThemeToggle({
   invert = false,
   initial = "system",
-}: {
+}: Readonly<{
   invert?: boolean;
   initial?: ColorScheme;
-}) {
+}>) {
   const t = useTranslations("Common");
   const theme = useSyncExternalStore(subscribe, getSnapshot, () => initial);
 

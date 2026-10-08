@@ -12,9 +12,9 @@ import { requireSession } from "@/lib/session";
 
 export default async function AmenitiesPage({
   searchParams,
-}: {
+}: Readonly<{
   searchParams: Promise<{ tab?: string }>;
-}) {
+}>) {
   const session = await requireSession();
   const t = await getTranslations("Pages.amenities");
   const format = await getFormatter();

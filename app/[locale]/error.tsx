@@ -9,10 +9,10 @@ import { PageTitle } from "@/components/ui/heading";
 export default function ErrorPage({
   error,
   retry,
-}: {
+}: Readonly<{
   error: Error & { digest?: string };
   retry: () => void;
-}) {
+}>) {
   const t = useTranslations("Error");
   useEffect(() => {
     console.error(error);

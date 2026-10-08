@@ -32,7 +32,7 @@ export function InfiniteThemeExplorer({
   extraMarkers,
   refetchInterval,
   children,
-}: {
+}: Readonly<{
   dataset: ExplorerDataset;
   initial: OpenDataPage;
   mapRecords: OpenDataRecord[];
@@ -47,7 +47,7 @@ export function InfiniteThemeExplorer({
   extraMarkers?: MapMarker[];
   refetchInterval?: number;
   children?: ReactNode | ((slot: InfiniteThemeSlot) => ReactNode);
-}) {
+}>) {
   const t = useTranslations("Explorer");
   const tCommon = useTranslations("Common");
   const queryClient = useQueryClient();

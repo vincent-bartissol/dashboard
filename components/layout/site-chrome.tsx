@@ -9,7 +9,9 @@ import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { parseTheme } from "@/lib/theme";
 
-export async function SiteHeader({ variant = "public" }: { variant?: "public" | "auth" }) {
+export async function SiteHeader({
+  variant = "public",
+}: Readonly<{ variant?: "public" | "auth" }>) {
   const session = await getSession();
   const t = await getTranslations("Nav");
   const theme = parseTheme((await cookies()).get("theme")?.value);

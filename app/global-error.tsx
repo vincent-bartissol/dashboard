@@ -24,7 +24,7 @@ const COPY = {
 type Locale = keyof typeof COPY;
 
 function localeFromPathname(pathname: string): Locale {
-  const seg = pathname.split("/").filter(Boolean)[0];
+  const seg = pathname.split("/").find(Boolean);
   if (seg === "en" || seg === "es") return seg;
   return "fr";
 }

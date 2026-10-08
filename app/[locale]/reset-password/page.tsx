@@ -8,13 +8,13 @@ import { requireGuest } from "@/lib/session";
 
 export default async function ResetPasswordPage({
   searchParams,
-}: {
+}: Readonly<{
   searchParams: Promise<{
     next?: string | string[];
     token?: string | string[];
     error?: string | string[];
   }>;
-}) {
+}>) {
   const params = await searchParams;
   await requireGuest(params.next);
   const token = firstSearchParam(params.token);

@@ -32,12 +32,12 @@ export function Sidebar({
   theme,
   isAdmin = false,
   initialFavorites = [],
-}: {
+}: Readonly<{
   userName: string;
   theme: ColorScheme;
   isAdmin?: boolean;
   initialFavorites?: FavoriteDto[];
-}) {
+}>) {
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations("Nav");
@@ -133,12 +133,12 @@ export function MobileNav({
   theme,
   isAdmin = false,
   initialFavorites = [],
-}: {
+}: Readonly<{
   userName: string;
   theme: ColorScheme;
   isAdmin?: boolean;
   initialFavorites?: FavoriteDto[];
-}) {
+}>) {
   const pathname = usePathname();
   const router = useRouter();
   const t = useTranslations("Nav");

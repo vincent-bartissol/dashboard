@@ -23,7 +23,7 @@ export function safeNext(nextPath?: string | string[] | null, locale?: string) {
     if (!path.startsWith("/") || path.startsWith("//")) return fallback;
     const rest = stripLocalePrefix(path);
     const resolved = explicit ?? localeFromPath(path);
-    if (AUTH_PAGES.has(rest.split("/").filter(Boolean)[0] ?? "")) {
+    if (AUTH_PAGES.has(rest.split("/").find(Boolean) ?? "")) {
       return withLocale("/dashboard", resolved);
     }
     return `${withLocale(rest, resolved)}${url.search}`;

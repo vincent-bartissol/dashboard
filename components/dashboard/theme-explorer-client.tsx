@@ -73,15 +73,17 @@ function describe(record: OpenDataRecord, keys?: string[]) {
     .join(" · ");
 }
 
-function ExplorerMap(props: {
-  hasGeoField: boolean;
-  mapLoading: boolean;
-  loadingLabel: string;
-  markers: MapMarker[];
-  onBounds?: (bbox: { south: number; west: number; north: number; east: number }) => void;
-  center?: { lat: number; lon: number };
-  zoom?: number;
-}) {
+function ExplorerMap(
+  props: Readonly<{
+    hasGeoField: boolean;
+    mapLoading: boolean;
+    loadingLabel: string;
+    markers: MapMarker[];
+    onBounds?: (bbox: { south: number; west: number; north: number; east: number }) => void;
+    center?: { lat: number; lon: number };
+    zoom?: number;
+  }>,
+) {
   if (!props.hasGeoField) return null;
   if (props.mapLoading) {
     return (
@@ -132,7 +134,7 @@ export function ThemeExplorerClient({
   tableMaxHeight,
   tableEnd,
   tableScrollRef,
-}: Props) {
+}: Readonly<Props>) {
   const t = useTranslations("Explorer");
   const tCommon = useTranslations("Common");
   const format = useFormatter();

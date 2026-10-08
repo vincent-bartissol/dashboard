@@ -4,7 +4,9 @@ import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing, type AppLocale } from "@/i18n/routing";
 
-export function LocaleSwitcher({ invert = false }: { invert?: boolean }) {
+export function LocaleSwitcher({
+  invert = false,
+}: Readonly<{ invert?: boolean }>) {
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();

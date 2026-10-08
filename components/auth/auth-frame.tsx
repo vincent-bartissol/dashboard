@@ -4,7 +4,9 @@ import { SiteFooter, SiteHeader } from "@/components/layout/site-chrome";
 import { Wordmark } from "@/components/layout/wordmark";
 import { Card } from "@/components/ui/card";
 
-export async function AuthFrame({ children }: { children: ReactNode }) {
+export async function AuthFrame({
+  children,
+}: Readonly<{ children: ReactNode }>) {
   const t = await getTranslations("Landing");
 
   return (
