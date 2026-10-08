@@ -2,7 +2,17 @@ export const CONTACT_NAME_MAX = 80;
 export const CONTACT_EMAIL_MAX = 254;
 export const CONTACT_MESSAGE_MAX = 4000;
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function isValidEmail(value: string) {
+  const at = value.indexOf("@");
+  if (at <= 0 || at !== value.lastIndexOf("@")) return false;
+  const domain = value.slice(at + 1);
+  const dot = domain.lastIndexOf(".");
+  if (dot <= 0 || dot === domain.length - 1) return false;
+  for (const ch of value) {
+    if (ch === " " || ch === "\t" || ch === "\n" || ch === "\r") return false;
+  }
+  return true;
+}
 
 export type ContactFields = {
   name: string;
@@ -50,7 +60,7 @@ export function parseContactFields(input: {
   if (name.length > CONTACT_NAME_MAX) return { ok: false, error: "nameTooLong" };
   if (!email) return { ok: false, error: "emailRequired" };
   if (email.length > CONTACT_EMAIL_MAX) return { ok: false, error: "emailTooLong" };
-  if (!EMAIL_RE.test(email)) return { ok: false, error: "emailInvalid" };
+  if (!isValidEmail(email)) return { ok: false, error: "emailInvalid" };
   if (!message) return { ok: false, error: "messageRequired" };
   if (message.length > CONTACT_MESSAGE_MAX) return { ok: false, error: "messageTooLong" };
 
