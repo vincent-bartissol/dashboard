@@ -22,7 +22,7 @@ import { requireAdmin } from "@/lib/session";
 
 export type AdminActionResult = { ok: true } | { ok: false; error: string };
 
-async function revalidateAdmin(userId: string) {
+function revalidateAdmin(userId: string) {
   for (const locale of routing.locales) {
     revalidatePath(`/${locale}/dashboard/admin`);
     revalidatePath(`/${locale}/dashboard/admin/users/${userId}`);

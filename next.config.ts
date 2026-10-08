@@ -44,7 +44,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "opendata.paris.fr" },
     ],
   },
-  async headers() {
+  headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
 };
