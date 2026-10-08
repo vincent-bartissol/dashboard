@@ -58,7 +58,7 @@ export async function banUserAction(input: {
       targetUserId: input.userId,
       banReason,
     });
-    await revalidateAdmin(input.userId);
+    revalidateAdmin(input.userId);
     return { ok: true };
   } catch {
     return { ok: false, error: "ban" };
@@ -80,7 +80,7 @@ export async function unbanUserAction(input: {
     await recordActivity(session.user.id, "admin.unban", {
       targetUserId: input.userId,
     });
-    await revalidateAdmin(input.userId);
+    revalidateAdmin(input.userId);
     return { ok: true };
   } catch {
     return { ok: false, error: "unban" };
@@ -120,7 +120,7 @@ export async function setUserRoleAction(input: {
       previousRole: target.role,
       role: input.role,
     });
-    await revalidateAdmin(input.userId);
+    revalidateAdmin(input.userId);
     return { ok: true };
   } catch {
     return { ok: false, error: "role" };
@@ -146,7 +146,7 @@ export async function revokeSessionAction(input: {
       targetUserId: input.userId,
       sessionId: input.sessionId,
     });
-    await revalidateAdmin(input.userId);
+    revalidateAdmin(input.userId);
     return { ok: true };
   } catch {
     return { ok: false, error: "session" };
