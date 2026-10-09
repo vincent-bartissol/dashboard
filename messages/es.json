@@ -701,14 +701,22 @@
     "actions": {
       "signup": "Registro",
       "login": "Inicio de sesión",
-      "favorite.add": "Favorito añadido",
-      "favorite.remove": "Favorito eliminado",
-      "profile.update": "Perfil actualizado",
-      "page.view": "Página visitada",
-      "admin.ban": "Usuario bloqueado",
-      "admin.unban": "Bloqueo levantado",
-      "admin.setRole": "Rol modificado",
-      "admin.revokeSession": "Sesión revocada"
+      "favorite": {
+        "add": "Favorito añadido",
+        "remove": "Favorito eliminado"
+      },
+      "profile": {
+        "update": "Perfil actualizado"
+      },
+      "page": {
+        "view": "Página visitada"
+      },
+      "admin": {
+        "ban": "Usuario bloqueado",
+        "unban": "Bloqueo levantado",
+        "setRole": "Rol modificado",
+        "revokeSession": "Sesión revocada"
+      }
     }
   },
   "CommandPalette": {
