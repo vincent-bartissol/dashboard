@@ -683,6 +683,12 @@
     "recentActivity": "Activité récente",
     "recentEmpty": "Aucune activité récente.",
     "refreshing": "Mise à jour…",
+    "activityColumns": {
+      "action": "Action",
+      "user": "Utilisateur",
+      "details": "Détails",
+      "when": "Quand"
+    },
     "messagesLink": "Messages de contact",
     "messages": {
       "title": "Messages de contact",
