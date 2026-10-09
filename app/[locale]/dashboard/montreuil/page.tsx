@@ -146,104 +146,110 @@ type MontreuilMapProps = {
   extraMarkers: MapMarker[];
 };
 
+type MontreuilCopy = {
+  t: Awaited<ReturnType<typeof getTranslations<"Pages.montreuil">>>;
+  datasets: Awaited<ReturnType<typeof getTranslations<"Datasets">>>;
+  common: Awaited<ReturnType<typeof getTranslations<"Common">>>;
+};
+
+async function montreuilExplorerPanel(
+  dataset: (typeof DATASETS)[keyof typeof DATASETS],
+  loaded: NonNullable<MontreuilTabData["velib"]>,
+  mapProps: MontreuilMapProps,
+  extras?: Readonly<{
+    district?: string;
+    colorScheme?: "velib" | "status";
+    descriptionKeys?: string[];
+  }>,
+) {
+  return (
+    <InfiniteThemeExplorer
+      dataset={await localizeExplorerDataset(dataset)}
+      initial={loaded.table}
+      mapRecords={loaded.markers.results}
+      favoriteIds={loaded.favoriteIds}
+      initialError={loaded.ok ? null : loaded.error}
+      {...extras}
+      {...mapProps}
+    />
+  );
+}
+
+function montreuilBikeSourceChunk(
+  chunks: ReactNode,
+  opensInNewTab: string,
+) {
+  return (
+    <MontreuilBikeSourceLink
+      href={DATASETS.montreuilBikes.sourceUrl}
+      opensInNewTab={opensInNewTab}
+    >
+      {chunks}
+    </MontreuilBikeSourceLink>
+  );
+}
+
+async function montreuilWaterPanel(
+  tabData: MontreuilTabData,
+  mapProps: MontreuilMapProps,
+  datasets: MontreuilCopy["datasets"],
+) {
+  if (!tabData.fountains || !tabData.mist) return null;
+  return (
+    <div className="space-y-6">
+      <div className="space-y-4">
+        <SectionTitle>{datasets("montreuilFountains.title")}</SectionTitle>
+        {await montreuilExplorerPanel(DATASETS.montreuilFountains, tabData.fountains, mapProps, {
+          colorScheme: "status",
+        })}
+      </div>
+      <div className="space-y-4">
+        <SectionTitle>{datasets("montreuilMist.title")}</SectionTitle>
+        {await montreuilExplorerPanel(DATASETS.montreuilMist, tabData.mist, mapProps)}
+      </div>
+    </div>
+  );
+}
+
+function montreuilBikesPanel(tabData: MontreuilTabData, copy: MontreuilCopy) {
+  if (!tabData.bikeCounts) return null;
+  const opensInNewTab = copy.common("opensInNewTab");
+  return (
+    <div className="space-y-6">
+      <DynamicBikeCountChart records={tabData.bikeCounts.page.results} />
+      <p className="text-sm text-muted">
+        {copy.t.rich("bikeSource", {
+          link: (chunks) => montreuilBikeSourceChunk(chunks, opensInNewTab),
+        })}
+      </p>
+    </div>
+  );
+}
+
 async function montreuilActivePanel(
   active: "velib" | "trees" | "gardens" | "water" | "bikes",
   tabData: MontreuilTabData,
   mapProps: MontreuilMapProps,
-  copy: {
-    t: Awaited<ReturnType<typeof getTranslations<"Pages.montreuil">>>;
-    datasets: Awaited<ReturnType<typeof getTranslations<"Datasets">>>;
-    common: Awaited<ReturnType<typeof getTranslations<"Common">>>;
-  },
+  copy: MontreuilCopy,
 ): Promise<ReactNode> {
-  const { t, datasets, common } = copy;
-
   if (active === "velib" && tabData.velib) {
-    return (
-      <InfiniteThemeExplorer
-        dataset={await localizeExplorerDataset(DATASETS.velib)}
-        initial={tabData.velib.table}
-        mapRecords={tabData.velib.markers.results}
-        favoriteIds={tabData.velib.favoriteIds}
-        initialError={tabData.velib.ok ? null : tabData.velib.error}
-        district="montreuil"
-        colorScheme="velib"
-        descriptionKeys={["numbikesavailable", "numdocksavailable"]}
-        {...mapProps}
-      />
-    );
+    return montreuilExplorerPanel(DATASETS.velib, tabData.velib, mapProps, {
+      district: "montreuil",
+      colorScheme: "velib",
+      descriptionKeys: ["numbikesavailable", "numdocksavailable"],
+    });
   }
   if (active === "trees" && tabData.trees) {
-    return (
-      <InfiniteThemeExplorer
-        dataset={await localizeExplorerDataset(DATASETS.montreuilTrees)}
-        initial={tabData.trees.table}
-        mapRecords={tabData.trees.markers.results}
-        favoriteIds={tabData.trees.favoriteIds}
-        initialError={tabData.trees.ok ? null : tabData.trees.error}
-        {...mapProps}
-      />
-    );
+    return montreuilExplorerPanel(DATASETS.montreuilTrees, tabData.trees, mapProps);
   }
   if (active === "gardens" && tabData.gardens) {
-    return (
-      <InfiniteThemeExplorer
-        dataset={await localizeExplorerDataset(DATASETS.montreuilGardens)}
-        initial={tabData.gardens.table}
-        mapRecords={tabData.gardens.markers.results}
-        favoriteIds={tabData.gardens.favoriteIds}
-        initialError={tabData.gardens.ok ? null : tabData.gardens.error}
-        {...mapProps}
-      />
-    );
+    return montreuilExplorerPanel(DATASETS.montreuilGardens, tabData.gardens, mapProps);
   }
-  if (active === "water" && tabData.fountains && tabData.mist) {
-    return (
-      <div className="space-y-6">
-        <div className="space-y-4">
-          <SectionTitle>{datasets("montreuilFountains.title")}</SectionTitle>
-          <InfiniteThemeExplorer
-            dataset={await localizeExplorerDataset(DATASETS.montreuilFountains)}
-            initial={tabData.fountains.table}
-            mapRecords={tabData.fountains.markers.results}
-            favoriteIds={tabData.fountains.favoriteIds}
-            initialError={tabData.fountains.ok ? null : tabData.fountains.error}
-            colorScheme="status"
-            {...mapProps}
-          />
-        </div>
-        <div className="space-y-4">
-          <SectionTitle>{datasets("montreuilMist.title")}</SectionTitle>
-          <InfiniteThemeExplorer
-            dataset={await localizeExplorerDataset(DATASETS.montreuilMist)}
-            initial={tabData.mist.table}
-            mapRecords={tabData.mist.markers.results}
-            favoriteIds={tabData.mist.favoriteIds}
-            initialError={tabData.mist.ok ? null : tabData.mist.error}
-            {...mapProps}
-          />
-        </div>
-      </div>
-    );
+  if (active === "water") {
+    return montreuilWaterPanel(tabData, mapProps, copy.datasets);
   }
-  if (active === "bikes" && tabData.bikeCounts) {
-    return (
-      <div className="space-y-6">
-        <DynamicBikeCountChart records={tabData.bikeCounts.page.results} />
-        <p className="text-sm text-muted">
-          {t.rich("bikeSource", {
-            link: (chunks) => (
-              <MontreuilBikeSourceLink
-                href={DATASETS.montreuilBikes.sourceUrl}
-                opensInNewTab={common("opensInNewTab")}
-              >
-                {chunks}
-              </MontreuilBikeSourceLink>
-            ),
-          })}
-        </p>
-      </div>
-    );
+  if (active === "bikes") {
+    return montreuilBikesPanel(tabData, copy);
   }
   return null;
 }

@@ -121,7 +121,7 @@ function CommandPalettePanel(props: Readonly<{
   };
   t: ReturnType<typeof useTranslations<"CommandPalette">>;
   tCommon: ReturnType<typeof useTranslations<"Common">>;
-  panelRef: RefObject<HTMLDivElement | null>;
+  panelRef: RefObject<HTMLDialogElement | null>;
   datasetTitle: (hit: SearchHit) => string;
 }>) {
   const {
@@ -147,12 +147,11 @@ function CommandPalettePanel(props: Readonly<{
         aria-label={t("close")}
         onClick={close}
       />
-      <div
+      <dialog
         ref={panelRef}
-        role="dialog"
-        aria-modal="true"
+        open
         aria-labelledby={inputId}
-        className="relative z-10 w-full max-w-lg border border-line bg-paper shadow-lg"
+        className="relative z-10 m-0 w-full max-w-lg border border-line bg-paper p-0 shadow-lg open:flex open:flex-col"
       >
         <div className="border-b border-line p-3">
           <Input
@@ -198,7 +197,7 @@ function CommandPalettePanel(props: Readonly<{
           })}
         </div>
         <div className="border-t border-line px-3 py-2 text-xs text-muted">{t("footer")}</div>
-      </div>
+      </dialog>
     </div>
   );
 }
@@ -213,7 +212,7 @@ export function CommandPalette() {
   const [draft, setDraft] = useState("");
   const [query, setQuery] = useState("");
   const triggerRef = useRef<HTMLButtonElement | null>(null);
-  const panelRef = useRef<HTMLDivElement | null>(null);
+  const panelRef = useRef<HTMLDialogElement | null>(null);
   const apple = useIsApplePlatform();
   const shortcutLabel = apple ? "⌘K" : "Ctrl+K";
 

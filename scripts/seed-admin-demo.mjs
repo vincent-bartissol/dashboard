@@ -4,8 +4,8 @@ import path from "node:path";
 import Database from "better-sqlite3";
 
 const SEED_DOMAIN = "seed.local";
-/** Demo session IPs (fictional); not real client addresses. */
-const DEMO_CLIENT_IPS = ["82.64.12.10", "86.245.33.91", "90.15.200.44", "2a01:e0a:abc:1234::1"];
+/** Demo session IPs from RFC 5737 / 3849 documentation ranges (not real clients). */
+const DEMO_CLIENT_IPS = ["192.0.2.10", "198.51.100.20", "203.0.113.30", "2001:db8::1"];
 const reset = process.argv.includes("--reset");
 
 const dataDir = process.env.DATA_DIR ?? "./data";

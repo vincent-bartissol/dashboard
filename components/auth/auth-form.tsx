@@ -65,6 +65,137 @@ function validateAuthPassword(
   return null;
 }
 
+type AuthTranslate = ReturnType<typeof useTranslations<"Auth">>;
+
+function AuthVerificationStep({
+  email,
+  pending,
+  resent,
+  error,
+  onResend,
+  t,
+}: Readonly<{
+  email: string | null;
+  pending: boolean;
+  resent: boolean;
+  error: string | null;
+  onResend: () => void;
+  t: AuthTranslate;
+}>) {
+  return (
+    <div className="space-y-4">
+      <h2 className="text-lg font-semibold text-heading">{t("verifyStepTitle")}</h2>
+      <p className="text-sm text-muted">
+        {email ? t("signupSentTo", { email }) : t("signupSent")}
+      </p>
+      {resent ? <p aria-live="polite" className="text-sm text-muted">{t("emailResent")}</p> : null}
+      {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
+      <Button type="button" className="w-full" disabled={pending} onClick={onResend}>
+        {pending ? t("pending") : t("resendEmail")}
+      </Button>
+    </div>
+  );
+}
+
+function AuthOtpStep({
+  email,
+  pending,
+  resent,
+  error,
+  onSubmit,
+  onResend,
+  t,
+}: Readonly<{
+  email: string | null;
+  pending: boolean;
+  resent: boolean;
+  error: string | null;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  onResend: () => void;
+  t: AuthTranslate;
+}>) {
+  return (
+    <form key="otp-step" onSubmit={onSubmit} className="space-y-4">
+      <h2 className="text-lg font-semibold text-heading">{t("otpStepTitle")}</h2>
+      <p className="text-sm text-muted">{email ? t("otpSentTo", { email }) : t("otpSent")}</p>
+      <div>
+        <Label htmlFor="code">{t("code")}</Label>
+        <Input
+          id="code"
+          name="code"
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          autoFocus
+          required
+          minLength={6}
+          maxLength={6}
+          pattern="[0-9]{6}"
+        />
+      </div>
+      {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
+      {resent ? <p aria-live="polite" className="text-sm text-muted">{t("otpResent")}</p> : null}
+      <Button type="submit" className="w-full" disabled={pending}>
+        {pending ? t("pending") : t("validate")}
+      </Button>
+      <Button type="button" variant="ghost" className="w-full" disabled={pending} onClick={onResend}>
+        {pending ? t("pending") : t("resendCode")}
+      </Button>
+    </form>
+  );
+}
+
+type AuthSubmitResult =
+  | { kind: "validation"; message: string }
+  | { kind: "verify"; email: string; message?: string }
+  | { kind: "otp"; email: string; otpOk: boolean }
+  | { kind: "error"; message: string }
+  | { kind: "done" };
+
+async function runAuthSubmit(params: {
+  mode: Mode;
+  form: FormData;
+  nextPrefixed: string;
+  t: AuthTranslate;
+}): Promise<AuthSubmitResult> {
+  const { mode, form, nextPrefixed, t } = params;
+  const email = formString(form, "email");
+  const password = formString(form, "password");
+  const firstName = formString(form, "firstName").trim();
+  const lastName = formString(form, "lastName").trim();
+  const name = `${firstName} ${lastName}`.trim();
+
+  const validationError = validateAuthPassword(mode, firstName, lastName, password, t);
+  if (validationError) {
+    return { kind: "validation", message: validationError };
+  }
+
+  const result =
+    mode === "signup"
+      ? await authClient.signUp.email({ email, password, name, callbackURL: nextPrefixed })
+      : await authClient.signIn.email({ email, password, callbackURL: nextPrefixed });
+
+  if (result.error) {
+    if (mode === "signup" && isExistingUserSignupError(result.error)) {
+      return { kind: "verify", email };
+    }
+    if (mode === "login" && isUnverifiedAuthError(result.error)) {
+      return { kind: "verify", email, message: t("verifyBeforeLogin") };
+    }
+    return { kind: "error", message: authErrorText(t, result.error) };
+  }
+
+  if (mode === "signup") {
+    return { kind: "verify", email };
+  }
+
+  if (needsTwoFactor(result.data)) {
+    const otp = await authClient.twoFactor.sendOtp({});
+    return { kind: "otp", email, otpOk: !otp.error };
+  }
+
+  return { kind: "done" };
+}
+
 export function AuthForm({
   mode,
   next,
@@ -113,9 +244,7 @@ export function AuthForm({
     setResent(false);
     const ok = await sendLoginOtp();
     setPending(false);
-    if (ok) {
-      setResent(true);
-    }
+    if (ok) setResent(true);
   }
 
   async function onVerifyOtp(event: FormEvent<HTMLFormElement>) {
@@ -140,57 +269,31 @@ export function AuthForm({
     setPending(true);
     setError(null);
     setResent(false);
-    const form = new FormData(event.currentTarget);
-    const email = formString(form, "email");
-    const password = formString(form, "password");
-    const firstName = formString(form, "firstName").trim();
-    const lastName = formString(form, "lastName").trim();
-    const name = `${firstName} ${lastName}`.trim();
+    const outcome = await runAuthSubmit({
+      mode,
+      form: new FormData(event.currentTarget),
+      nextPrefixed,
+      t,
+    });
 
-    const validationError = validateAuthPassword(mode, firstName, lastName, password, t);
-    if (validationError) {
+    if (outcome.kind === "validation" || outcome.kind === "error") {
       setPending(false);
-      setError(validationError);
+      setError(outcome.message);
       return;
     }
-
-    const result =
-      mode === "signup"
-        ? await authClient.signUp.email({ email, password, name, callbackURL: nextPrefixed })
-        : await authClient.signIn.email({ email, password, callbackURL: nextPrefixed });
-
-    if (result.error) {
+    if (outcome.kind === "verify") {
       setPending(false);
-      if (mode === "signup" && isExistingUserSignupError(result.error)) {
-        setEmailForResend(email);
-        setAwaitingVerification(true);
-        return;
-      }
-      if (mode === "login" && isUnverifiedAuthError(result.error)) {
-        setEmailForResend(email);
-        setAwaitingVerification(true);
-        setError(t("verifyBeforeLogin"));
-        return;
-      }
-      setError(authErrorText(t, result.error));
-      return;
-    }
-
-    if (mode === "signup") {
-      setPending(false);
-      setEmailForResend(email);
+      setEmailForResend(outcome.email);
       setAwaitingVerification(true);
+      if (outcome.message) setError(outcome.message);
       return;
     }
-
-    if (needsTwoFactor(result.data)) {
-      setEmailForResend(email);
+    if (outcome.kind === "otp") {
+      setEmailForResend(outcome.email);
       setAwaitingOtp(true);
-      const ok = await sendLoginOtp();
       setPending(false);
-      if (ok) {
-        setResent(false);
-      }
+      if (!outcome.otpOk) setError(t("otpSendFailed"));
+      else setResent(false);
       return;
     }
 
@@ -201,56 +304,28 @@ export function AuthForm({
 
   if (mode === "signup" && awaitingVerification) {
     return (
-      <div className="space-y-4">
-        <h2 className="text-lg font-semibold text-heading">{t("verifyStepTitle")}</h2>
-        <p className="text-sm text-muted">
-          {emailForResend ? t("signupSentTo", { email: emailForResend }) : t("signupSent")}
-        </p>
-        {resent ? <p aria-live="polite" className="text-sm text-muted">{t("emailResent")}</p> : null}
-        {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
-        <Button type="button" className="w-full" disabled={pending} onClick={resendVerification}>
-          {pending ? t("pending") : t("resendEmail")}
-        </Button>
-      </div>
+      <AuthVerificationStep
+        email={emailForResend}
+        pending={pending}
+        resent={resent}
+        error={error}
+        onResend={resendVerification}
+        t={t}
+      />
     );
   }
 
   if (mode === "login" && awaitingOtp) {
     return (
-      <form key="otp-step" onSubmit={onVerifyOtp} className="space-y-4">
-        <h2 className="text-lg font-semibold text-heading">{t("otpStepTitle")}</h2>
-        <p className="text-sm text-muted">
-          {emailForResend ? t("otpSentTo", { email: emailForResend }) : t("otpSent")}
-        </p>
-        <div>
-          <Label htmlFor="code">{t("code")}</Label>
-          <Input
-            id="code"
-            name="code"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            autoFocus
-            required
-            minLength={6}
-            maxLength={6}
-            pattern="[0-9]{6}"
-          />
-        </div>
-        {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
-        {resent ? <p aria-live="polite" className="text-sm text-muted">{t("otpResent")}</p> : null}
-        <Button type="submit" className="w-full" disabled={pending}>
-          {pending ? t("pending") : t("validate")}
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          className="w-full"
-          disabled={pending}
-          onClick={resendOtp}
-        >
-          {pending ? t("pending") : t("resendCode")}
-        </Button>
-      </form>
+      <AuthOtpStep
+        email={emailForResend}
+        pending={pending}
+        resent={resent}
+        error={error}
+        onSubmit={onVerifyOtp}
+        onResend={resendOtp}
+        t={t}
+      />
     );
   }
 

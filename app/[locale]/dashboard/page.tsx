@@ -45,6 +45,10 @@ function ProfileCatalogLink({ children }: Readonly<{ children: ReactNode }>) {
   );
 }
 
+function catalogProfileChunk(chunks: ReactNode) {
+  return <ProfileCatalogLink>{chunks}</ProfileCatalogLink>;
+}
+
 function districtLabel(
   code: string | null,
   t: Awaited<ReturnType<typeof getTranslations<"Common">>>,
@@ -115,7 +119,7 @@ export default async function DashboardPage() {
         {t.rich("catalog", {
           fountains: formatCount(fountains, (value) => format.number(value)),
           markets: formatCount(markets, (value) => format.number(value)),
-          profile: (chunks) => <ProfileCatalogLink>{chunks}</ProfileCatalogLink>,
+          profile: catalogProfileChunk,
         })}
       </p>
     </div>
