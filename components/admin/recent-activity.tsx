@@ -41,49 +41,58 @@ export function AdminRecentActivity({
   const rows = query.data ?? [];
 
   return (
-    <Card>
-      <div className="flex items-center justify-between gap-3">
+    <Card className="p-0">
+      <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
         <SectionTitle>{t("recentActivity")}</SectionTitle>
         {query.isFetching ? (
           <span className="text-xs text-muted">{t("refreshing")}</span>
         ) : null}
       </div>
-      <ul className="mt-3 space-y-2 text-sm">
-        {rows.length === 0 ? (
-          <li className="text-muted">{t("recentEmpty")}</li>
-        ) : (
-          rows.map((row) => {
-            const actionLabel = isKnownActivityAction(row.action)
-              ? t(`actions.${row.action}`)
-              : row.action;
-            const meta = parseActivityMetadata(row.metadata);
-            return (
-              <li
-                key={row.id}
-                className="flex justify-between gap-3 border-b border-line/60 py-1.5 last:border-0"
-              >
-                <span className="min-w-0">
-                  <span className="font-medium text-heading">{actionLabel}</span>
-                  <span className="mt-0.5 block truncate text-xs text-muted">
-                    {row.userName || row.userEmail}
-                  </span>
-                  {meta ? (
-                    <span className="mt-1 block">
-                      <ActivityMetadataList meta={meta} empty={null} />
-                    </span>
-                  ) : null}
-                </span>
-                <span className="shrink-0 text-xs text-muted">
-                  {format.dateTime(new Date(row.createdAt), {
-                    dateStyle: "short",
-                    timeStyle: "short",
-                  })}
-                </span>
-              </li>
-            );
-          })
-        )}
-      </ul>
+      <div className="max-h-80 overflow-auto">
+        <table className="min-w-full text-left text-sm">
+          <thead className="table-head sticky top-0 z-10">
+            <tr>
+              <th className="px-3 py-2">{t("activityColumns.action")}</th>
+              <th className="px-3 py-2">{t("activityColumns.user")}</th>
+              <th className="px-3 py-2">{t("activityColumns.details")}</th>
+              <th className="px-3 py-2">{t("activityColumns.when")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="px-3 py-6 text-center text-muted">
+                  {t("recentEmpty")}
+                </td>
+              </tr>
+            ) : (
+              rows.map((row) => {
+                const actionLabel = isKnownActivityAction(row.action)
+                  ? t(`actions.${row.action}`)
+                  : row.action;
+                const meta = parseActivityMetadata(row.metadata);
+                return (
+                  <tr key={row.id} className="table-row">
+                    <td className="px-3 py-2 font-medium text-heading">{actionLabel}</td>
+                    <td className="max-w-48 truncate px-3 py-2 text-muted">
+                      {row.userName || row.userEmail}
+                    </td>
+                    <td className="px-3 py-2">
+                      <ActivityMetadataList meta={meta} empty="—" />
+                    </td>
+                    <td className="shrink-0 px-3 py-2 text-xs tabular-nums text-muted">
+                      {format.dateTime(new Date(row.createdAt), {
+                        dateStyle: "short",
+                        timeStyle: "short",
+                      })}
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
     </Card>
   );
 }

@@ -683,6 +683,12 @@
     "recentActivity": "Recent activity",
     "recentEmpty": "No recent activity.",
     "refreshing": "Refreshing…",
+    "activityColumns": {
+      "action": "Action",
+      "user": "User",
+      "details": "Details",
+      "when": "When"
+    },
     "messagesLink": "Contact messages",
     "messages": {
       "title": "Contact messages",
