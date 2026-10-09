@@ -44,9 +44,9 @@ function previewMail(kind: Kind): MailContent {
 
 export default async function EmailPreviewPage({
   searchParams,
-}: {
+}: Readonly<{
   searchParams: Promise<{ kind?: string | string[] }>;
-}) {
+}>) {
   if (process.env.NODE_ENV === "production") {
     notFound();
   }

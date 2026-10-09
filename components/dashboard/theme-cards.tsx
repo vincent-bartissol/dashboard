@@ -29,9 +29,9 @@ const ICONS: Record<string, LucideIcon> = {
 
 export function ThemeCardGrid({
   items,
-}: {
+}: Readonly<{
   items: { id: string; href: string; title: string; body: string }[];
-}) {
+}>) {
   return (
     <RevealList className="mt-8 grid gap-4 md:grid-cols-2">
       {items.map((item) => {

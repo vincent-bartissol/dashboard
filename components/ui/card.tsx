@@ -3,10 +3,10 @@ import type { ReactNode } from "react";
 export function Card({
   children,
   className = "",
-}: {
+}: Readonly<{
   children: ReactNode;
   className?: string;
-}) {
+}>) {
   return (
     <div className={`surface-panel panel-lift p-4 ${className}`}>{children}</div>
   );
@@ -16,11 +16,11 @@ export function KpiCard({
   label,
   value,
   hint,
-}: {
+}: Readonly<{
   label: string;
   value: string | number;
   hint?: string;
-}) {
+}>) {
   return (
     <Card>
       <span className="mb-3 block h-1 w-10 bg-accent" aria-hidden />

@@ -13,9 +13,9 @@ import { requireSession } from "@/lib/session";
 
 export default async function NaturePage({
   searchParams,
-}: {
+}: Readonly<{
   searchParams: Promise<{ tab?: string }>;
-}) {
+}>) {
   const session = await requireSession();
   const t = await getTranslations("Pages.nature");
   const format = await getFormatter();

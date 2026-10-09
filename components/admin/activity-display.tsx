@@ -41,10 +41,10 @@ function formatMetaValue(value: unknown): string {
 export function ActivityMetadataList({
   meta,
   empty = "—",
-}: {
+}: Readonly<{
   meta: Record<string, unknown> | null;
   empty?: ReactNode;
-}) {
+}>) {
   if (!meta || Object.keys(meta).length === 0) {
     return <>{empty}</>;
   }

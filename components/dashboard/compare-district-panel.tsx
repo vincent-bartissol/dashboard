@@ -22,10 +22,10 @@ function datasetHasGeo(datasetId: string) {
 export function CompareDistrictPanel({
   datasetId,
   primaryCount,
-}: {
+}: Readonly<{
   datasetId: string;
   primaryCount: number;
-}) {
+}>) {
   const t = useTranslations("Compare");
   const tCommon = useTranslations("Common");
   const format = useFormatter();

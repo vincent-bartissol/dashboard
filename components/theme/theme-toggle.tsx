@@ -30,10 +30,10 @@ function getSnapshot() {
 export function ThemeToggle({
   invert = false,
   initial = "system",
-}: {
+}: Readonly<{
   invert?: boolean;
   initial?: ColorScheme;
-}) {
+}>) {
   const t = useTranslations("Common");
   const theme = useSyncExternalStore(subscribe, getSnapshot, () => initial);
 
@@ -52,11 +52,8 @@ export function ThemeToggle({
   const active = invert ? "bg-white text-navy" : "bg-heading text-paper";
 
   return (
-    <div
-      className={`inline-flex rounded-none border ${frame}`}
-      role="group"
-      aria-label={t("appearance")}
-    >
+    <fieldset className={`inline-flex min-w-0 rounded-none border p-0 ${frame}`}>
+      <legend className="sr-only">{t("appearance")}</legend>
       {OPTIONS.map((option) => {
         const Icon = option.icon;
         const selected = theme === option.value;
@@ -78,6 +75,6 @@ export function ThemeToggle({
           </button>
         );
       })}
-    </div>
+    </fieldset>
   );
 }

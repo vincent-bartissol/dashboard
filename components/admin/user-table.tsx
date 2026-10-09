@@ -2,9 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { ChevronDown, ChevronUp } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-import { compareCellValues, type SortDir } from "@/lib/opendata/sort";
+import { compareCellValues, columnAriaSort, type SortDir } from "@/lib/opendata/sort";
+import { SortColumnChevron } from "@/components/dashboard/sort-column-chevron";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
@@ -89,9 +89,7 @@ export function AdminUserTable({
                 <th
                   key={column.key}
                   className="px-3 py-2"
-                  aria-sort={
-                    active ? (sortDir === "asc" ? "ascending" : "descending") : "none"
-                  }
+                  aria-sort={columnAriaSort(active, sortDir)}
                 >
                   <button
                     type="button"
@@ -104,13 +102,7 @@ export function AdminUserTable({
                     }
                   >
                     {label}
-                    {active ? (
-                      sortDir === "asc" ? (
-                        <ChevronUp className="h-3.5 w-3.5" aria-hidden />
-                      ) : (
-                        <ChevronDown className="h-3.5 w-3.5" aria-hidden />
-                      )
-                    ) : null}
+                    <SortColumnChevron active={active} sortDir={sortDir} />
                   </button>
                 </th>
               );

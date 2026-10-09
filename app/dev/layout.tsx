@@ -5,7 +5,9 @@ import { fontClassName } from "@/lib/fonts";
 import fr from "@/messages/fr.json";
 import { THEME_SCRIPT } from "@/lib/theme";
 
-export default function DevLayout({ children }: { children: ReactNode }) {
+export default function DevLayout({
+  children,
+}: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="fr" suppressHydrationWarning className={fontClassName}>
       <head>

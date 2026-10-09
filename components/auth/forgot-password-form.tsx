@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { withLocale } from "@/i18n/path";
 import { authClient } from "@/lib/auth-client";
+import { formString } from "@/lib/safe-string";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 
@@ -17,7 +18,7 @@ export function ForgotPasswordForm() {
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const email = String(form.get("email") ?? "").trim();
+    const email = formString(form, "email").trim();
     setError(null);
     setSent(false);
     setPending(true);

@@ -7,11 +7,11 @@ export function DatasetTabs({
   tabs,
   active,
   ariaLabel,
-}: {
+}: Readonly<{
   tabs: { href: string; label: string }[];
   active: string;
   ariaLabel?: string;
-}) {
+}>) {
   const t = useTranslations("Explorer");
   return (
     <nav

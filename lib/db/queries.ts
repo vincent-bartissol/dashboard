@@ -23,7 +23,10 @@ export const ADMIN_SESSIONS_LIMIT = 50;
 
 /** Escape `%`, `_`, and `\` so they match literally in a LIKE pattern. */
 export function escapeLikePattern(value: string) {
-  return value.replaceAll("\\", "\\\\").replaceAll("%", "\\%").replaceAll("_", "\\_");
+  return value
+    .replaceAll("\\", String.raw`\\`)
+    .replaceAll("%", String.raw`\%`)
+    .replaceAll("_", String.raw`\_`);
 }
 
 export async function listUsersForAdmin(options?: {

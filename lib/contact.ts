@@ -74,7 +74,7 @@ export function clientIpFromHeaders(headerStore: Headers): string {
       .split(",")
       .map((hop) => hop.trim())
       .filter(Boolean);
-    const last = hops[hops.length - 1];
+    const last = hops.at(-1);
     if (last) return last;
   }
   const realIp = headerStore.get("x-real-ip")?.trim();
@@ -84,5 +84,5 @@ export function clientIpFromHeaders(headerStore: Headers): string {
 
 export function contactTo(value: string | undefined = process.env.CONTACT_TO): string | null {
   const trimmed = value?.trim();
-  return trimmed ? trimmed : null;
+  return trimmed || null;
 }

@@ -2,13 +2,20 @@
 
 import { useId, useMemo, useState, type ReactNode, type RefObject } from "react";
 import { useFormatter, useTranslations } from "next-intl";
-import { ChevronDown, ChevronUp, Bell, Heart } from "lucide-react";
-import { extractGeo, recordId, recordLabel, type OpenDataRecord } from "@/lib/opendata/client";
-import type { ExplorerDataset } from "@/lib/opendata/client";
+import { Bell, Heart } from "lucide-react";
+import {
+  extractGeo,
+  recordId,
+  recordLabel,
+  type ExplorerDataset,
+  type OpenDataRecord,
+} from "@/lib/opendata/client";
+import { scalarString } from "@/lib/safe-string";
 import { DynamicParisMap } from "@/components/map/dynamic-map";
 import { recordsToMarkers } from "@/lib/opendata/markers";
 import { recordMatchesQuery } from "@/lib/opendata/search";
-import { compareCellValues, type SortDir } from "@/lib/opendata/sort";
+import { compareCellValues, columnAriaSort, type SortDir } from "@/lib/opendata/sort";
+import { SortColumnChevron } from "@/components/dashboard/sort-column-chevron";
 import { useFavoritesQuery, useToggleFavoriteMutation } from "@/lib/favorites-query";
 import type { FavoriteDto } from "@/lib/favorites";
 import { DATASETS } from "@/lib/opendata/datasets";
@@ -58,7 +65,7 @@ function colorFor(scheme: ColorScheme | undefined, record: OpenDataRecord) {
     return "#2f9e44";
   }
   if (scheme === "status") {
-    const value = String(record.dispo ?? record.statut ?? "").toLowerCase();
+    const value = scalarString(record.dispo ?? record.statut).toLowerCase();
     if (value.includes("non") || value.includes("hors")) return "#c8102e";
     return "#2f9e44";
   }
@@ -73,15 +80,17 @@ function describe(record: OpenDataRecord, keys?: string[]) {
     .join(" · ");
 }
 
-function ExplorerMap(props: {
-  hasGeoField: boolean;
-  mapLoading: boolean;
-  loadingLabel: string;
-  markers: MapMarker[];
-  onBounds?: (bbox: { south: number; west: number; north: number; east: number }) => void;
-  center?: { lat: number; lon: number };
-  zoom?: number;
-}) {
+function ExplorerMap(
+  props: Readonly<{
+    hasGeoField: boolean;
+    mapLoading: boolean;
+    loadingLabel: string;
+    markers: MapMarker[];
+    onBounds?: (bbox: { south: number; west: number; north: number; east: number }) => void;
+    center?: { lat: number; lon: number };
+    zoom?: number;
+  }>,
+) {
   if (!props.hasGeoField) return null;
   if (props.mapLoading) {
     return (
@@ -114,6 +123,171 @@ function seedFavorites(datasetId: string, favoriteIds: string[]): FavoriteDto[] 
   }));
 }
 
+function ThemeExplorerTable(props: Readonly<{
+  dataset: ExplorerDataset;
+  pageRows: OpenDataRecord[];
+  canAlert: boolean;
+  sortKey: string | null;
+  sortDir: SortDir;
+  onSort: (columnKey: string) => void;
+  favorites: Set<string>;
+  onToggle: (record: OpenDataRecord) => void;
+  onAlert: (record: OpenDataRecord) => void;
+  t: ReturnType<typeof useTranslations<"Explorer">>;
+  tableMaxHeight?: string;
+  tableScrollRef?: RefObject<HTMLDivElement | null>;
+  tableEnd?: ReactNode;
+  paginate: boolean;
+  pageCount: number;
+  currentPage: number;
+  setPageIndex: (index: number) => void;
+}>) {
+  const {
+    dataset,
+    pageRows,
+    canAlert,
+    sortKey,
+    sortDir,
+    onSort,
+    favorites,
+    onToggle,
+    onAlert,
+    t,
+    tableMaxHeight,
+    tableScrollRef,
+    tableEnd,
+    paginate,
+    pageCount,
+    currentPage,
+    setPageIndex,
+  } = props;
+
+  return (
+    <Card className="p-0">
+      <div
+        ref={tableScrollRef}
+        className={tableMaxHeight ? "overflow-auto" : "overflow-x-auto"}
+        style={tableMaxHeight ? { maxHeight: tableMaxHeight } : undefined}
+      >
+        <table className="min-w-full text-left text-sm">
+          <thead className={`table-head ${tableMaxHeight ? "sticky top-0 z-10" : ""}`}>
+            <tr>
+              <th className="w-12 px-3 py-2">
+                <span className="sr-only">{t("favoriteColumn")}</span>
+              </th>
+              {canAlert ? (
+                <th className="w-12 px-3 py-2">
+                  <span className="sr-only">{t("alertColumn")}</span>
+                </th>
+              ) : null}
+              {dataset.columns.map((column) => {
+                const active = sortKey === column.key;
+                const nextDir: SortDir = active && sortDir === "asc" ? "desc" : "asc";
+                return (
+                  <th
+                    key={column.key}
+                    className="px-3 py-2"
+                    aria-sort={columnAriaSort(active, sortDir)}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => onSort(column.key)}
+                      className="inline-flex items-center gap-1 focus-field hover:text-heading"
+                      aria-label={
+                        nextDir === "asc"
+                          ? t("sortAsc", { column: column.label })
+                          : t("sortDesc", { column: column.label })
+                      }
+                    >
+                      {column.label}
+                      <SortColumnChevron active={active} sortDir={sortDir} />
+                    </button>
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
+          <tbody>
+            {pageRows.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={dataset.columns.length + 1 + (canAlert ? 1 : 0)}
+                  className="px-3 py-6 text-center text-muted"
+                >
+                  {t("noMatches")}
+                </td>
+              </tr>
+            ) : null}
+            {pageRows.map((record, index) => {
+              const id = recordId(record, dataset.idField) || String(index);
+              const saved = favorites.has(id);
+              return (
+                <tr key={`${id}::${index}`} className="table-row">
+                  <td className="px-2 py-1.5">
+                    <button
+                      type="button"
+                      onClick={() => onToggle(record)}
+                      className="focus-field rounded-none p-1 text-muted hover:text-accent"
+                      aria-label={saved ? t("removeFavorite") : t("addFavorite")}
+                    >
+                      <Heart className={`h-4 w-4 ${saved ? "fill-accent text-accent" : ""}`} />
+                    </button>
+                  </td>
+                  {canAlert ? (
+                    <td className="px-2 py-1.5">
+                      <button
+                        type="button"
+                        onClick={() => void onAlert(record)}
+                        className="focus-field rounded-none p-1 text-muted hover:text-heading"
+                        aria-label={t("addAlert", { n: 3 })}
+                      >
+                        <Bell className="h-4 w-4" aria-hidden />
+                      </button>
+                    </td>
+                  ) : null}
+                  {dataset.columns.map((column) => (
+                    <td key={column.key} className="max-w-xs truncate px-3 py-1.5">
+                      {formatCell(record[column.key])}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        {tableEnd}
+      </div>
+      {paginate ? (
+        <div className="flex items-center justify-between gap-3 border-t border-line px-4 py-3">
+          <p className="text-sm text-muted">
+            {t("page", { current: currentPage + 1, count: pageCount })}
+          </p>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              className="h-9 px-3"
+              disabled={currentPage === 0}
+              onClick={() => setPageIndex(currentPage - 1)}
+            >
+              {t("previous")}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              className="h-9 px-3"
+              disabled={currentPage >= pageCount - 1}
+              onClick={() => setPageIndex(currentPage + 1)}
+            >
+              {t("next")}
+            </Button>
+          </div>
+        </div>
+      ) : null}
+    </Card>
+  );
+}
+
 export function ThemeExplorerClient({
   dataset,
   records,
@@ -132,7 +306,7 @@ export function ThemeExplorerClient({
   tableMaxHeight,
   tableEnd,
   tableScrollRef,
-}: Props) {
+}: Readonly<Props>) {
   const t = useTranslations("Explorer");
   const tCommon = useTranslations("Common");
   const format = useFormatter();
@@ -304,136 +478,25 @@ export function ThemeExplorerClient({
         center={mapCenter}
         zoom={mapZoom}
       />
-      <Card className="p-0">
-        <div
-          ref={tableScrollRef}
-          className={tableMaxHeight ? "overflow-auto" : "overflow-x-auto"}
-          style={tableMaxHeight ? { maxHeight: tableMaxHeight } : undefined}
-        >
-          <table className="min-w-full text-left text-sm">
-            <thead className={`table-head ${tableMaxHeight ? "sticky top-0 z-10" : ""}`}>
-              <tr>
-                <th className="w-12 px-3 py-2">
-                  <span className="sr-only">{t("favoriteColumn")}</span>
-                </th>
-                {canAlert ? (
-                  <th className="w-12 px-3 py-2">
-                    <span className="sr-only">{t("alertColumn")}</span>
-                  </th>
-                ) : null}
-                {dataset.columns.map((column) => {
-                  const active = sortKey === column.key;
-                  const nextDir: SortDir = active && sortDir === "asc" ? "desc" : "asc";
-                  return (
-                    <th
-                      key={column.key}
-                      className="px-3 py-2"
-                      aria-sort={
-                        active ? (sortDir === "asc" ? "ascending" : "descending") : "none"
-                      }
-                    >
-                      <button
-                        type="button"
-                        onClick={() => onSort(column.key)}
-                        className="inline-flex items-center gap-1 focus-field hover:text-heading"
-                        aria-label={
-                          nextDir === "asc"
-                            ? t("sortAsc", { column: column.label })
-                            : t("sortDesc", { column: column.label })
-                        }
-                      >
-                        {column.label}
-                        {active ? (
-                          sortDir === "asc" ? (
-                            <ChevronUp className="h-3.5 w-3.5" aria-hidden />
-                          ) : (
-                            <ChevronDown className="h-3.5 w-3.5" aria-hidden />
-                          )
-                        ) : null}
-                      </button>
-                    </th>
-                  );
-                })}
-              </tr>
-            </thead>
-            <tbody>
-              {pageRows.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={dataset.columns.length + 1 + (canAlert ? 1 : 0)}
-                    className="px-3 py-6 text-center text-muted"
-                  >
-                    {t("noMatches")}
-                  </td>
-                </tr>
-              ) : null}
-              {pageRows.map((record, index) => {
-                const id = recordId(record, dataset.idField) || String(index);
-                const saved = favorites.has(id);
-                return (
-                  <tr key={`${id}::${index}`} className="table-row">
-                    <td className="px-2 py-1.5">
-                      <button
-                        type="button"
-                        onClick={() => onToggle(record)}
-                        className="focus-field rounded-none p-1 text-muted hover:text-accent"
-                        aria-label={saved ? t("removeFavorite") : t("addFavorite")}
-                      >
-                        <Heart className={`h-4 w-4 ${saved ? "fill-accent text-accent" : ""}`} />
-                      </button>
-                    </td>
-                    {canAlert ? (
-                      <td className="px-2 py-1.5">
-                        <button
-                          type="button"
-                          onClick={() => void onAlert(record)}
-                          className="focus-field rounded-none p-1 text-muted hover:text-heading"
-                          aria-label={t("addAlert", { n: 3 })}
-                        >
-                          <Bell className="h-4 w-4" aria-hidden />
-                        </button>
-                      </td>
-                    ) : null}
-                    {dataset.columns.map((column) => (
-                      <td key={column.key} className="max-w-xs truncate px-3 py-1.5">
-                        {formatCell(record[column.key])}
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          {tableEnd}
-        </div>
-        {paginate ? (
-          <div className="flex items-center justify-between gap-3 border-t border-line px-4 py-3">
-            <p className="text-sm text-muted">
-              {t("page", { current: currentPage + 1, count: pageCount })}
-            </p>
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="ghost"
-                className="h-9 px-3"
-                disabled={currentPage === 0}
-                onClick={() => setPageIndex(currentPage - 1)}
-              >
-                {t("previous")}
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                className="h-9 px-3"
-                disabled={currentPage >= pageCount - 1}
-                onClick={() => setPageIndex(currentPage + 1)}
-              >
-                {t("next")}
-              </Button>
-            </div>
-          </div>
-        ) : null}
-      </Card>
+      <ThemeExplorerTable
+        dataset={dataset}
+        pageRows={pageRows}
+        canAlert={canAlert}
+        sortKey={sortKey}
+        sortDir={sortDir}
+        onSort={onSort}
+        favorites={favorites}
+        onToggle={onToggle}
+        onAlert={onAlert}
+        t={t}
+        tableMaxHeight={tableMaxHeight}
+        tableScrollRef={tableScrollRef}
+        tableEnd={tableEnd}
+        paginate={paginate}
+        pageCount={pageCount}
+        currentPage={currentPage}
+        setPageIndex={setPageIndex}
+      />
     </div>
   );
 }
@@ -441,5 +504,5 @@ export function ThemeExplorerClient({
 function formatCell(value: unknown) {
   if (value == null || value === "") return "—";
   if (typeof value === "object") return JSON.stringify(value);
-  return String(value);
+  return scalarString(value);
 }

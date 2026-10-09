@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
@@ -8,8 +9,32 @@ import { SkipLink } from "@/components/layout/skip-link";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { parseTheme } from "@/lib/theme";
+function headerSessionActions(
+  variant: "public" | "auth",
+  session: Awaited<ReturnType<typeof getSession>>,
+  t: (key: "privateSpace" | "login" | "signup") => string,
+): ReactNode {
+  if (variant === "auth") return null;
+  if (session) {
+    return (
+      <Button href="/dashboard" variant="secondary">
+        {t("privateSpace")}
+      </Button>
+    );
+  }
+  return (
+    <div className="flex items-center gap-2">
+      <Button href="/login" variant="ghost">
+        {t("login")}
+      </Button>
+      <Button href="/signup">{t("signup")}</Button>
+    </div>
+  );
+}
 
-export async function SiteHeader({ variant = "public" }: { variant?: "public" | "auth" }) {
+export async function SiteHeader({
+  variant = "public",
+}: Readonly<{ variant?: "public" | "auth" }>) {
   const session = await getSession();
   const t = await getTranslations("Nav");
   const theme = parseTheme((await cookies()).get("theme")?.value);
@@ -22,18 +47,7 @@ export async function SiteHeader({ variant = "public" }: { variant?: "public" | 
         <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
           <LocaleSwitcher />
           <ThemeToggle initial={theme} />
-          {variant === "auth" ? null : session ? (
-            <Button href="/dashboard" variant="secondary">
-              {t("privateSpace")}
-            </Button>
-          ) : (
-            <div className="flex items-center gap-2">
-              <Button href="/login" variant="ghost">
-                {t("login")}
-              </Button>
-              <Button href="/signup">{t("signup")}</Button>
-            </div>
-          )}
+          {headerSessionActions(variant, session, t)}
         </div>
       </div>
     </header>

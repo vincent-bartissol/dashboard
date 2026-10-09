@@ -12,6 +12,7 @@ import {
 } from "@/lib/opendata/arrondissement";
 import type { AppLocale } from "@/i18n/routing";
 import { PROFILE_NAME_MAX } from "@/lib/profile-name";
+import { formString } from "@/lib/safe-string";
 import { useNotify } from "@/components/dashboard/notifications";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/input";
@@ -22,13 +23,13 @@ export function ProfileForm({
   email,
   emailVerified,
   arrondissement,
-}: {
+}: Readonly<{
   firstName: string;
   lastName: string;
   email: string;
   emailVerified: boolean;
   arrondissement: string | null;
-}) {
+}>) {
   const t = useTranslations("Profile");
   const locale = useLocale();
   const router = useRouter();
@@ -55,7 +56,7 @@ export function ProfileForm({
   async function onChangeEmail(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const newEmail = String(form.get("email") ?? "").trim();
+    const newEmail = formString(form, "email").trim();
     setEmailError(null);
     if (newEmail === email) {
       setEmailError(t("emailSame"));
@@ -81,8 +82,8 @@ export function ProfileForm({
     setError(null);
     startTransition(async () => {
       const result = await updateProfile({
-        firstName: String(form.get("firstName") ?? ""),
-        lastName: String(form.get("lastName") ?? ""),
+        firstName: formString(form, "firstName"),
+        lastName: formString(form, "lastName"),
         arrondissement: nextDistrict || null,
       });
       if (!result.ok) {

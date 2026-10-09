@@ -4,17 +4,23 @@ import type { DatasetConfig } from "@/lib/opendata/client";
 import { localizeDatasetTitle } from "@/lib/opendata/localize";
 import { PageTitle } from "@/components/ui/heading";
 
+function datasetsFromProp(dataset?: DatasetConfig | DatasetConfig[]) {
+  if (!dataset) return [];
+  if (Array.isArray(dataset)) return dataset;
+  return [dataset];
+}
+
 export async function PageIntro({
   title,
   children,
   dataset,
-}: {
+}: Readonly<{
   title: string;
   children: ReactNode;
   dataset?: DatasetConfig | DatasetConfig[];
-}) {
+}>) {
   const t = await getTranslations("Common");
-  const datasets = dataset ? (Array.isArray(dataset) ? dataset : [dataset]) : [];
+  const datasets = datasetsFromProp(dataset);
   const sources = await Promise.all(
     datasets.map(async (item) => ({
       id: item.id,

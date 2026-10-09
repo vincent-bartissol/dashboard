@@ -41,7 +41,9 @@ export function useNotify() {
   return ctx.notify;
 }
 
-export function NotificationProvider({ children }: { children: ReactNode }) {
+export function NotificationProvider({
+  children,
+}: Readonly<{ children: ReactNode }>) {
   const t = useTranslations("Common");
   const [items, setItems] = useState<NotificationItem[]>([]);
   const timers = useRef(new Map<string, ReturnType<typeof setTimeout>>());

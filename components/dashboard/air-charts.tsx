@@ -27,7 +27,9 @@ const SERIES = [
   { key: "ind_jour_qa_extremement_mauvaise", color: "#12263a" },
 ] as const;
 
-export function AirCharts({ records }: { records: OpenDataRecord[] }) {
+export function AirCharts({
+  records,
+}: Readonly<{ records: OpenDataRecord[] }>) {
   const chrome = useChartChrome();
   const motion = chartMotion(useReducedMotion());
   const t = useTranslations("Datasets.air.columns");
@@ -41,7 +43,7 @@ export function AirCharts({ records }: { records: OpenDataRecord[] }) {
       ...Object.fromEntries(SERIES.map((item) => [item.key, Number(row[item.key] ?? 0)])),
     }));
   const from = data[0]?.annee ?? "—";
-  const to = data[data.length - 1]?.annee ?? "—";
+  const to = data.at(-1)?.annee ?? "—";
 
   return (
     <Card>

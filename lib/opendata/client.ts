@@ -1,3 +1,5 @@
+import { scalarString } from "@/lib/safe-string";
+
 export type GeoPoint = { lat: number; lon: number };
 
 export type OpenDataRecord = Record<string, unknown>;
@@ -12,6 +14,16 @@ export type FetchResult<T = OpenDataRecord> = {
   page: OpenDataPage<T>;
   error?: string;
 };
+
+export type OpendataQueryErrorKind = "rate_limited" | "opendata";
+
+/** Classify TanStack/query errors from live Open Data fetches. */
+export function opendataQueryErrorKind(...errors: unknown[]): OpendataQueryErrorKind | null {
+  const instances = errors.filter((error): error is Error => error instanceof Error);
+  if (instances.length === 0) return null;
+  if (instances.some((error) => error.message === "rate_limited")) return "rate_limited";
+  return "opendata";
+}
 
 export type CountResult = {
   ok: boolean;
@@ -139,11 +151,11 @@ export async function fetchRecords<T = OpenDataRecord>(
   }
   const data = (await res.json()) as OpenDataPage<T>;
   if (!data || typeof data !== "object" || !Array.isArray(data.results)) {
-    throw new Error(`Open Data ${datasetId}: invalid payload`);
+    throw new TypeError(`Open Data ${datasetId}: invalid payload`);
   }
   const total_count = Number(data.total_count);
   if (!Number.isFinite(total_count)) {
-    throw new Error(`Open Data ${datasetId}: invalid payload`);
+    throw new TypeError(`Open Data ${datasetId}: invalid payload`);
   }
   return { total_count, results: data.results };
 }
@@ -303,7 +315,7 @@ export function recordId(record: OpenDataRecord, idField: string) {
         const value = record[key.trim()];
         if (value == null || value === "") return "";
         if (typeof value === "object") return "";
-        return String(value);
+        return scalarString(value);
       })
       .join("::");
   }
@@ -316,10 +328,10 @@ export function recordId(record: OpenDataRecord, idField: string) {
     }
     return JSON.stringify(value);
   }
-  return String(value);
+  return scalarString(value);
 }
 
 export function recordLabel(record: OpenDataRecord, titleField: string, fallback = "") {
   const value = record[titleField];
-  return value == null || value === "" ? fallback : String(value);
+  return value == null || value === "" ? fallback : scalarString(value);
 }

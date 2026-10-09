@@ -1,7 +1,7 @@
 /**
  * @param {import("puppeteer").Browser} browser
  */
-module.exports = async (browser) => {
+module.exports = async function setSessionCookie(browser) {
   const value = process.env.LHCI_SESSION_COOKIE;
   if (!value) {
     throw new Error("LHCI_SESSION_COOKIE is not set");

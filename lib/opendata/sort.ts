@@ -1,4 +1,14 @@
+import { scalarString } from "@/lib/safe-string";
+
 export type SortDir = "asc" | "desc";
+
+export type ColumnAriaSort = "ascending" | "descending" | "none";
+
+export function columnAriaSort(active: boolean, sortDir: SortDir): ColumnAriaSort {
+  if (!active) return "none";
+  if (sortDir === "asc") return "ascending";
+  return "descending";
+}
 
 function isEmpty(value: unknown) {
   return value == null || value === "";
@@ -18,7 +28,7 @@ function asNumber(value: unknown): number | null {
 function asText(value: unknown) {
   if (isEmpty(value)) return "";
   if (typeof value === "object") return JSON.stringify(value);
-  return String(value);
+  return scalarString(value);
 }
 
 /** Compare two cell values for table sorting. Empty values sort last. */

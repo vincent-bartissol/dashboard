@@ -12,12 +12,23 @@ import {
   type AuthErrorLike,
 } from "@/lib/auth-errors";
 import { safeNext } from "@/lib/safe-next";
+import { formString } from "@/lib/safe-string";
 import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "@/lib/password";
 import { PROFILE_NAME_MAX } from "@/lib/profile-name";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 
 type Mode = "login" | "signup";
+
+function authSubmitLabel(
+  pending: boolean,
+  mode: Mode,
+  t: (key: "pending" | "submitSignup" | "submitLogin") => string,
+) {
+  if (pending) return t("pending");
+  if (mode === "signup") return t("submitSignup");
+  return t("submitLogin");
+}
 
 function needsTwoFactor(data: unknown): boolean {
   return Boolean(
@@ -38,7 +49,26 @@ function authErrorText(
   return t("genericError");
 }
 
-export function AuthForm({ mode, next }: { mode: Mode; next?: string | string[] }) {
+function validateAuthPassword(
+  mode: Mode,
+  firstName: string,
+  lastName: string,
+  password: string,
+  t: (key: "namesTooLong" | "passwordTooLong") => string,
+): string | null {
+  if (mode === "signup" && (firstName.length > PROFILE_NAME_MAX || lastName.length > PROFILE_NAME_MAX)) {
+    return t("namesTooLong");
+  }
+  if (password.length > MAX_PASSWORD_LENGTH) {
+    return t("passwordTooLong");
+  }
+  return null;
+}
+
+export function AuthForm({
+  mode,
+  next,
+}: Readonly<{ mode: Mode; next?: string | string[] }>) {
   const t = useTranslations("Auth");
   const locale = useLocale();
   const router = useRouter();
@@ -94,7 +124,7 @@ export function AuthForm({ mode, next }: { mode: Mode; next?: string | string[] 
     setError(null);
     setResent(false);
     const form = new FormData(event.currentTarget);
-    const code = String(form.get("code") ?? "").trim();
+    const code = formString(form, "code").trim();
     const result = await authClient.twoFactor.verifyOtp({ code });
     setPending(false);
     if (result.error) {
@@ -111,20 +141,16 @@ export function AuthForm({ mode, next }: { mode: Mode; next?: string | string[] 
     setError(null);
     setResent(false);
     const form = new FormData(event.currentTarget);
-    const email = String(form.get("email") ?? "");
-    const password = String(form.get("password") ?? "");
-    const firstName = String(form.get("firstName") ?? "").trim();
-    const lastName = String(form.get("lastName") ?? "").trim();
+    const email = formString(form, "email");
+    const password = formString(form, "password");
+    const firstName = formString(form, "firstName").trim();
+    const lastName = formString(form, "lastName").trim();
     const name = `${firstName} ${lastName}`.trim();
 
-    if (mode === "signup" && (firstName.length > PROFILE_NAME_MAX || lastName.length > PROFILE_NAME_MAX)) {
+    const validationError = validateAuthPassword(mode, firstName, lastName, password, t);
+    if (validationError) {
       setPending(false);
-      setError(t("namesTooLong"));
-      return;
-    }
-    if (password.length > MAX_PASSWORD_LENGTH) {
-      setPending(false);
-      setError(t("passwordTooLong"));
+      setError(validationError);
       return;
     }
 
@@ -273,7 +299,7 @@ export function AuthForm({ mode, next }: { mode: Mode; next?: string | string[] 
       {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
       {resent ? <p aria-live="polite" className="text-sm text-muted">{t("emailResent")}</p> : null}
       <Button type="submit" className="w-full" disabled={pending}>
-        {pending ? t("pending") : mode === "signup" ? t("submitSignup") : t("submitLogin")}
+        {authSubmitLabel(pending, mode, t)}
       </Button>
       {mode === "login" && awaitingVerification ? (
         <Button

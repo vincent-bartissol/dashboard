@@ -9,11 +9,11 @@ export function PageTitle({
   children,
   size = "md",
   className = "",
-}: {
+}: Readonly<{
   children: ReactNode;
   size?: keyof typeof pageSizes;
   className?: string;
-}) {
+}>) {
   return (
     <h1
       className={`font-display font-semibold leading-tight tracking-tight text-heading ${pageSizes[size]} ${className}`}
@@ -34,13 +34,13 @@ export function SectionTitle({
   size = "md",
   invert = false,
   className = "",
-}: {
+}: Readonly<{
   children: ReactNode;
   as?: "h2" | "h3";
   size?: keyof typeof sectionSizes;
   invert?: boolean;
   className?: string;
-}) {
+}>) {
   return (
     <Tag
       className={`font-display font-semibold ${

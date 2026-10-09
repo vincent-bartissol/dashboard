@@ -4,6 +4,8 @@ import path from "node:path";
 import Database from "better-sqlite3";
 
 const SEED_DOMAIN = "seed.local";
+/** Demo session IPs (fictional); not real client addresses. */
+const DEMO_CLIENT_IPS = ["82.64.12.10", "86.245.33.91", "90.15.200.44", "2a01:e0a:abc:1234::1"];
 const reset = process.argv.includes("--reset");
 
 const dataDir = process.env.DATA_DIR ?? "./data";
@@ -82,8 +84,6 @@ const USER_AGENTS = [
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
   "Mozilla/5.0 (X11; Linux x86_64; rv:127.0) Gecko/20100101 Firefox/127.0",
 ];
-
-const IPS = ["82.64.12.10", "86.245.33.91", "90.15.200.44", "2a01:e0a:abc:1234::1"];
 
 function stableId(prefix, ...parts) {
   const digest = createHash("sha256").update(parts.join("|")).digest("hex").slice(0, 24);
@@ -183,13 +183,14 @@ function seedSessionsForUser(userId, index) {
     const live = i === 0;
     const createdAt = daysAgo(live ? 0.5 : 3 + i * 2, i * 90);
     const expiresAt = live ? now + 60 * 60 * 24 * 7 : createdAt + 60 * 60 * 24;
+    const tokenDigest = createHash("sha256").update(`${userId}:${i}`).digest("hex").slice(0, 40);
     insertSession.run({
       id: stableId("seed-sess-", userId, String(i)),
       expiresAt,
-      token: `seed-token-${createHash("sha256").update(`${userId}:${i}`).digest("hex").slice(0, 40)}`,
+      token: `seed-token-${tokenDigest}`,
       createdAt,
       updatedAt: createdAt,
-      ip: IPS[(index + i) % IPS.length],
+      ip: DEMO_CLIENT_IPS[(index + i) % DEMO_CLIENT_IPS.length],
       ua: USER_AGENTS[(index + i) % USER_AGENTS.length],
       userId,
     });
@@ -270,12 +271,10 @@ const enrichExisting = sqlite.transaction((userId, index) => {
 });
 
 let createdSeedUsers = 0;
-const seedUserIds = [];
 
 for (const [index, spec] of SEED_USERS.entries()) {
-  const { userId, createdAt, isNew } = ensureSeedUser(spec);
+  const { userId, isNew } = ensureSeedUser(spec);
   if (isNew) createdSeedUsers += 1;
-  seedUserIds.push(userId);
   enrichExisting(userId, index);
 }
 

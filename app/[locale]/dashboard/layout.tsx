@@ -12,7 +12,9 @@ import { toFavoriteDtos } from "@/lib/favorites";
 import { parseTheme } from "@/lib/theme";
 import { requireSession } from "@/lib/session";
 
-export default async function DashboardLayout({ children }: { children: ReactNode }) {
+export default async function DashboardLayout({
+  children,
+}: Readonly<{ children: ReactNode }>) {
   const session = await requireSession();
   const theme = parseTheme((await cookies()).get("theme")?.value);
   const isAdmin = isAdminUser(session.user);
