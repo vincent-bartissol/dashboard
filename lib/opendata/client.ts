@@ -206,12 +206,12 @@ async function mapPool<T, R>(items: T[], concurrency: number, mapper: (item: T) 
   if (items.length === 0) return [];
   const results: R[] = new Array(items.length);
   let next = 0;
-  async function worker() {
-    while (next < items.length) {
-      const index = next;
-      next += 1;
-      results[index] = await mapper(items[index] as T);
-    }
+  async function worker(): Promise<void> {
+    const index = next;
+    next += 1;
+    if (index >= items.length) return;
+    results[index] = await mapper(items[index] as T);
+    await worker();
   }
   const size = Math.min(Math.max(concurrency, 1), items.length);
   await Promise.all(Array.from({ length: size }, () => worker()));

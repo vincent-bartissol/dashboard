@@ -701,14 +701,22 @@
     "actions": {
       "signup": "Sign-up",
       "login": "Sign-in",
-      "favorite.add": "Favorite added",
-      "favorite.remove": "Favorite removed",
-      "profile.update": "Profile updated",
-      "page.view": "Page viewed",
-      "admin.ban": "User banned",
-      "admin.unban": "User unbanned",
-      "admin.setRole": "Role changed",
-      "admin.revokeSession": "Session revoked"
+      "favorite": {
+        "add": "Favorite added",
+        "remove": "Favorite removed"
+      },
+      "profile": {
+        "update": "Profile updated"
+      },
+      "page": {
+        "view": "Page viewed"
+      },
+      "admin": {
+        "ban": "User banned",
+        "unban": "User unbanned",
+        "setRole": "Role changed",
+        "revokeSession": "Session revoked"
+      }
     }
   },
   "CommandPalette": {

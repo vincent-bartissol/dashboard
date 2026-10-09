@@ -237,7 +237,9 @@ function ThemeExplorerTable(props: Readonly<{
                     <td className="px-2 py-1.5">
                       <button
                         type="button"
-                        onClick={() => void onAlert(record)}
+                        onClick={() => {
+                          onAlert(record);
+                        }}
                         className="focus-field rounded-none p-1 text-muted hover:text-heading"
                         aria-label={t("addAlert", { n: 3 })}
                       >

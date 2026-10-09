@@ -701,14 +701,22 @@
     "actions": {
       "signup": "Inscription",
       "login": "Connexion",
-      "favorite.add": "Favori ajouté",
-      "favorite.remove": "Favori retiré",
-      "profile.update": "Profil mis à jour",
-      "page.view": "Page consultée",
-      "admin.ban": "Utilisateur banni",
-      "admin.unban": "Ban levé",
-      "admin.setRole": "Rôle modifié",
-      "admin.revokeSession": "Session révoquée"
+      "favorite": {
+        "add": "Favori ajouté",
+        "remove": "Favori retiré"
+      },
+      "profile": {
+        "update": "Profil mis à jour"
+      },
+      "page": {
+        "view": "Page consultée"
+      },
+      "admin": {
+        "ban": "Utilisateur banni",
+        "unban": "Ban levé",
+        "setRole": "Rôle modifié",
+        "revokeSession": "Session révoquée"
+      }
     }
   },
   "CommandPalette": {

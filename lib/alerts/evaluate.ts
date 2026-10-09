@@ -78,8 +78,10 @@ async function loadStationsByCode(
   codes: string[],
 ): Promise<Map<string, Record<string, unknown>>> {
   const byStation = new Map<string, Record<string, unknown>>();
-  for (const chunk of chunkCodes(codes, STATION_CHUNK)) {
-    const rows = await fetchVelibStationChunk(velib, chunk);
+  const pages = await Promise.all(
+    chunkCodes(codes, STATION_CHUNK).map((chunk) => fetchVelibStationChunk(velib, chunk)),
+  );
+  for (const rows of pages) {
     mergeStationRows(byStation, rows);
   }
   return byStation;
@@ -104,11 +106,12 @@ export async function evaluateVelibAlerts(now = Date.now()): Promise<EvaluateAle
     .where(inArray(user.id, userIds));
   const ownersById = new Map(owners.map((row) => [row.id, row]));
 
+  const outcomes = await Promise.all(
+    rules.map((rule) => tryTriggerVelibRule(rule, byStation, ownersById, now)),
+  );
   let triggered = 0;
   let emailed = 0;
-
-  for (const rule of rules) {
-    const outcome = await tryTriggerVelibRule(rule, byStation, ownersById, now);
+  for (const outcome of outcomes) {
     if (outcome === "skipped") continue;
     triggered += 1;
     if (outcome === "sent") emailed += 1;
