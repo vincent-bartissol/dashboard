@@ -15,9 +15,16 @@ export async function registerNewRelic() {
   process.env.NEW_RELIC_INSTRUMENTATION_HTTP_ENABLED ??= "false";
   process.env.NEW_RELIC_INSTRUMENTATION_UNDICI_ENABLED ??= "false";
 
-  const { createRequire } = await import("node:module");
-  const { fileURLToPath } = await import("node:url");
-  const require = createRequire(fileURLToPath(import.meta.url));
-  const id = ["new", "relic"].join("");
-  require(id);
+  try {
+    const { createRequire } = await import("node:module");
+    const { fileURLToPath } = await import("node:url");
+    const require = createRequire(fileURLToPath(import.meta.url));
+    const id = ["new", "relic"].join("");
+    require(id);
+  } catch (error) {
+    // A failed agent must not take down the server. The dynamic require also
+    // means Next cannot trace newrelic's dependencies into the standalone image;
+    // scripts/copy-newrelic-standalone.mjs copies that closure at build time.
+    console.error("New Relic agent failed to start", error);
+  }
 }
