@@ -11,7 +11,9 @@ export function DashboardActivityTracker() {
   useEffect(() => {
     if (!pathname || pathname === lastSent.current) return;
     lastSent.current = pathname;
-    void trackPageView(pathname);
+    // Best-effort beacon. A non-RSC response (dev rebuild, 500) rejects
+    // fetchServerAction; leaving it unhandled is what Sentry reports.
+    void trackPageView(pathname).catch(() => {});
   }, [pathname]);
 
   return null;
