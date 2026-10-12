@@ -34,6 +34,7 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/*": [
       "./node_modules/better-sqlite3/**/*",
+      // Package files only. Dependencies are copied by scripts/copy-newrelic-standalone.mjs.
       "./node_modules/newrelic/**/*",
       "./lib/db/migrations/**/*",
     ],
