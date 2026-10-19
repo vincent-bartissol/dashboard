@@ -4,6 +4,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 const port = process.env.PORT ?? "3000";
 const origin = `http://localhost:${port}`;
+const basePath = "/dashboard";
 
 process.env.BETTER_AUTH_SECRET ??= "ci-placeholder-secret-32chars-minok";
 process.env.BETTER_AUTH_URL ??= origin;
@@ -28,7 +29,7 @@ export default defineConfig({
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
     command: "pnpm start",
-    url: `${origin}/fr`,
+    url: `${origin}${basePath}/fr/`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
     env: {

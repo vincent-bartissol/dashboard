@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { addSessionCookie } from "./session";
+import { seedDemoSession } from "./session";
 
 async function expectNoSeriousAxeViolations(page: Page) {
   const results = await new AxeBuilder({ page })
@@ -14,20 +14,20 @@ async function expectNoSeriousAxeViolations(page: Page) {
 }
 
 test("landing has no serious axe violations", async ({ page }) => {
-  await page.goto("/fr");
+  await page.goto("/dashboard/fr/");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expectNoSeriousAxeViolations(page);
 });
 
 test("login has no serious axe violations", async ({ page }) => {
-  await page.goto("/fr/login");
+  await page.goto("/dashboard/fr/login/");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await expectNoSeriousAxeViolations(page);
 });
 
-test("dashboard has no serious axe violations", async ({ page, context }) => {
-  await addSessionCookie(context);
-  await page.goto("/fr/dashboard");
+test("dashboard has no serious axe violations", async ({ page }) => {
+  await seedDemoSession(page, "user");
+  await page.goto("/dashboard/fr/dashboard/");
   await expect(page.getByRole("heading", { level: 1, name: /Vue d.ensemble/ })).toBeVisible();
   await expectNoSeriousAxeViolations(page);
 });

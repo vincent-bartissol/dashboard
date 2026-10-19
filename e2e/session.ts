@@ -1,29 +1,44 @@
-import fs from "node:fs";
-import path from "node:path";
-import type { BrowserContext } from "@playwright/test";
+import type { BrowserContext, Page } from "@playwright/test";
+import { DEMO_ADMIN, DEMO_VISITOR, createSeedUsers } from "../lib/demo/seed";
 
-const sessionPath = path.join(process.cwd(), "e2e", ".auth", "session");
+const STORAGE_KEY = "paris-ouverte-demo-v1";
 
-export function sessionCookieValue() {
-  return fs.readFileSync(sessionPath, "utf8").trim();
+function demoState(role: "user" | "admin") {
+  const user = role === "admin" ? DEMO_ADMIN : DEMO_VISITOR;
+  return {
+    session: {
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      emailVerified: user.emailVerified,
+    },
+    users: createSeedUsers(),
+    favorites: [],
+    activity: [],
+    pendingEmail: null,
+  };
 }
 
-export async function addSessionCookie(context: BrowserContext) {
-  const value = sessionCookieValue();
-  const origin =
-    fs.readFileSync(path.join(path.dirname(sessionPath), "origin"), "utf8").trim() ||
-    process.env.PLAYWRIGHT_ORIGIN ||
-    "http://localhost:3000";
-  await context.addCookies([
-    {
-      name: "better-auth.session_token",
-      value,
-      url: origin,
-      httpOnly: true,
-      sameSite: "Lax",
+/** Seed a demo session in localStorage (static export has no auth cookies). */
+export async function seedDemoSession(
+  page: Page,
+  role: "user" | "admin" = "user",
+) {
+  await page.addInitScript(
+    ({ key, state }) => {
+      window.localStorage.setItem(key, JSON.stringify(state));
     },
-  ]);
-  await context.setExtraHTTPHeaders({
-    Cookie: `better-auth.session_token=${value}`,
-  });
+    { key: STORAGE_KEY, state: demoState(role) },
+  );
+}
+
+/** @deprecated Prefer seedDemoSession — kept so older imports keep typechecking during the rewrite. */
+export async function addSessionCookie(
+  context: BrowserContext,
+  page?: Page,
+  role: "user" | "admin" = "user",
+) {
+  void context;
+  if (page) await seedDemoSession(page, role);
 }
