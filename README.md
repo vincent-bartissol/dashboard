@@ -2,7 +2,9 @@
 
 French-first civic dashboard on [opendata.paris.fr](https://opendata.paris.fr). Next.js 16, Better Auth, SQLite. Node 22 (what CI and the Docker image use).
 
-Live: [dashboard.vvbb.fr](https://dashboard.vvbb.fr)
+**Live (app):** [dashboard.vvbb.fr](https://dashboard.vvbb.fr) — Node + SQLite on Railway (`main`).
+
+**Static demo:** [vvbb.fr/dashboard](https://vvbb.fr/dashboard/fr/) — export FTP on OVH (`demo` branch). Auth, admin, and e-mails are simulated in the browser; do not merge `demo` into `main`.
 
 ## Local
 
@@ -51,9 +53,33 @@ GitHub Actions runs Lighthouse without failing the job on scores. Category score
 - **PRs** — [`.github/workflows/lighthouse-pr.yml`](.github/workflows/lighthouse-pr.yml) audits `/fr`, `/fr/login`, `/fr/signup`, then `/fr/dashboard` and `/fr/dashboard/velib` against a local build (seeded session cookie, no production login).
 - **Production** — [`.github/workflows/lighthouse-production.yml`](.github/workflows/lighthouse-production.yml) audits [dashboard.vvbb.fr](https://dashboard.vvbb.fr) public pages every Monday at 08:00 UTC. Run it by hand from the Actions tab (`workflow_dispatch`).
 
+## Static demo (OVH FTP)
+
+When Railway is down or you want a free showcase on the mutualisé host, branch **`demo`** exports a static site under `/dashboard` and deploys only that folder by FTP. It is **not** meant to be merged into `main`.
+
+| | `main` | `demo` |
+| --- | --- | --- |
+| URL | [dashboard.vvbb.fr](https://dashboard.vvbb.fr) | [vvbb.fr/dashboard](https://vvbb.fr/dashboard/fr/) |
+| Host | Railway (Node + SQLite) | OVH mutualisé (`www/dashboard/` via FTP) |
+| Auth / admin / mail | Better Auth + DB | `localStorage` simulation |
+| Open Data | Server proxy `/api/opendata/*` | Snapshot at build + browser fetch to opendata.paris.fr |
+| Deploy | Railway on `main` | [`.github/workflows/deploy-demo.yml`](.github/workflows/deploy-demo.yml) on push to `demo` |
+
+Deploy syncs `out/` → **`www/dashboard/`** only (same pattern as the portfolio’s `www/portfolio/`). It never cleans `www/`, the site root, or sibling folders.
+
+GitHub Actions secrets (same values as the portfolio / under-construction FTP account):
+
+| Secret | Role |
+| --- | --- |
+| `FTP_HOST` | OVH FTP host |
+| `FTP_USERNAME` | FTP login |
+| `FTP_PASSWORD` | FTP password |
+
+Push to `demo` to rebuild and upload. Uptime and alert crons stay pointed at **dashboard.vvbb.fr**.
+
 ## Production (Railway)
 
-This is a Node app with a SQLite file. It cannot run on OVH mutualisé (`vvbb.fr` FTP). Railway builds [`Dockerfile`](Dockerfile) and runs the container; DNS points **dashboard.vvbb.fr** at it.
+The full app is a Node process with a SQLite file. That stack does not run on OVH mutualisé; use the **`demo`** branch above for a static mirror there. Railway builds [`Dockerfile`](Dockerfile) and runs the container; DNS points **dashboard.vvbb.fr** at it.
 
 The image entrypoint `chown`s `$DATA_DIR` (Railway volumes are often root-owned), then drops to the `node` user. Do not add a Docker `VOLUME` instruction — it breaks Railway’s build.
 
