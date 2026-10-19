@@ -746,5 +746,15 @@
     "compare": "Comparison",
     "bikes": "Bikes",
     "bboxHint": "Arrondissement comparison is not available on bbox maps."
+  },
+  "Demo": {
+    "banner": "Static demo — accounts, emails and admin are simulated in this browser.",
+    "emailIntro": "No email was sent. This is what the message would look like in your inbox.",
+    "emailSubject": "Subject",
+    "openEmailLink": "Open the email link",
+    "enterVisitor": "Continue as visitor",
+    "enterAdmin": "Continue as administrator",
+    "anyPassword": "Any password is accepted in this demo.",
+    "otpHint": "The code shown in the email is always 123456."
   }
 }

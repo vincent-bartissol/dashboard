@@ -746,5 +746,15 @@
     "compare": "Comparaison",
     "bikes": "Vélos",
     "bboxHint": "La comparaison par arrondissement n’est pas disponible sur les cartes bbox."
+  },
+  "Demo": {
+    "banner": "Démonstration statique — comptes, e-mails et admin sont simulés dans ce navigateur.",
+    "emailIntro": "Aucun e-mail n’a été envoyé. Voici le message tel qu’il apparaîtrait dans votre boîte.",
+    "emailSubject": "Objet",
+    "openEmailLink": "Ouvrir le lien de l’e-mail",
+    "enterVisitor": "Entrer comme visiteur",
+    "enterAdmin": "Entrer comme administrateur",
+    "anyPassword": "N’importe quel mot de passe est accepté dans cette démo.",
+    "otpHint": "Le code affiché dans l’e-mail est toujours 123456."
   }
 }

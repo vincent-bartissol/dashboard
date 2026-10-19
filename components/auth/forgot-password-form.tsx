@@ -2,36 +2,39 @@
 
 import { FormEvent, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { withLocale } from "@/i18n/path";
-import { authClient } from "@/lib/auth-client";
-import { formString } from "@/lib/safe-string";
+import { useRouter } from "@/i18n/navigation";
+import { DemoEmailPreview } from "@/components/demo/demo-email-preview";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
+import { requestResetDemo } from "@/lib/demo/store";
+import { resetPasswordMail } from "@/lib/email/templates";
+import { formString } from "@/lib/safe-string";
+import type { AppLocale } from "@/i18n/routing";
 
 export function ForgotPasswordForm() {
   const t = useTranslations("Auth");
-  const locale = useLocale();
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [sent, setSent] = useState(false);
+  const locale = useLocale() as AppLocale;
+  const router = useRouter();
+  const [email, setEmail] = useState<string | null>(null);
 
-  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+  function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const email = formString(form, "email").trim();
-    setError(null);
-    setSent(false);
-    setPending(true);
-    const result = await authClient.requestPasswordReset({
-      email,
-      redirectTo: withLocale("/reset-password", locale),
-    });
-    setPending(false);
-    if (result.error) {
-      setError(t("genericError"));
-      return;
-    }
-    setSent(true);
+    const value = formString(new FormData(event.currentTarget), "email").trim();
+    requestResetDemo(value);
+    setEmail(value);
+  }
+
+  if (email) {
+    const mail = resetPasswordMail(
+      `https://vvbb.fr/dashboard/${locale}/reset-password/?token=demo`,
+      locale,
+    );
+    return (
+      <DemoEmailPreview
+        mail={mail}
+        onOpen={() => router.push("/reset-password?token=demo")}
+      />
+    );
   }
 
   return (
@@ -40,10 +43,8 @@ export function ForgotPasswordForm() {
         <Label htmlFor="email">{t("email")}</Label>
         <Input id="email" name="email" type="email" required autoComplete="email" />
       </div>
-      {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
-      {sent ? <p className="text-sm text-muted">{t("forgotSent")}</p> : null}
-      <Button type="submit" className="w-full" disabled={pending}>
-        {pending ? t("pending") : t("sendLink")}
+      <Button type="submit" className="w-full">
+        {t("sendLink")}
       </Button>
     </form>
   );

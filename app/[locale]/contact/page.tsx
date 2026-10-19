@@ -3,13 +3,17 @@ import { ContactForm } from "@/components/contact/contact-form";
 import { SiteFooter, SiteHeader } from "@/components/layout/site-chrome";
 import { Card } from "@/components/ui/card";
 import { PageTitle } from "@/components/ui/heading";
+import { bindLocale } from "@/lib/demo/locale-page";
 
-export default async function ContactPage() {
-  const t = await getTranslations("Contact");
+export default async function ContactPage({
+  params,
+}: Readonly<{ params: Promise<{ locale: string }> }>) {
+  const locale = await bindLocale(params);
+  const t = await getTranslations({ locale, namespace: "Contact" });
 
   return (
     <div className="flex min-h-full flex-col">
-      <SiteHeader />
+      <SiteHeader locale={locale} />
       <main id="main" className="flex flex-1 items-center justify-center px-6 py-16">
         <Card className="relative w-full max-w-md">
           <span className="mb-4 block h-1 w-10 bg-accent" aria-hidden />
@@ -18,7 +22,7 @@ export default async function ContactPage() {
           <ContactForm />
         </Card>
       </main>
-      <SiteFooter />
+      <SiteFooter locale={locale} />
     </div>
   );
 }

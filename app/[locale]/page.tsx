@@ -1,3 +1,4 @@
+import { bindLocale } from "@/lib/demo/locale-page";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { SiteFooter, SiteHeader } from "@/components/layout/site-chrome";
@@ -10,9 +11,12 @@ import { DatasetNotice } from "@/components/dashboard/dataset-notice";
 import { fetchAggregate, fetchCount, fetchRecordsSafe, formatCount } from "@/lib/opendata/client";
 import { DATASETS } from "@/lib/opendata/datasets";
 
-export default async function Home() {
-  const t = await getTranslations("Landing");
-  const format = await getFormatter();
+export default async function Home({
+  params,
+}: Readonly<{ params: Promise<{ locale: string }> }>) {
+  const locale = await bindLocale(params);
+  const t = await getTranslations({ locale, namespace: "Landing" });
+  const format = await getFormatter({ locale });
   const [velibCount, treeCount, eventCount, velibAgg, atmo] = await Promise.all([
     fetchCount(DATASETS.velib.id, DATASETS.velib.revalidate),
     fetchCount(DATASETS.trees.id, DATASETS.trees.revalidate),
@@ -46,7 +50,7 @@ export default async function Home() {
 
   return (
     <div className="flex min-h-full flex-col">
-      <SiteHeader />
+      <SiteHeader locale={locale} />
       <main id="main" className="flex-1">
         <section className="relative overflow-hidden border-b border-line bg-navy text-white">
           <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:py-24">
@@ -171,7 +175,7 @@ export default async function Home() {
           </p>
         </section>
       </main>
-      <SiteFooter />
+      <SiteFooter locale={locale} />
     </div>
   );
 }

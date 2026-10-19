@@ -1,11 +1,9 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState, useTransition } from "react";
+import { FormEvent, useEffect, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { withLocale } from "@/i18n/path";
-import { updateProfile } from "@/lib/actions/profile";
-import { authClient } from "@/lib/auth-client";
+import { DemoEmailPreview } from "@/components/demo/demo-email-preview";
 import {
   ARRONDISSEMENTS,
   formatDistrictOrdinal,
@@ -13,6 +11,8 @@ import {
 import type { AppLocale } from "@/i18n/routing";
 import { PROFILE_NAME_MAX } from "@/lib/profile-name";
 import { formString } from "@/lib/safe-string";
+import { applyChangeEmailDemo, requestChangeEmailDemo, updateDemoProfile } from "@/lib/demo/store";
+import { changeEmailMail } from "@/lib/email/templates";
 import { useNotify } from "@/components/dashboard/notifications";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/input";
@@ -31,29 +31,21 @@ export function ProfileForm({
   arrondissement: string | null;
 }>) {
   const t = useTranslations("Profile");
-  const locale = useLocale();
+  const locale = useLocale() as AppLocale;
   const router = useRouter();
   const notify = useNotify();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [district, setDistrict] = useState(arrondissement ?? "");
-  /** After save, ignore stale RSC props until the server catches up. */
-  const expectedDistrict = useRef<string | null>(null);
   const [emailPending, setEmailPending] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [emailPreview, setEmailPreview] = useState<string | null>(null);
 
   useEffect(() => {
-    const server = arrondissement ?? "";
-    if (expectedDistrict.current !== null) {
-      if (server === expectedDistrict.current) {
-        expectedDistrict.current = null;
-      }
-      return;
-    }
-    setDistrict(server);
+    setDistrict(arrondissement ?? "");
   }, [arrondissement]);
 
-  async function onChangeEmail(event: FormEvent<HTMLFormElement>) {
+  function onChangeEmail(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const newEmail = formString(form, "email").trim();
@@ -63,39 +55,47 @@ export function ProfileForm({
       return;
     }
     setEmailPending(true);
-    const result = await authClient.changeEmail({
-      newEmail,
-      callbackURL: withLocale("/dashboard/profile", locale),
-    });
+    requestChangeEmailDemo(newEmail);
+    setEmailPreview(newEmail);
     setEmailPending(false);
-    if (result.error) {
-      setEmailError(t("genericError"));
-      return;
-    }
     notify({ tone: "status", message: t("emailSent") });
   }
 
   function onSave(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const nextDistrict = district;
     setError(null);
-    startTransition(async () => {
-      const result = await updateProfile({
+    startTransition(() => {
+      const result = updateDemoProfile({
         firstName: formString(form, "firstName"),
         lastName: formString(form, "lastName"),
-        arrondissement: nextDistrict || null,
+        arrondissement: district || null,
       });
       if (!result.ok) {
-        setError(result.error);
+        setError(t("genericError"));
         return;
       }
-      const savedDistrict = result.arrondissement ?? "";
-      expectedDistrict.current = savedDistrict;
-      setDistrict(savedDistrict);
       notify({ tone: "status", message: t("saved") });
       router.refresh();
     });
+  }
+
+  if (emailPreview) {
+    const mail = changeEmailMail(
+      `https://vvbb.fr/dashboard/${locale}/dashboard/profile/`,
+      emailPreview,
+      locale,
+    );
+    return (
+      <DemoEmailPreview
+        mail={mail}
+        onOpen={() => {
+          applyChangeEmailDemo();
+          setEmailPreview(null);
+          router.refresh();
+        }}
+      />
+    );
   }
 
   return (
@@ -106,10 +106,10 @@ export function ProfileForm({
           <Input
             id="firstName"
             name="firstName"
-            required
-            autoComplete="given-name"
-            maxLength={PROFILE_NAME_MAX}
             defaultValue={firstName}
+            required
+            maxLength={PROFILE_NAME_MAX}
+            autoComplete="given-name"
           />
         </div>
         <div>
@@ -117,10 +117,10 @@ export function ProfileForm({
           <Input
             id="lastName"
             name="lastName"
-            required
-            autoComplete="family-name"
-            maxLength={PROFILE_NAME_MAX}
             defaultValue={lastName}
+            required
+            maxLength={PROFILE_NAME_MAX}
+            autoComplete="family-name"
           />
         </div>
         <div>
@@ -132,12 +132,12 @@ export function ProfileForm({
             onChange={(event) => setDistrict(event.target.value)}
           >
             <option value="">{t("allParis")}</option>
-            <option value="montreuil">{t("montreuil")}</option>
             {ARRONDISSEMENTS.map((item) => (
               <option key={item.code} value={item.code}>
-                {formatDistrictOrdinal(item.code, locale as AppLocale)} — {item.zip}
+                {formatDistrictOrdinal(item.code, locale)}
               </option>
             ))}
+            <option value="montreuil">{t("montreuil")}</option>
           </Select>
         </div>
         {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
@@ -147,23 +147,16 @@ export function ProfileForm({
       </form>
 
       <form onSubmit={onChangeEmail} className="space-y-4 border-t border-line pt-6">
+        <p className="text-sm text-muted">
+          {emailVerified ? t("emailVerified") : t("emailPending")} · {email}
+        </p>
         <div>
           <Label htmlFor="email">{t("email")}</Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            required
-            autoComplete="email"
-            defaultValue={email}
-          />
-          <p className="mt-1 text-sm text-muted">
-            {emailVerified ? t("emailVerified") : t("emailPending")}
-          </p>
+          <Input id="email" name="email" type="email" defaultValue={email} required />
         </div>
         {emailError ? <p role="alert" className="text-sm text-danger">{emailError}</p> : null}
-        <Button type="submit" variant="ghost" disabled={emailPending}>
-          {emailPending ? t("sending") : t("changeEmail")}
+        <Button type="submit" variant="secondary" disabled={emailPending}>
+          {emailPending ? t("saving") : t("changeEmail")}
         </Button>
       </form>
     </div>

@@ -1,52 +1,55 @@
 import type { ReactNode } from "react";
-import { cookies } from "next/headers";
 import { DashboardActivityTracker } from "@/components/dashboard/activity-tracker";
 import { NotificationProvider } from "@/components/dashboard/notifications";
 import { MobileNav, Sidebar } from "@/components/layout/sidebar";
 import { Reveal } from "@/components/ui/reveal";
 import { SkipLink } from "@/components/layout/skip-link";
 import { QueryProvider } from "@/components/query-provider";
-import { isAdminUser } from "@/lib/admin";
-import { listFavorites } from "@/lib/db/queries";
-import { toFavoriteDtos } from "@/lib/favorites";
-import { parseTheme } from "@/lib/theme";
-import { requireSession } from "@/lib/session";
+import { DemoBanner } from "@/components/demo/demo-banner";
+import { DemoProvider } from "@/components/demo/demo-provider";
+import { getBuildSession } from "@/lib/demo/session";
 
 export default async function DashboardLayout({
   children,
-}: Readonly<{ children: ReactNode }>) {
-  const session = await requireSession();
-  const theme = parseTheme((await cookies()).get("theme")?.value);
-  const isAdmin = isAdminUser(session.user);
-  const initialFavorites = toFavoriteDtos(await listFavorites(session.user.id));
+}: Readonly<{
+  children: ReactNode;
+}>) {
+  const session = getBuildSession();
+  const isAdmin = session.user.role === "admin";
 
   return (
-    <QueryProvider>
-      <NotificationProvider>
-        <div className="relative flex min-h-full flex-col bg-ground lg:flex-row">
-          <SkipLink />
-          <DashboardActivityTracker />
-          <div className="hidden lg:flex">
-            <Sidebar
+    <DemoProvider>
+      <QueryProvider>
+        <NotificationProvider>
+          <div className="relative flex min-h-full flex-col bg-ground lg:flex-row">
+            <div className="w-full lg:hidden">
+              <DemoBanner />
+            </div>
+            <SkipLink />
+            <DashboardActivityTracker />
+            <div className="hidden lg:flex">
+              <Sidebar
+                userName={session.user.name || session.user.email}
+                theme="system"
+                isAdmin={isAdmin}
+                initialFavorites={[]}
+              />
+            </div>
+            <MobileNav
               userName={session.user.name || session.user.email}
-              theme={theme}
+              theme="system"
               isAdmin={isAdmin}
-              initialFavorites={initialFavorites}
+              initialFavorites={[]}
             />
+            <div className="flex min-w-0 flex-1 flex-col">
+              <div className="hidden lg:block">
+                <DemoBanner />
+              </div>
+              <Reveal className="flex-1 p-4 sm:p-6 lg:p-8">{children}</Reveal>
+            </div>
           </div>
-          <MobileNav
-            userName={session.user.name || session.user.email}
-            theme={theme}
-            isAdmin={isAdmin}
-            initialFavorites={initialFavorites}
-          />
-          <div className="min-w-0 flex-1">
-            <main id="main" className="mx-auto max-w-6xl px-6 py-8">
-              <Reveal>{children}</Reveal>
-            </main>
-          </div>
-        </div>
-      </NotificationProvider>
-    </QueryProvider>
+        </NotificationProvider>
+      </QueryProvider>
+    </DemoProvider>
   );
 }

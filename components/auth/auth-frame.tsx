@@ -1,17 +1,19 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
+import type { AppLocale } from "@/i18n/routing";
 import { SiteFooter, SiteHeader } from "@/components/layout/site-chrome";
 import { Wordmark } from "@/components/layout/wordmark";
 import { Card } from "@/components/ui/card";
 
 export async function AuthFrame({
   children,
-}: Readonly<{ children: ReactNode }>) {
-  const t = await getTranslations("Landing");
+  locale = "fr",
+}: Readonly<{ children: ReactNode; locale?: AppLocale }>) {
+  const t = await getTranslations({ locale, namespace: "Landing" });
 
   return (
     <div className="flex min-h-full flex-col">
-      <SiteHeader variant="auth" />
+      <SiteHeader variant="auth" locale={locale} />
       <main id="main" className="flex flex-1">
         <div className="hidden w-[min(42%,28rem)] flex-col justify-between bg-navy px-10 py-12 text-white lg:flex">
           <Wordmark href="/" invert />
@@ -28,7 +30,7 @@ export async function AuthFrame({
           </Card>
         </div>
       </main>
-      <SiteFooter />
+      <SiteFooter locale={locale} />
     </div>
   );
 }

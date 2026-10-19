@@ -3,50 +3,35 @@
 import { FormEvent, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { authClient } from "@/lib/auth-client";
-import { mapAuthError } from "@/lib/auth-errors";
-import { formString } from "@/lib/safe-string";
-import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "@/lib/password";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
+import { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } from "@/lib/password";
+import { formString } from "@/lib/safe-string";
 
-export function ResetPasswordForm({
-  token,
-}: Readonly<{ token: string }>) {
+export function ResetPasswordForm({ token }: Readonly<{ token: string }>) {
   const t = useTranslations("Auth");
   const router = useRouter();
-  const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+  function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const newPassword = formString(form, "newPassword");
-    const confirmPassword = formString(form, "confirmPassword");
-    setError(null);
-
-    if (newPassword.length < MIN_PASSWORD_LENGTH) {
+    const password = formString(form, "password");
+    const confirm = formString(form, "confirm");
+    if (password.length < MIN_PASSWORD_LENGTH) {
       setError(t("passwordTooShort"));
       return;
     }
-    if (newPassword.length > MAX_PASSWORD_LENGTH) {
+    if (password.length > MAX_PASSWORD_LENGTH) {
       setError(t("passwordTooLong"));
       return;
     }
-    if (newPassword !== confirmPassword) {
+    if (password !== confirm) {
       setError(t("passwordMismatch"));
       return;
     }
-
-    setPending(true);
-    const result = await authClient.resetPassword({ newPassword, token });
-    setPending(false);
-    if (result.error) {
-      const mapped = mapAuthError(result.error);
-      if (mapped === "invalidToken") setError(t("invalidToken"));
-      else if (mapped === "passwordTooShort") setError(t("passwordTooShort"));
-      else if (mapped === "passwordTooLong") setError(t("passwordTooLong"));
-      else setError(t("genericError"));
+    if (!token) {
+      setError(t("invalidToken"));
       return;
     }
     router.push("/login");
@@ -55,10 +40,10 @@ export function ResetPasswordForm({
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div>
-        <Label htmlFor="newPassword">{t("newPassword")}</Label>
+        <Label htmlFor="password">{t("newPassword")}</Label>
         <Input
-          id="newPassword"
-          name="newPassword"
+          id="password"
+          name="password"
           type="password"
           required
           minLength={MIN_PASSWORD_LENGTH}
@@ -67,10 +52,10 @@ export function ResetPasswordForm({
         />
       </div>
       <div>
-        <Label htmlFor="confirmPassword">{t("confirmPassword")}</Label>
+        <Label htmlFor="confirm">{t("confirmPassword")}</Label>
         <Input
-          id="confirmPassword"
-          name="confirmPassword"
+          id="confirm"
+          name="confirm"
           type="password"
           required
           minLength={MIN_PASSWORD_LENGTH}
@@ -79,8 +64,8 @@ export function ResetPasswordForm({
         />
       </div>
       {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
-      <Button type="submit" className="w-full" disabled={pending}>
-        {pending ? t("pending") : t("choosePassword")}
+      <Button type="submit" className="w-full">
+        {t("choosePassword")}
       </Button>
     </form>
   );

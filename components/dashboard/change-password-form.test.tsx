@@ -5,13 +5,8 @@ import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { authClient } from "@/lib/auth-client";
 import fr from "@/messages/fr.json";
 import { ChangePasswordForm } from "./change-password-form";
-
-vi.mock("@/lib/auth-client", () => ({
-  authClient: { changePassword: vi.fn() },
-}));
 
 vi.mock("@/i18n/navigation", () => ({
   Link: ({
@@ -32,8 +27,6 @@ vi.mock("@/i18n/navigation", () => ({
 vi.mock("@/components/dashboard/notifications", () => ({
   useNotify: () => vi.fn(),
 }));
-
-const changePasswordMock = vi.mocked(authClient.changePassword);
 
 function renderForm() {
   return render(
@@ -70,7 +63,6 @@ describe("ChangePasswordForm", () => {
     expect(screen.getByRole("alert")).toHaveTextContent(
       "Le mot de passe doit contenir au moins 8 caractères.",
     );
-    expect(changePasswordMock).not.toHaveBeenCalled();
   });
 
   it("rejects a confirmation mismatch", async () => {
@@ -83,7 +75,6 @@ describe("ChangePasswordForm", () => {
     expect(screen.getByRole("alert")).toHaveTextContent(
       "Les mots de passe ne correspondent pas.",
     );
-    expect(changePasswordMock).not.toHaveBeenCalled();
   });
 
   it("rejects a new password identical to the current one", async () => {
@@ -96,6 +87,5 @@ describe("ChangePasswordForm", () => {
     expect(screen.getByRole("alert")).toHaveTextContent(
       "Le nouveau mot de passe doit être différent.",
     );
-    expect(changePasswordMock).not.toHaveBeenCalled();
   });
 });

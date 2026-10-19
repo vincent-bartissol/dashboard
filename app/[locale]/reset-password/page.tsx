@@ -3,42 +3,24 @@ import { Link } from "@/i18n/navigation";
 import { AuthFrame } from "@/components/auth/auth-frame";
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 import { PageTitle } from "@/components/ui/heading";
-import { firstSearchParam } from "@/lib/safe-next";
-import { requireGuest } from "@/lib/session";
+import { bindLocale } from "@/lib/demo/locale-page";
 
 export default async function ResetPasswordPage({
-  searchParams,
-}: Readonly<{
-  searchParams: Promise<{
-    next?: string | string[];
-    token?: string | string[];
-    error?: string | string[];
-  }>;
-}>) {
-  const params = await searchParams;
-  await requireGuest(params.next);
-  const token = firstSearchParam(params.token);
-  const error = firstSearchParam(params.error);
-  const t = await getTranslations("Auth");
+  params,
+}: Readonly<{ params: Promise<{ locale: string }> }>) {
+  const locale = await bindLocale(params);
+  const t = await getTranslations({ locale, namespace: "Auth" });
 
   return (
-    <AuthFrame>
+    <AuthFrame locale={locale}>
       <PageTitle>{t("resetTitle")}</PageTitle>
-      {token && !error ? (
-        <>
-          <p className="mt-1 mb-6 text-sm text-muted">{t("resetBody")}</p>
-          <ResetPasswordForm token={token} />
-        </>
-      ) : (
-        <>
-          <p className="mt-1 mb-6 text-sm text-muted">{t("resetInvalid")}</p>
-          <p className="text-sm text-muted">
-            <Link href="/forgot-password" className="font-medium text-heading hover:underline">
-              {t("forgotTitle")}
-            </Link>
-          </p>
-        </>
-      )}
+      <p className="mt-1 mb-6 text-sm text-muted">{t("resetBody")}</p>
+      <ResetPasswordForm token="demo" />
+      <p className="mt-4 text-sm text-muted">
+        <Link href="/login" className="font-medium text-heading hover:underline">
+          {t("backToLogin")}
+        </Link>
+      </p>
     </AuthFrame>
   );
 }

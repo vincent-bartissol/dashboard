@@ -1,45 +1,27 @@
-import { cache } from "react";
-import { headers } from "next/headers";
 import { getLocale } from "next-intl/server";
-import { auth } from "@/lib/auth";
-import { isAdminUser, isBannedUser } from "@/lib/admin";
+import { getBuildSession } from "@/lib/demo/session";
 import { redirect } from "@/i18n/navigation";
 import { stripLocalePrefix } from "@/i18n/path";
 import { safeNext } from "@/lib/safe-next";
 
-/** Per-request memo — layout + page both call this. */
-export const getSession = cache(async () =>
-  auth.api.getSession({
-    headers: await headers(),
-  }),
-);
+/** Build-time / static-export session (always the demo visitor). */
+export async function getSession() {
+  return getBuildSession();
+}
 
 export async function requireSession() {
-  const session = await getSession();
-  if (!session) {
-    redirect({ href: "/login", locale: await getLocale() });
-    throw new Error("Unauthorized");
-  }
-  if (isBannedUser(session.user)) {
-    redirect({ href: "/login", locale: await getLocale() });
-    throw new Error("Banned");
-  }
-  return session;
+  return getBuildSession();
 }
 
 export async function requireAdmin() {
-  const session = await requireSession();
-  if (!isAdminUser(session.user)) {
-    redirect({ href: "/dashboard", locale: await getLocale() });
-    throw new Error("Forbidden");
-  }
-  return session;
+  return getBuildSession();
 }
 
 export async function requireGuest(nextPath?: string | string[]) {
-  const session = await getSession();
-  if (session && !isBannedUser(session.user)) {
-    const locale = await getLocale();
-    redirect({ href: stripLocalePrefix(safeNext(nextPath, locale)), locale });
-  }
+  // Static demo: guest pages are always reachable; client buttons create the session.
+  void nextPath;
+  void stripLocalePrefix;
+  void safeNext;
+  void redirect;
+  void getLocale;
 }

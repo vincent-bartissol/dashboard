@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import { isAppLocale, routing, type AppLocale } from "@/i18n/routing";
 import en from "@/messages/en.json";
 import es from "@/messages/es.json";
@@ -10,13 +9,8 @@ const MAIL = {
   es: es.Mail,
 } as const;
 
-export async function mailLocale(): Promise<AppLocale> {
-  try {
-    const value = (await cookies()).get("NEXT_LOCALE")?.value;
-    if (isAppLocale(value)) return value;
-  } catch {
-    // Outside a request (tests, boot).
-  }
+export async function mailLocale(preferred?: string): Promise<AppLocale> {
+  if (isAppLocale(preferred)) return preferred;
   return routing.defaultLocale;
 }
 

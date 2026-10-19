@@ -746,5 +746,15 @@
     "compare": "Comparación",
     "bikes": "Bicis",
     "bboxHint": "La comparación por distrito no está disponible en los mapas bbox."
+  },
+  "Demo": {
+    "banner": "Demostración estática — cuentas, correos y admin se simulan en este navegador.",
+    "emailIntro": "No se envió ningún correo. Así se vería el mensaje en tu bandeja.",
+    "emailSubject": "Asunto",
+    "openEmailLink": "Abrir el enlace del correo",
+    "enterVisitor": "Entrar como visitante",
+    "enterAdmin": "Entrar como administrador",
+    "anyPassword": "Cualquier contraseña es aceptada en esta demo.",
+    "otpHint": "El código mostrado en el correo es siempre 123456."
   }
 }

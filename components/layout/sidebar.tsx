@@ -4,13 +4,14 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter, Link } from "@/i18n/navigation";
 import { NAV_ITEMS } from "@/lib/opendata/datasets";
-import { authClient } from "@/lib/auth-client";
 import { CommandPalette } from "@/components/dashboard/command-palette";
+import { useDemo } from "@/components/demo/demo-provider";
 import { Wordmark } from "@/components/layout/wordmark";
 import { LocaleSwitcher } from "@/components/layout/locale-switcher";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { useFavoritesQuery } from "@/lib/favorites-query";
 import type { FavoriteDto } from "@/lib/favorites";
+import { signOutDemo } from "@/lib/demo/store";
 import { NAV_PREFETCH_DATASETS } from "@/lib/opendata/nav-prefetch";
 import { fetchThemeTablePage, themeTableQueryKey } from "@/lib/opendata/theme-query";
 import type { ColorScheme } from "@/lib/theme";
@@ -30,7 +31,7 @@ const mobileLinkClass = (active: boolean) =>
 function useLogout() {
   const router = useRouter();
   return async () => {
-    await authClient.signOut();
+    signOutDemo();
     router.push("/");
     router.refresh();
   };
@@ -39,7 +40,6 @@ function useLogout() {
 export function Sidebar({
   userName,
   theme,
-  isAdmin = false,
   initialFavorites = [],
 }: Readonly<{
   userName: string;
@@ -49,6 +49,9 @@ export function Sidebar({
 }>) {
   const pathname = usePathname();
   const t = useTranslations("Nav");
+  const demo = useDemo();
+  const showAdmin = demo.session?.role === "admin";
+  const displayName = demo.session?.name || userName;
   const favorites = useFavoritesQuery(initialFavorites);
   const favoriteCount = favorites.data?.length ?? 0;
   const queryClient = useQueryClient();
@@ -77,7 +80,7 @@ export function Sidebar({
       <div className="border-b border-white/10 px-5 py-5">
         <Wordmark invert />
         <p className="mt-4 truncate border-l-4 border-accent pl-3 text-sm font-medium text-white">
-          {userName}
+          {displayName}
         </p>
         <div className="mt-3">
           <CommandPalette />
@@ -107,7 +110,7 @@ export function Sidebar({
             </Link>
           );
         })}
-        {isAdmin ? (
+        {showAdmin ? (
           <Link
             href="/dashboard/admin"
             aria-current={pathname.startsWith("/dashboard/admin") ? "page" : undefined}
@@ -135,7 +138,6 @@ export function Sidebar({
 export function MobileNav({
   userName,
   theme,
-  isAdmin = false,
   initialFavorites = [],
 }: Readonly<{
   userName: string;
@@ -145,6 +147,8 @@ export function MobileNav({
 }>) {
   const pathname = usePathname();
   const t = useTranslations("Nav");
+  const demo = useDemo();
+  const showAdmin = demo.session?.role === "admin";
   const favorites = useFavoritesQuery(initialFavorites);
   const favoriteCount = favorites.data?.length ?? 0;
   const logout = useLogout();
@@ -181,7 +185,7 @@ export function MobileNav({
             </Link>
           );
         })}
-        {isAdmin ? (
+        {showAdmin ? (
           <Link
             href="/dashboard/admin"
             aria-current={pathname.startsWith("/dashboard/admin") ? "page" : undefined}

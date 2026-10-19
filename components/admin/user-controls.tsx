@@ -9,11 +9,11 @@ import { Input, Label } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { SectionTitle } from "@/components/ui/heading";
 import {
-  banUserAction,
-  revokeSessionAction,
-  setUserRoleAction,
-  unbanUserAction,
-} from "@/lib/actions/admin";
+  banDemoUser,
+  revokeDemoSession,
+  setDemoUserRole,
+  unbanDemoUser,
+} from "@/lib/demo/store";
 
 type ErrorKey =
   | "errors.selfBan"
@@ -69,12 +69,12 @@ export function AdminUserControls({
   const [banReason, setBanReason] = useState("");
 
   function run(
-    action: () => Promise<{ ok: boolean; error?: string }>,
+    action: () => { ok: boolean; error?: string },
     successMessage: string,
   ) {
     setError(null);
-    startTransition(async () => {
-      const result = await action();
+    startTransition(() => {
+      const result = action();
       if (!result.ok) {
         const code = result.error && ERROR_KEYS.has(result.error) ? result.error : "generic";
         setError(t(`errors.${code}` as ErrorKey));
@@ -85,116 +85,83 @@ export function AdminUserControls({
     });
   }
 
-  const canBan = !isSelf && !targetIsAdmin && !banned;
-  const canDemote = targetIsAdmin && role === "admin" && !isSelf;
-
   return (
     <div className="space-y-4">
-      <Card>
+      <Card className="space-y-3 p-4">
         <SectionTitle>{t("moderation.title")}</SectionTitle>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {banned ? (
+        {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
+        {banned ? (
+          <Button
+            type="button"
+            disabled={pending}
+            onClick={() => run(() => unbanDemoUser(userId), t("moderation.unbannedToast"))}
+          >
+            {t("moderation.unban")}
+          </Button>
+        ) : (
+          <div className="space-y-2">
+            <Label htmlFor="banReason">{t("moderation.banReason")}</Label>
+            <Input
+              id="banReason"
+              value={banReason}
+              onChange={(event) => setBanReason(event.target.value)}
+            />
             <Button
               type="button"
               variant="secondary"
-              disabled={pending}
-              onClick={() => run(() => unbanUserAction({ userId }), t("moderation.unbannedToast"))}
+              disabled={pending || isSelf || targetIsAdmin}
+              onClick={() =>
+                run(() => banDemoUser(userId, banReason), t("moderation.bannedToast"))
+              }
             >
-              {t("moderation.unban")}
+              {t("moderation.ban")}
             </Button>
-          ) : (
-            <div className="flex w-full flex-col gap-2 sm:max-w-md">
-              <Label htmlFor="ban-reason">{t("moderation.banReason")}</Label>
-              <Input
-                id="ban-reason"
-                value={banReason}
-                maxLength={200}
-                onChange={(event) => setBanReason(event.target.value)}
-                disabled={pending || !canBan}
-              />
-              <Button
-                type="button"
-                variant="primary"
-                disabled={pending || !canBan}
-                onClick={() => {
-                  if (!window.confirm(t("moderation.confirmBan"))) return;
-                  run(() => banUserAction({ userId, banReason }), t("moderation.bannedToast"));
-                }}
-              >
-                {t("moderation.ban")}
-              </Button>
-              {isSelf ? <p className="text-sm text-muted">{t("moderation.cannotSelfBan")}</p> : null}
-              {!isSelf && targetIsAdmin ? (
-                <p className="text-sm text-muted">{t("moderation.cannotBanAdmin")}</p>
-              ) : null}
-            </div>
-          )}
-        </div>
-      </Card>
-
-      <Card>
-        <SectionTitle>{t("moderation.roleTitle")}</SectionTitle>
-        <div className="mt-3 flex flex-wrap gap-2">
+          </div>
+        )}
+        <div className="flex flex-wrap gap-2">
           <Button
             type="button"
-            variant={role === "admin" ? "secondary" : "ghost"}
+            variant="ghost"
             disabled={pending || role === "admin"}
-            onClick={() => {
-              if (!window.confirm(t("moderation.confirmPromote"))) return;
-              run(() => setUserRoleAction({ userId, role: "admin" }), t("moderation.promotedToast"));
-            }}
+            onClick={() =>
+              run(() => setDemoUserRole(userId, "admin"), t("moderation.promotedToast"))
+            }
           >
             {t("moderation.makeAdmin")}
           </Button>
           <Button
             type="button"
-            variant={role === "user" ? "secondary" : "ghost"}
-            disabled={pending || !canDemote}
-            onClick={() => {
-              if (!window.confirm(t("moderation.confirmDemote"))) return;
-              run(() => setUserRoleAction({ userId, role: "user" }), t("moderation.demotedToast"));
-            }}
+            variant="ghost"
+            disabled={pending || role === "user" || isSelf}
+            onClick={() =>
+              run(() => setDemoUserRole(userId, "user"), t("moderation.demotedToast"))
+            }
           >
             {t("moderation.makeUser")}
           </Button>
         </div>
-        {isSelf && role === "admin" ? (
-          <p className="mt-2 text-sm text-muted">{t("moderation.cannotSelfDemote")}</p>
-        ) : null}
       </Card>
-
-      <Card>
+      <Card className="space-y-3 p-4">
         <SectionTitle>{t("moderation.sessionsTitle")}</SectionTitle>
-        <ul className="mt-3 space-y-2">
-          {sessions.length === 0 ? (
-            <li className="text-sm text-muted">{t("sessions.empty")}</li>
-          ) : null}
-          {sessions.map((row) => (
+        {sessions.length === 0 ? (
+          <p className="text-sm text-muted">{t("sessions.empty")}</p>
+        ) : null}
+        <ul className="space-y-2 text-sm">
+          {sessions.map((session) => (
             <li
-              key={row.id}
-              className="flex flex-wrap items-center justify-between gap-3 border border-line px-3 py-2 text-sm"
+              key={session.id}
+              className="flex flex-wrap items-center justify-between gap-2 border-b border-line/60 py-2 last:border-0"
             >
-              <div className="min-w-0 flex-1">
-                <p className="tabular-nums text-heading">{row.createdLabel}</p>
-                <p className="truncate text-muted">
-                  {row.ipAddress || "—"}
-                  {row.userAgent ? ` · ${row.userAgent}` : ""}
-                </p>
-                <p className="text-xs text-muted">
-                  {row.live ? t("sessions.liveYes") : t("sessions.liveNo")}
-                </p>
-              </div>
+              <span>
+                {session.createdLabel}
+                {session.live ? ` · ${t("sessions.liveYes")}` : ""}
+                {session.ipAddress ? ` · ${session.ipAddress}` : ""}
+              </span>
               <Button
                 type="button"
                 variant="ghost"
-                disabled={pending || !row.live}
-                onClick={() => {
-                  if (!window.confirm(t("moderation.confirmRevoke"))) return;
-                  run(
-                    () => revokeSessionAction({ userId, sessionId: row.id }),
-                    t("moderation.revokedToast"),
-                  );
-                }}
+                disabled={pending}
+                onClick={() => run(() => revokeDemoSession(), t("moderation.revokedToast"))}
               >
                 {t("moderation.revoke")}
               </Button>
@@ -202,8 +169,6 @@ export function AdminUserControls({
           ))}
         </ul>
       </Card>
-
-      {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
     </div>
   );
 }
