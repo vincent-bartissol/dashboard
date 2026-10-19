@@ -1,3 +1,4 @@
+import { bindLocale } from "@/lib/demo/locale-page";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { BboxExplorer } from "@/components/dashboard/bbox-explorer";
 import { DatasetNotice } from "@/components/dashboard/dataset-notice";
@@ -12,14 +13,13 @@ import { loadBboxExplorer, loadThemeExplorer } from "@/lib/opendata/load";
 import { requireSession } from "@/lib/session";
 
 export default async function NaturePage({
-  searchParams,
-}: Readonly<{
-  searchParams: Promise<{ tab?: string }>;
-}>) {
+  params,
+}: Readonly<{ params: Promise<{ locale: string }> }>) {
+  const locale = await bindLocale(params);
   const session = await requireSession();
-  const t = await getTranslations("Pages.nature");
-  const format = await getFormatter();
-  const { tab } = await searchParams;
+  const t = await getTranslations({ locale, namespace: "Pages.nature" });
+  const format = await getFormatter({ locale });
+  const tab = undefined;
   const active = tab === "parks" ? "parks" : "trees";
   const dataset = DATASETS[active];
   const [loaded, treeCount, parkCount] = await Promise.all([
@@ -38,7 +38,7 @@ export default async function NaturePage({
 
   return (
     <div className="space-y-6">
-      <PageIntro title={t("title")} dataset={[DATASETS.trees, DATASETS.parks]}>
+      <PageIntro title={t("title")} dataset={[DATASETS.trees, DATASETS.parks]} locale={locale}>
         {t("body")}
       </PageIntro>
       <DatasetNotice error={loaded.error || treeCount.error || parkCount.error} />
@@ -64,7 +64,7 @@ export default async function NaturePage({
         />
       ) : (
         <InfiniteThemeExplorer
-          dataset={await localizeExplorerDataset(dataset)}
+          dataset={await localizeExplorerDataset(dataset, locale)}
           initial={loaded.table}
           mapRecords={loaded.markers.results}
           favoriteIds={loaded.favoriteIds}

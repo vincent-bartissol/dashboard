@@ -1,3 +1,4 @@
+import { bindLocale } from "@/lib/demo/locale-page";
 import { getTranslations } from "next-intl/server";
 import { PageIntro } from "@/components/dashboard/page-intro";
 import { VelibLiveExplorer } from "@/components/dashboard/velib-live-explorer";
@@ -6,18 +7,21 @@ import { DATASETS } from "@/lib/opendata/datasets";
 import { loadThemeExplorer } from "@/lib/opendata/load";
 import { requireSession } from "@/lib/session";
 
-export default async function VelibPage() {
+export default async function VelibPage({
+  params,
+}: Readonly<{ params: Promise<{ locale: string }> }>) {
+  const locale = await bindLocale(params);
   const session = await requireSession();
-  const t = await getTranslations("Pages.velib");
+  const t = await getTranslations({ locale, namespace: "Pages.velib" });
   const loaded = await loadThemeExplorer(DATASETS.velib, session.user.id);
 
   return (
     <div className="space-y-6">
-      <PageIntro title={t("title")} dataset={DATASETS.velib}>
+      <PageIntro title={t("title")} dataset={DATASETS.velib} locale={locale}>
         {t("body")}
       </PageIntro>
       <VelibLiveExplorer
-        dataset={await localizeExplorerDataset(DATASETS.velib)}
+        dataset={await localizeExplorerDataset(DATASETS.velib, locale)}
         initial={loaded.table}
         mapRecords={loaded.markers.results}
         favoriteIds={loaded.favoriteIds}

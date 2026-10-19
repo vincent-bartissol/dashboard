@@ -1,4 +1,3 @@
-import { getProfile, listFavorites } from "@/lib/db/queries";
 import { arrondissementWhere } from "@/lib/opendata/arrondissement";
 import {
   bboxWhere,
@@ -21,18 +20,15 @@ import {
 /** Table page 0 for non-bbox theme explorers. Markers load client-side. */
 export async function loadThemeExplorer(
   dataset: DatasetConfig,
-  userId: string,
+  _userId: string,
   options?: ThemeLoadOptions,
 ) {
-  const profile = await getProfile(userId);
   let districtFilter: string | undefined;
   if (options?.district !== undefined) {
     districtFilter = arrondissementWhere(
       dataset,
       options.district === "" || options.district === null ? null : options.district,
     );
-  } else if (!options?.ignoreProfile) {
-    districtFilter = arrondissementWhere(dataset, profile.arrondissement);
   }
   const where = joinWhere(districtFilter, dataset.defaultWhere, options?.extraWhere);
   const loadOpts: ThemeLoadOptions = {
@@ -40,12 +36,10 @@ export async function loadThemeExplorer(
     limit: options?.limit ?? THEME_PAGE_SIZE,
     offset: options?.offset ?? 0,
     whereOverride: where,
+    ignoreProfile: true,
   };
 
-  const [table, favorites] = await Promise.all([
-    loadThemePage(dataset, userId, loadOpts),
-    listFavorites(userId, dataset.id),
-  ]);
+  const table = await loadThemePage(dataset, _userId, loadOpts);
   return {
     table: table.page,
     markers: { total_count: 0, results: [] as OpenDataRecord[] },
@@ -53,23 +47,17 @@ export async function loadThemeExplorer(
     nextOffset: table.nextOffset,
     ok: table.ok,
     error: table.error,
-    favoriteIds: favorites.map((item) => item.recordId),
-    arrondissement: profile.arrondissement,
+    favoriteIds: [] as string[],
+    arrondissement: null as string | null,
     where,
   };
 }
 
 /** Ordered table page 0 + denser unordered slim markers for bbox explorers. */
-export async function loadBboxExplorer(dataset: DatasetConfig, userId: string) {
-  const profile = await getProfile(userId);
-  const district = arrondissementWhere(dataset, profile.arrondissement);
-  const where = joinWhere(
-    district,
-    dataset.defaultWhere,
-    bboxWhere(dataset.geoField, PARIS_BBOX),
-  );
+export async function loadBboxExplorer(dataset: DatasetConfig, _userId: string) {
+  const where = joinWhere(dataset.defaultWhere, bboxWhere(dataset.geoField, PARIS_BBOX));
 
-  const [table, markers, favorites] = await Promise.all([
+  const [table, markers] = await Promise.all([
     fetchRecordsSafe(
       dataset.id,
       {
@@ -87,7 +75,6 @@ export async function loadBboxExplorer(dataset: DatasetConfig, userId: string) {
       max: BBOX_MAP_MAX,
       select: markerSelect(dataset),
     }),
-    listFavorites(userId, dataset.id),
   ]);
 
   return {
@@ -95,8 +82,8 @@ export async function loadBboxExplorer(dataset: DatasetConfig, userId: string) {
     markers: markers.page,
     ok: table.ok && markers.ok,
     error: table.error || markers.error,
-    favoriteIds: favorites.map((item) => item.recordId),
-    arrondissement: profile.arrondissement,
+    favoriteIds: [] as string[],
+    arrondissement: null as string | null,
     where,
   };
 }

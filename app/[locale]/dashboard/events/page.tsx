@@ -1,3 +1,4 @@
+import { bindLocale } from "@/lib/demo/locale-page";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { InfiniteThemeExplorer } from "@/components/dashboard/infinite-theme-explorer";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
@@ -7,19 +8,22 @@ import { DATASETS } from "@/lib/opendata/datasets";
 import { loadThemeExplorer } from "@/lib/opendata/load";
 import { requireSession } from "@/lib/session";
 
-export default async function EventsPage() {
+export default async function EventsPage({
+  params,
+}: Readonly<{ params: Promise<{ locale: string }> }>) {
+  const locale = await bindLocale(params);
   const session = await requireSession();
-  const t = await getTranslations("Pages.events");
-  const format = await getFormatter();
+  const t = await getTranslations({ locale, namespace: "Pages.events" });
+  const format = await getFormatter({ locale });
   const loaded = await loadThemeExplorer(DATASETS.events, session.user.id);
 
   return (
     <div className="space-y-6">
-      <PageIntro title={t("title")} dataset={DATASETS.events}>
+      <PageIntro title={t("title")} dataset={DATASETS.events} locale={locale}>
         {t("body")}
       </PageIntro>
       <InfiniteThemeExplorer
-        dataset={await localizeExplorerDataset(DATASETS.events)}
+        dataset={await localizeExplorerDataset(DATASETS.events, locale)}
         initial={loaded.table}
         mapRecords={loaded.markers.results}
         favoriteIds={loaded.favoriteIds}

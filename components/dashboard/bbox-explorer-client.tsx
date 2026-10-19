@@ -5,15 +5,20 @@ import { keepPreviousData, useInfiniteQuery, useQuery } from "@tanstack/react-qu
 import { useTranslations } from "next-intl";
 import { ThemeExplorerClient } from "@/components/dashboard/theme-explorer-client";
 import {
+  bboxWhere,
+  joinWhere,
   opendataQueryErrorKind,
+  type DatasetConfig,
   type ExplorerDataset,
-  type FetchResult,
   type OpenDataPage,
   type OpenDataRecord,
 } from "@/lib/opendata/client";
-import { PARIS_BBOX } from "@/lib/opendata/datasets";
+import { fetchRecordsBrowser } from "@/lib/opendata/browser-fetch";
+import { DATASETS, PARIS_BBOX } from "@/lib/opendata/datasets";
 import type { MapMarker } from "@/lib/opendata/markers";
 import { BBOX_PAGE_SIZE } from "@/lib/opendata/bbox-constants";
+import { themeOrderBy } from "@/lib/opendata/order-by";
+import { markerSelect } from "@/lib/opendata/theme-api";
 
 export type Bbox = { south: number; west: number; north: number; east: number };
 
@@ -44,34 +49,38 @@ function bboxTableEndLabel(
   return null;
 }
 
+function datasetConfig(datasetId: string): DatasetConfig | undefined {
+  return Object.values(DATASETS).find((dataset) => dataset.id === datasetId) as
+    | DatasetConfig
+    | undefined;
+}
+
 export async function fetchBboxRecords(
   datasetId: string,
   bbox: Bbox,
   options?: { limit?: number; offset?: number; signal?: AbortSignal },
 ): Promise<BboxRecordsPage> {
-  const params = new URLSearchParams({
-    dataset: datasetId,
-    south: String(bbox.south),
-    west: String(bbox.west),
-    north: String(bbox.north),
-    east: String(bbox.east),
-    limit: String(options?.limit ?? BBOX_PAGE_SIZE),
-    offset: String(options?.offset ?? 0),
+  const config = datasetConfig(datasetId);
+  if (!config?.geoField) throw new Error("opendata");
+  const offset = options?.offset ?? 0;
+  const limit = options?.limit ?? BBOX_PAGE_SIZE;
+  const where = joinWhere(config.defaultWhere, bboxWhere(config.geoField, bbox));
+  const data = await fetchRecordsBrowser(datasetId, {
+    limit,
+    offset,
+    where,
+    orderBy: themeOrderBy(config),
+    host: config.host,
+    signal: options?.signal,
   });
-  const res = await fetch(`/api/opendata/records?${params}`, { signal: options?.signal });
-  const data = (await res.json()) as FetchResult & {
-    nextOffset?: number;
-    hasMore?: boolean;
-  };
-  if (!res.ok || !data.ok || !Array.isArray(data.page?.results)) {
-    throw new Error(
-      res.status === 429 || data.error === "rate_limited" ? "rate_limited" : "opendata",
-    );
+  if (!data.ok || !Array.isArray(data.page?.results)) {
+    throw new Error(data.error === "rate_limited" ? "rate_limited" : "opendata");
   }
+  const nextOffset = offset + data.page.results.length;
   return {
     page: data.page,
-    nextOffset: data.nextOffset ?? (options?.offset ?? 0) + data.page.results.length,
-    hasMore: Boolean(data.hasMore),
+    nextOffset,
+    hasMore: nextOffset < data.page.total_count,
   };
 }
 
@@ -80,20 +89,18 @@ export async function fetchBboxMarkers(
   bbox: Bbox,
   signal?: AbortSignal,
 ): Promise<OpenDataPage> {
-  const params = new URLSearchParams({
-    dataset: datasetId,
-    south: String(bbox.south),
-    west: String(bbox.west),
-    north: String(bbox.north),
-    east: String(bbox.east),
-    mode: "markers",
+  const config = datasetConfig(datasetId);
+  if (!config?.geoField) throw new Error("opendata");
+  const where = joinWhere(config.defaultWhere, bboxWhere(config.geoField, bbox));
+  const data = await fetchRecordsBrowser(datasetId, {
+    limit: 100,
+    where,
+    select: markerSelect(config),
+    host: config.host,
+    signal,
   });
-  const res = await fetch(`/api/opendata/records?${params}`, { signal });
-  const data = (await res.json()) as FetchResult;
-  if (!res.ok || !data.ok || !Array.isArray(data.page?.results)) {
-    throw new Error(
-      res.status === 429 || data.error === "rate_limited" ? "rate_limited" : "opendata",
-    );
+  if (!data.ok || !Array.isArray(data.page?.results)) {
+    throw new Error(data.error === "rate_limited" ? "rate_limited" : "opendata");
   }
   return data.page;
 }

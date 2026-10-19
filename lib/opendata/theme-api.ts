@@ -1,4 +1,3 @@
-import { getProfile } from "@/lib/db/queries";
 import { arrondissementWhere, parsePreferredDistrict } from "@/lib/opendata/arrondissement";
 import {
   fetchAllRecords,
@@ -38,16 +37,15 @@ export type ThemeLoadOptions = {
 
 async function resolveDistrictWhere(
   config: DatasetConfig,
-  userId: string,
+  _userId: string,
   options?: ThemeLoadOptions,
 ): Promise<{ ok: true; where?: string } | { ok: false; error: "bad_district" }> {
   if (options?.whereOverride !== undefined) {
     return { ok: true, where: options.whereOverride };
   }
   let districtCode: string | null | undefined = options?.district;
-  if (districtCode === undefined && !options?.ignoreProfile) {
-    const profile = await getProfile(userId);
-    districtCode = profile.arrondissement;
+  if (districtCode === undefined) {
+    districtCode = null;
   }
   if (districtCode != null && districtCode !== "") {
     const parsed = parsePreferredDistrict(districtCode);

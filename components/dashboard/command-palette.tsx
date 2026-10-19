@@ -14,16 +14,12 @@ import { useTranslations } from "next-intl";
 import { Search } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { SearchHit } from "@/lib/opendata/global-search";
+import { searchOpenDataBrowser } from "@/lib/opendata/global-search-browser";
 import { datasetKeyById } from "@/lib/opendata/datasets";
 import { Input } from "@/components/ui/input";
 
 async function fetchSearch(q: string, signal?: AbortSignal): Promise<SearchHit[]> {
-  const res = await fetch(`/api/opendata/search?q=${encodeURIComponent(q)}`, { signal });
-  const data = (await res.json()) as { ok: boolean; results?: SearchHit[]; error?: string };
-  if (!res.ok || !data.ok || !Array.isArray(data.results)) {
-    throw new Error(res.status === 429 ? "rate_limited" : "opendata");
-  }
-  return data.results;
+  return searchOpenDataBrowser(q, signal);
 }
 
 function subscribeNoop() {

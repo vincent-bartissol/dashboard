@@ -1,3 +1,4 @@
+import { bindLocale } from "@/lib/demo/locale-page";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { BboxExplorer } from "@/components/dashboard/bbox-explorer";
 import { DatasetNotice } from "@/components/dashboard/dataset-notice";
@@ -10,14 +11,13 @@ import { loadBboxExplorer } from "@/lib/opendata/load";
 import { requireSession } from "@/lib/session";
 
 export default async function TrafficPage({
-  searchParams,
-}: Readonly<{
-  searchParams: Promise<{ tab?: string }>;
-}>) {
+  params,
+}: Readonly<{ params: Promise<{ locale: string }> }>) {
+  const locale = await bindLocale(params);
   const session = await requireSession();
-  const t = await getTranslations("Pages.traffic");
-  const format = await getFormatter();
-  const { tab } = await searchParams;
+  const t = await getTranslations({ locale, namespace: "Pages.traffic" });
+  const format = await getFormatter({ locale });
+  const tab = undefined;
   const active = tab === "street" ? "street" : "works";
   const dataset = DATASETS[active];
   const [loaded, worksCount, streetCount] = await Promise.all([
@@ -28,7 +28,7 @@ export default async function TrafficPage({
 
   return (
     <div className="space-y-6">
-      <PageIntro title={t("title")} dataset={[DATASETS.works, DATASETS.street]}>
+      <PageIntro title={t("title")} dataset={[DATASETS.works, DATASETS.street]} locale={locale}>
         {t("body")}
       </PageIntro>
       <DatasetNotice error={loaded.error || worksCount.error || streetCount.error} />

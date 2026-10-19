@@ -1,3 +1,4 @@
+import { bindLocale } from "@/lib/demo/locale-page";
 import { DynamicBikeCountChart } from "@/components/dashboard/dynamic-bike-count-chart";
 import { DatasetNotice } from "@/components/dashboard/dataset-notice";
 import { DatasetTabs } from "@/components/dashboard/dataset-tabs";
@@ -35,17 +36,16 @@ function MontreuilBikeSourceLink({
 }
 
 export default async function MontreuilPage({
-  searchParams,
-}: Readonly<{
-  searchParams: Promise<{ tab?: string }>;
-}>) {
+  params,
+}: Readonly<{ params: Promise<{ locale: string }> }>) {
+  const locale = await bindLocale(params);
   const session = await requireSession();
-  const t = await getTranslations("Pages.montreuil");
-  const datasets = await getTranslations("Datasets");
-  const common = await getTranslations("Common");
-  const landmarks = await getTranslations("Landmarks");
-  const format = await getFormatter();
-  const { tab } = await searchParams;
+  const t = await getTranslations({ locale, namespace: "Pages.montreuil" });
+  const datasets = await getTranslations({ locale, namespace: "Datasets" });
+  const common = await getTranslations({ locale, namespace: "Common" });
+  const landmarks = await getTranslations({ locale, namespace: "Landmarks" });
+  const format = await getFormatter({ locale });
+  const tab = undefined;
   const active =
     tab === "trees" || tab === "gardens" || tab === "water" || tab === "bikes" ? tab : "velib";
   const since = isoDateDaysAgo(7);
@@ -90,6 +90,7 @@ export default async function MontreuilPage({
     <div className="space-y-6">
       <PageIntro
         title={t("title")}
+        locale={locale}
         dataset={[
           DATASETS.velib,
           DATASETS.montreuilTrees,
@@ -133,7 +134,7 @@ export default async function MontreuilPage({
         ]}
       />
 
-      {await montreuilActivePanel(active, tabData, mapProps, { t, datasets, common })}
+      {await montreuilActivePanel(active, tabData, mapProps, { t, datasets, common, locale })}
     </div>
   );
 }
@@ -150,6 +151,7 @@ type MontreuilCopy = {
   t: Awaited<ReturnType<typeof getTranslations<"Pages.montreuil">>>;
   datasets: Awaited<ReturnType<typeof getTranslations<"Datasets">>>;
   common: Awaited<ReturnType<typeof getTranslations<"Common">>>;
+  locale: "fr" | "en" | "es";
 };
 
 async function montreuilExplorerPanel(
@@ -160,16 +162,18 @@ async function montreuilExplorerPanel(
     district?: string;
     colorScheme?: "velib" | "status";
     descriptionKeys?: string[];
+    locale?: "fr" | "en" | "es";
   }>,
 ) {
+  const { locale = "fr", ...rest } = extras ?? {};
   return (
     <InfiniteThemeExplorer
-      dataset={await localizeExplorerDataset(dataset)}
+      dataset={await localizeExplorerDataset(dataset, locale)}
       initial={loaded.table}
       mapRecords={loaded.markers.results}
       favoriteIds={loaded.favoriteIds}
       initialError={loaded.ok ? null : loaded.error}
-      {...extras}
+      {...rest}
       {...mapProps}
     />
   );
@@ -192,20 +196,23 @@ function montreuilBikeSourceChunk(
 async function montreuilWaterPanel(
   tabData: MontreuilTabData,
   mapProps: MontreuilMapProps,
-  datasets: MontreuilCopy["datasets"],
+  copy: MontreuilCopy,
 ) {
   if (!tabData.fountains || !tabData.mist) return null;
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        <SectionTitle>{datasets("montreuilFountains.title")}</SectionTitle>
+        <SectionTitle>{copy.datasets("montreuilFountains.title")}</SectionTitle>
         {await montreuilExplorerPanel(DATASETS.montreuilFountains, tabData.fountains, mapProps, {
           colorScheme: "status",
+          locale: copy.locale,
         })}
       </div>
       <div className="space-y-4">
-        <SectionTitle>{datasets("montreuilMist.title")}</SectionTitle>
-        {await montreuilExplorerPanel(DATASETS.montreuilMist, tabData.mist, mapProps)}
+        <SectionTitle>{copy.datasets("montreuilMist.title")}</SectionTitle>
+        {await montreuilExplorerPanel(DATASETS.montreuilMist, tabData.mist, mapProps, {
+          locale: copy.locale,
+        })}
       </div>
     </div>
   );
@@ -237,16 +244,21 @@ async function montreuilActivePanel(
       district: "montreuil",
       colorScheme: "velib",
       descriptionKeys: ["numbikesavailable", "numdocksavailable"],
+      locale: copy.locale,
     });
   }
   if (active === "trees" && tabData.trees) {
-    return montreuilExplorerPanel(DATASETS.montreuilTrees, tabData.trees, mapProps);
+    return montreuilExplorerPanel(DATASETS.montreuilTrees, tabData.trees, mapProps, {
+      locale: copy.locale,
+    });
   }
   if (active === "gardens" && tabData.gardens) {
-    return montreuilExplorerPanel(DATASETS.montreuilGardens, tabData.gardens, mapProps);
+    return montreuilExplorerPanel(DATASETS.montreuilGardens, tabData.gardens, mapProps, {
+      locale: copy.locale,
+    });
   }
   if (active === "water") {
-    return montreuilWaterPanel(tabData, mapProps, copy.datasets);
+    return montreuilWaterPanel(tabData, mapProps, copy);
   }
   if (active === "bikes") {
     return montreuilBikesPanel(tabData, copy);

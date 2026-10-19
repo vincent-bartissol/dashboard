@@ -1,3 +1,4 @@
+import { bindLocale } from "@/lib/demo/locale-page";
 import { getTranslations } from "next-intl/server";
 import { DynamicAirCharts } from "@/components/dashboard/dynamic-air-charts";
 import { DatasetNotice } from "@/components/dashboard/dataset-notice";
@@ -10,9 +11,12 @@ import { DATASETS } from "@/lib/opendata/datasets";
 import { loadThemeExplorer } from "@/lib/opendata/load";
 import { requireSession } from "@/lib/session";
 
-export default async function AirPage() {
+export default async function AirPage({
+  params,
+}: Readonly<{ params: Promise<{ locale: string }> }>) {
+  const locale = await bindLocale(params);
   const session = await requireSession();
-  const t = await getTranslations("Pages.air");
+  const t = await getTranslations({ locale, namespace: "Pages.air" });
   const [loaded, charts] = await Promise.all([
     loadThemeExplorer(DATASETS.air, session.user.id),
     fetchAllRecords(DATASETS.air.id, DATASETS.air.revalidate, { max: 200 }),
@@ -25,7 +29,7 @@ export default async function AirPage() {
 
   return (
     <div className="space-y-6">
-      <PageIntro title={t("title")} dataset={DATASETS.air}>
+      <PageIntro title={t("title")} dataset={DATASETS.air} locale={locale}>
         {t("body")}
       </PageIntro>
       <DatasetNotice error={loaded.error || charts.error} />
@@ -39,7 +43,7 @@ export default async function AirPage() {
       />
       <DynamicAirCharts records={chartRecords} />
       <InfiniteThemeExplorer
-        dataset={await localizeExplorerDataset(DATASETS.air)}
+        dataset={await localizeExplorerDataset(DATASETS.air, locale)}
         initial={loaded.table}
         mapRecords={loaded.markers.results}
         favoriteIds={loaded.favoriteIds}

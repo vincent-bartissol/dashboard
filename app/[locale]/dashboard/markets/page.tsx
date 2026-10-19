@@ -1,3 +1,4 @@
+import { bindLocale } from "@/lib/demo/locale-page";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { DatasetNotice } from "@/components/dashboard/dataset-notice";
 import { InfiniteThemeExplorer } from "@/components/dashboard/infinite-theme-explorer";
@@ -9,10 +10,13 @@ import { DATASETS } from "@/lib/opendata/datasets";
 import { loadThemeExplorer } from "@/lib/opendata/load";
 import { requireSession } from "@/lib/session";
 
-export default async function MarketsPage() {
+export default async function MarketsPage({
+  params,
+}: Readonly<{ params: Promise<{ locale: string }> }>) {
+  const locale = await bindLocale(params);
   const session = await requireSession();
-  const t = await getTranslations("Pages.markets");
-  const format = await getFormatter();
+  const t = await getTranslations({ locale, namespace: "Pages.markets" });
+  const format = await getFormatter({ locale });
   const loaded = await loadThemeExplorer(DATASETS.markets, session.user.id);
   const foodCount = await fetchCount(
     DATASETS.markets.id,
@@ -22,7 +26,7 @@ export default async function MarketsPage() {
 
   return (
     <div className="space-y-6">
-      <PageIntro title={t("title")} dataset={DATASETS.markets}>
+      <PageIntro title={t("title")} dataset={DATASETS.markets} locale={locale}>
         {t("body")}
       </PageIntro>
       <DatasetNotice error={loaded.error || foodCount.error} />
@@ -36,7 +40,7 @@ export default async function MarketsPage() {
         ]}
       />
       <InfiniteThemeExplorer
-        dataset={await localizeExplorerDataset(DATASETS.markets)}
+        dataset={await localizeExplorerDataset(DATASETS.markets, locale)}
         initial={loaded.table}
         mapRecords={loaded.markers.results}
         favoriteIds={loaded.favoriteIds}

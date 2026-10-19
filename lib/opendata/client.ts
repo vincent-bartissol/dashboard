@@ -142,8 +142,10 @@ export async function fetchRecords<T = OpenDataRecord>(
 ): Promise<OpenDataPage<T>> {
   const { signal, ...query } = params;
   const url = buildRecordsUrl(datasetId, query);
+  void revalidate;
+  // Static export: `next.revalidate` / tags mark the route dynamic (headers()).
   const res = await fetch(url, {
-    next: { revalidate, tags: [`opendata:${datasetId}`] },
+    cache: "force-cache",
     signal: withTimeout(signal),
   });
   if (!res.ok) {

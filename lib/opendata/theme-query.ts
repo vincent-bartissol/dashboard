@@ -1,5 +1,15 @@
-import type { FetchResult, OpenDataPage } from "@/lib/opendata/client";
+import { arrondissementWhere } from "@/lib/opendata/arrondissement";
+import { fetchRecordsBrowser } from "@/lib/opendata/browser-fetch";
+import {
+  joinWhere,
+  type DatasetConfig,
+  type FetchResult,
+  type OpenDataPage,
+} from "@/lib/opendata/client";
+import { DATASETS } from "@/lib/opendata/datasets";
+import { themeOrderBy } from "@/lib/opendata/order-by";
 import { THEME_PAGE_SIZE } from "@/lib/opendata/theme-constants";
+import { markerSelect, resolveThemeDataset } from "@/lib/opendata/theme-api";
 
 export const themeQueryKey = (datasetId: string, district?: string | null) =>
   ["opendata-theme", datasetId, district ?? "profile"] as const;
@@ -16,6 +26,21 @@ export type ThemeTablePage = {
   hasMore: boolean;
 };
 
+function resolveConfig(datasetId: string): DatasetConfig | undefined {
+  return (
+    resolveThemeDataset(datasetId) ??
+    (Object.values(DATASETS).find((d) => d.id === datasetId) as DatasetConfig | undefined)
+  );
+}
+
+function districtWhere(datasetId: string, district?: string | null) {
+  const config = resolveConfig(datasetId);
+  if (!config) return undefined;
+  const districtFilter =
+    district != null && district !== "" ? arrondissementWhere(config, district) : undefined;
+  return joinWhere(districtFilter, config.defaultWhere);
+}
+
 export async function fetchThemeTablePage(
   datasetId: string,
   options?: {
@@ -25,28 +50,26 @@ export async function fetchThemeTablePage(
     signal?: AbortSignal;
   },
 ): Promise<ThemeTablePage> {
-  const params = new URLSearchParams({
-    dataset: datasetId,
-    offset: String(options?.offset ?? 0),
-    limit: String(options?.limit ?? THEME_PAGE_SIZE),
+  const config = resolveConfig(datasetId);
+  if (!config) throw new Error("opendata");
+  const offset = options?.offset ?? 0;
+  const limit = options?.limit ?? THEME_PAGE_SIZE;
+  const result = await fetchRecordsBrowser(datasetId, {
+    limit,
+    offset,
+    where: districtWhere(datasetId, options?.district),
+    orderBy: themeOrderBy(config),
+    host: config.host,
+    signal: options?.signal,
   });
-  if (options?.district != null && options.district !== "") {
-    params.set("district", options.district);
+  if (!result.ok || !result.page || !Array.isArray(result.page.results)) {
+    throw new Error(result.error === "rate_limited" ? "rate_limited" : "opendata");
   }
-  const res = await fetch(`/api/opendata/theme?${params}`, { signal: options?.signal });
-  const data = (await res.json()) as FetchResult & {
-    nextOffset?: number;
-    hasMore?: boolean;
-  };
-  if (!res.ok || !data.ok || !data.page || !Array.isArray(data.page.results)) {
-    throw new Error(
-      res.status === 429 || data.error === "rate_limited" ? "rate_limited" : "opendata",
-    );
-  }
+  const nextOffset = offset + result.page.results.length;
   return {
-    page: data.page,
-    nextOffset: data.nextOffset ?? (options?.offset ?? 0) + data.page.results.length,
-    hasMore: Boolean(data.hasMore),
+    page: result.page,
+    nextOffset,
+    hasMore: nextOffset < result.page.total_count,
   };
 }
 
@@ -55,25 +78,26 @@ export async function fetchThemePage(
   datasetId: string,
   options?: { district?: string | null; signal?: AbortSignal; mode?: "markers" },
 ): Promise<OpenDataPage> {
-  const params = new URLSearchParams({ dataset: datasetId });
-  if (options?.district != null && options.district !== "") {
-    params.set("district", options.district);
-  }
+  const config = resolveConfig(datasetId);
+  if (!config) throw new Error("opendata");
   if (options?.mode === "markers") {
-    params.set("mode", "markers");
-  } else {
-    // Compare / prefetch: one page is enough for total_count; markers for full geo
-    params.set("limit", String(THEME_PAGE_SIZE));
-    params.set("offset", "0");
+    const result = await fetchRecordsBrowser(datasetId, {
+      limit: 100,
+      where: districtWhere(datasetId, options?.district),
+      select: markerSelect(config),
+      host: config.host,
+      signal: options?.signal,
+    });
+    if (!result.ok || !Array.isArray(result.page?.results)) {
+      throw new Error(result.error === "rate_limited" ? "rate_limited" : "opendata");
+    }
+    return result.page;
   }
-  const res = await fetch(`/api/opendata/theme?${params}`, { signal: options?.signal });
-  const data = (await res.json()) as FetchResult;
-  if (!res.ok || !data.ok || !Array.isArray(data.page?.results)) {
-    throw new Error(
-      res.status === 429 || data.error === "rate_limited" ? "rate_limited" : "opendata",
-    );
-  }
-  return data.page;
+  const page = await fetchThemeTablePage(datasetId, {
+    district: options?.district,
+    signal: options?.signal,
+  });
+  return page.page;
 }
 
 export async function fetchThemeMarkers(
@@ -82,3 +106,5 @@ export async function fetchThemeMarkers(
 ): Promise<OpenDataPage> {
   return fetchThemePage(datasetId, { ...options, mode: "markers" });
 }
+
+export type { FetchResult };

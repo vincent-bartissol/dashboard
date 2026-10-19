@@ -75,14 +75,14 @@ describe("fetchBboxRecords", () => {
     vi.unstubAllGlobals();
   });
 
-  it("returns the page when the session API succeeds", async () => {
+  it("returns the page when Open Data succeeds", async () => {
     const page = { total_count: 2, results: [{ idbase: "a" }, { idbase: "b" }] };
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
         ok: true,
         status: 200,
-        json: async () => ({ ok: true, page, nextOffset: 2, hasMore: false }),
+        json: async () => page,
       }),
     );
     await expect(
@@ -93,6 +93,10 @@ describe("fetchBboxRecords", () => {
         east: 2.45,
       }),
     ).resolves.toEqual({ page, nextOffset: 2, hasMore: false });
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining("opendata.paris.fr"),
+      expect.anything(),
+    );
   });
 
   it("throws rate_limited on 429", async () => {
@@ -101,7 +105,7 @@ describe("fetchBboxRecords", () => {
       vi.fn().mockResolvedValue({
         ok: false,
         status: 429,
-        json: async () => ({ ok: false, error: "rate_limited" }),
+        json: async () => ({}),
       }),
     );
     await expect(
@@ -120,14 +124,14 @@ describe("fetchBboxMarkers", () => {
     vi.unstubAllGlobals();
   });
 
-  it("requests mode=markers", async () => {
+  it("requests a select projection from Open Data", async () => {
     const page = { total_count: 3, results: [{ idbase: "1" }] };
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
         ok: true,
         status: 200,
-        json: async () => ({ ok: true, page }),
+        json: async () => page,
       }),
     );
     await expect(
@@ -139,7 +143,7 @@ describe("fetchBboxMarkers", () => {
       }),
     ).resolves.toEqual(page);
     expect(fetch).toHaveBeenCalledWith(
-      expect.stringContaining("mode=markers"),
+      expect.stringMatching(/opendata\.paris\.fr.*select=/),
       expect.anything(),
     );
   });
@@ -160,25 +164,13 @@ describe("BboxExplorerClient", () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockImplementation((url: string) => {
-        const markers = String(url).includes("mode=markers");
-        return Promise.resolve({
+      vi.fn().mockImplementation(() =>
+        Promise.resolve({
           ok: true,
           status: 200,
-          json: async () =>
-            markers
-              ? {
-                  ok: true,
-                  page: { total_count: 42, results: [{ idbase: "9" }] },
-                }
-              : {
-                  ok: true,
-                  page: { total_count: 42, results: [{ idbase: "9" }] },
-                  nextOffset: 1,
-                  hasMore: false,
-                },
-        });
-      }),
+          json: async () => ({ total_count: 42, results: [{ idbase: "9" }] }),
+        }),
+      ),
     );
 
     renderExplorer();
@@ -193,7 +185,7 @@ describe("BboxExplorerClient", () => {
       expect(screen.getByTestId("total-count")).toHaveTextContent("42");
     });
     const urls = vi.mocked(fetch).mock.calls.map((call) => String(call[0]));
-    expect(urls.some((url) => url.includes("mode=markers"))).toBe(true);
+    expect(urls.some((url) => url.includes("opendata.paris.fr"))).toBe(true);
   });
 
   it("shows the rate-limit message when the API returns 429", async () => {
@@ -203,7 +195,7 @@ describe("BboxExplorerClient", () => {
       vi.fn().mockResolvedValue({
         ok: false,
         status: 429,
-        json: async () => ({ ok: false, error: "rate_limited" }),
+        json: async () => ({}),
       }),
     );
 

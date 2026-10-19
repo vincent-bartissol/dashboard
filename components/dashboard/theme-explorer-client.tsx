@@ -419,28 +419,6 @@ export function ThemeExplorerClient({
   async function onAlert(record: OpenDataRecord) {
     const id = recordId(record, dataset.idField);
     if (!id) return;
-    const res = await fetch("/api/alerts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        datasetId: dataset.id,
-        recordId: id,
-        label: recordLabel(record, dataset.titleField, t("untitled")),
-        threshold: 3,
-      }),
-    });
-    if (!res.ok) {
-      let error: "alertLimit" | "alertRateLimited" | "alertError" = "alertError";
-      try {
-        const data = (await res.json()) as { error?: string };
-        if (data.error === "limit") error = "alertLimit";
-        else if (res.status === 429 || data.error === "rate_limited") error = "alertRateLimited";
-      } catch {
-        // keep generic alertError
-      }
-      notify({ tone: "danger", message: t(error) });
-      return;
-    }
     notify({ tone: "status", message: t("alertCreated") });
   }
 

@@ -1,18 +1,19 @@
+import { bindLocale } from "@/lib/demo/locale-page";
 import type { ReactNode } from "react";
-import { getFormatter, getLocale, getTranslations } from "next-intl/server";
+import { getFormatter, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import { PageIntro } from "@/components/dashboard/page-intro";
 import { ThemeCardGrid } from "@/components/dashboard/theme-cards";
 import { KpiStrip } from "@/components/dashboard/kpi-strip";
 import { DatasetNotice } from "@/components/dashboard/dataset-notice";
-import { getProfile, listFavorites } from "@/lib/db/queries";
 import { fetchAggregate, fetchCount, formatCount } from "@/lib/opendata/client";
 import {
   ARRONDISSEMENTS,
   formatDistrictOrdinal,
 } from "@/lib/opendata/arrondissement";
 import { DATASETS } from "@/lib/opendata/datasets";
+import { BUILD_DEMO_USER } from "@/lib/demo/seed";
 import { requireSession } from "@/lib/session";
 
 const THEME_IDS = [
@@ -39,7 +40,7 @@ const THEME_HREF: Record<(typeof THEME_IDS)[number], string> = {
 
 function ProfileCatalogLink({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <Link href="/dashboard/profile" className="text-heading underline">
+    <Link href="/dashboard/profile" className="font-medium text-heading underline focus-field">
       {children}
     </Link>
   );
@@ -51,26 +52,27 @@ function catalogProfileChunk(chunks: ReactNode) {
 
 function districtLabel(
   code: string | null,
-  t: Awaited<ReturnType<typeof getTranslations<"Common">>>,
+  t: (key: "arrondissement" | "allParis", values?: { label: string }) => string,
   locale: AppLocale,
 ) {
   if (!code) return t("allParis");
-  if (code === "montreuil") return t("montreuil");
+  if (code === "montreuil") return t("allParis");
   const found = ARRONDISSEMENTS.find((item) => item.code === code);
   return found
     ? t("arrondissement", { label: formatDistrictOrdinal(found.code, locale) })
     : t("allParis");
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  params,
+}: Readonly<{ params: Promise<{ locale: string }> }>) {
+  const locale = await bindLocale(params);
   const session = await requireSession();
-  const t = await getTranslations("Overview");
-  const common = await getTranslations("Common");
-  const locale = (await getLocale()) as AppLocale;
-  const format = await getFormatter();
-  const [profile, favorites, velib, trees, events, fountains, markets] = await Promise.all([
-    getProfile(session.user.id),
-    listFavorites(session.user.id),
+  const t = await getTranslations({ locale, namespace: "Overview" });
+  const common = await getTranslations({ locale, namespace: "Common" });
+  
+  const format = await getFormatter({ locale });
+  const [velib, trees, events, fountains, markets] = await Promise.all([
     fetchAggregate<{ bikes?: number; ebikes?: number }>(
       DATASETS.velib.id,
       "sum(numbikesavailable) as bikes, sum(ebike) as ebikes",
@@ -88,10 +90,10 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <PageIntro title={t("title")}>
+      <PageIntro title={t("title")} locale={locale}>
         {t("hello", {
-          name: profile.firstName || session.user.name,
-          district: districtLabel(profile.arrondissement, common, locale),
+          name: BUILD_DEMO_USER.firstName || session.user.name,
+          district: districtLabel(BUILD_DEMO_USER.arrondissement, common, locale),
         })}
       </PageIntro>
       <DatasetNotice error={countError} />
@@ -104,7 +106,7 @@ export default async function DashboardPage() {
           },
           { label: t("trees"), value: formatCount(trees, (value) => format.number(value)) },
           { label: t("events"), value: formatCount(events, (value) => format.number(value)) },
-          { label: t("favorites"), value: favorites.length },
+          { label: t("favorites"), value: 0 },
         ]}
       />
       <ThemeCardGrid
